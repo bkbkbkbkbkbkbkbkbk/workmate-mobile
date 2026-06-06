@@ -15777,10 +15777,7 @@ function _showUpdatePopup(newWorker){
     '</div>';
   document.body.appendChild(pop);
   document.getElementById('sw-update-ok').onclick=function(){
-    if(newWorker)newWorker.postMessage({type:'SKIP_WAITING'});
-    navigator.serviceWorker.addEventListener('controllerchange',function(){
-      location.reload();
-    });
+    location.reload();
   };
 }
 
