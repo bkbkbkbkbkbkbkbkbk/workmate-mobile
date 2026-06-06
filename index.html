@@ -15956,20 +15956,9 @@ function mobileExitFocusMode(){
   document.body.classList.remove('mobile-focus-mode');
 }
 
-// Page Visibility API: 홈 버튼 감지
+// Page Visibility API: 백그라운드 복귀 시 저장만
 document.addEventListener('visibilitychange', function(){
-  if(document.hidden){
-    // 앱이 백그라운드로 → 시간 기록
-    _mobileHiddenAt = Date.now();
-  } else {
-    // 앱으로 돌아옴
-    var hiddenDuration = Date.now() - _mobileHiddenAt;
-    if(_mobileHiddenAt > 0 && hiddenDuration >= _MOBILE_FOCUS_DELAY_MS){
-      // 3초 이상 홈 화면에 있었으면 포커스 모드 진입
-      mobileEnterFocusMode();
-    }
-    _mobileHiddenAt = 0;
-  }
+  if(!document.hidden) saveGame();
 });
 </script>
 </body>
