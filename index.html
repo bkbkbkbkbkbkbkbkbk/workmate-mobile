@@ -194,6 +194,9 @@ body.focus-mode.focus-locked #room-eye-btn::after{content:'🔒';position:absolu
 #tool-tabs{display:contents}
 .ttab-arrow{width:24px;height:100%;flex-shrink:0;background:var(--bg);border:none;cursor:pointer;color:var(--text3);font-size:14px;display:flex;align-items:center;justify-content:center;padding:0;transition:.15s}
 .ttab-arrow:hover{color:var(--accent)}
+/* 범용 가로스크롤 화살표 (룰렛·가계부 카테고리 공용) */
+.chip-arrow{width:26px;height:30px;flex-shrink:0;border:1.5px solid var(--border2);border-radius:8px;background:var(--surface);cursor:pointer;color:var(--text2);font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0;transition:.15s}
+.chip-arrow:hover{color:var(--accent);border-color:var(--accent)}
 .ttab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface);cursor:pointer;font-size:9px;font-weight:800;color:var(--text2);transition:.2s}
 .ttab:hover{border-color:var(--accent);color:var(--accent)}
 .ttab.active{background:rgba(108,99,255,.1);border-color:rgba(108,99,255,.5);color:var(--accent)}
@@ -14294,9 +14297,13 @@ function openLedgerSearch(){
       return'<button onclick="S.ledgerTypeFilter=\''+tf[0]+'\';ldgSyncSearchUI()" data-type="'+tf[0]+'" style="flex:1;padding:8px 0;border-radius:10px;border:1.5px solid '+(active?'var(--accent)':'var(--border2)')+';background:'+(active?'var(--accent-a10)':'var(--surface)')+';color:'+(active?'var(--accent)':'var(--text2)')+';font-size:12px;font-weight:800;cursor:pointer">'+tf[1]+'</button>';
     }).join('')
     +'</div>'
-    // 카테고리 필터
+    // 카테고리 필터 (가로 스크롤 + 화살표)
     +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">카테고리</div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px" id="ldg-cat-chips">'+catChips+'</div>'
+    +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:20px">'
+    +'<button class="chip-arrow" onclick="document.getElementById(\'ldg-cat-scroll\').scrollBy({left:-80,behavior:\'smooth\'})">‹</button>'
+    +'<div id="ldg-cat-scroll" style="display:flex;gap:6px;overflow-x:auto;flex:1;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0"><div style="display:flex;gap:6px;flex-wrap:nowrap" id="ldg-cat-chips">'+catChips+'</div></div>'
+    +'<button class="chip-arrow" onclick="document.getElementById(\'ldg-cat-scroll\').scrollBy({left:80,behavior:\'smooth\'})">›</button>'
+    +'</div>'
     // 버튼
     +'<div style="display:flex;gap:8px">'
     +'<button onclick="S.ledgerSearch=\'\';S.ledgerCatFilter=\'all\';S.ledgerTypeFilter=\'all\';document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" style="flex:0.5;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:800;cursor:pointer">초기화</button>'
@@ -15133,7 +15140,7 @@ function openMenuRoulette(){
     +'</div>'
     // 카테고리 필터 (가로 스크롤 + 화살표)
     +'<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px">'
-    +'<button onclick="document.getElementById(\'roulette-cat-scroll\').scrollBy({left:-80,behavior:\'smooth\'})" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 2px">‹</button>'
+    +'<button class="chip-arrow" onclick="document.getElementById(\'roulette-cat-scroll\').scrollBy({left:-80,behavior:\'smooth\'})">‹</button>'
     +'<div id="roulette-cat-scroll" style="display:flex;gap:5px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;padding:2px 0">'
     +'<style>#roulette-cat-scroll::-webkit-scrollbar{display:none}</style>'
     +'<div style="display:flex;gap:5px;flex-wrap:nowrap" id="roulette-cat-btns">'
@@ -15144,7 +15151,7 @@ function openMenuRoulette(){
     }).join('')
     +'</div>'   // roulette-cat-btns
     +'</div>'   // roulette-cat-scroll
-    +'<button onclick="document.getElementById(\'roulette-cat-scroll\').scrollBy({left:80,behavior:\'smooth\'})" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 2px">›</button>'
+    +'<button class="chip-arrow" onclick="document.getElementById(\'roulette-cat-scroll\').scrollBy({left:80,behavior:\'smooth\'})">›</button>'
     +'</div>'   // 화살표 래퍼
     +'<div class="slot-window"><div class="slot-reel" id="slot-reel"></div></div>'
     +'<div id="slot-result" style="text-align:center;min-height:28px;margin-bottom:12px"></div>'
