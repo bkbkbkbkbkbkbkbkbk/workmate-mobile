@@ -829,7 +829,6 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
     <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
       <button class="btn btn-ghost btn-sm" style="width:100%" onclick="replayTutorial()" data-i18n="btn_tutorial">튜토리얼 다시보기</button>
       <button class="btn btn-danger btn-sm" style="width:100%" onclick="resetAllData()" data-i18n="btn_reset">모든 데이터 초기화</button>
-      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="quitGame()" data-i18n="btn_quit">게임 종료</button>
     </div>
   </div>
 </div>
@@ -5133,19 +5132,28 @@ function quitGame(){
   openConfirm(t('confirm_quit'),function(){
     if(window.electronAPI){window.electronAPI.confirmQuit();return;}
     saveGame();
-    // PWA/모바일: window.close()는 보안 정책상 작동 안 함
-    // 저장 후 홈 화면으로 안내
-    var pop=document.createElement('div');
-    pop.className='modal-bg open';
-    pop.innerHTML='<div class="modal-box" style="max-width:260px;padding:24px 18px;text-align:center;border-radius:18px">'+
-      '<div style="font-size:28px;margin-bottom:10px">💾</div>'+
-      '<div style="font-size:13px;font-weight:900;margin-bottom:8px">'+t('game_saved')+'</div>'+
-      '<div style="font-size:11px;color:var(--text2);line-height:1.7">'+t('quit_mobile_hint')+'</div>'+
-    '</div>';
-    document.body.appendChild(pop);
-    setTimeout(function(){if(pop.parentNode)pop.remove();},3000);
+    history.back();
   });
 }
+
+// ── 뒤로가기 버튼 인터셉트 (Android PWA) ──
+function _pushBackState(){
+  history.pushState({wmBack:true},'','');
+}
+window.addEventListener('popstate',function(e){
+  // 설정/모달 등 열려있으면 닫기
+  var openModal=document.querySelector('.modal-bg.open');
+  if(openModal){openModal.remove();_pushBackState();return;}
+  // 아무것도 열려있지 않으면 종료 확인
+  _pushBackState(); // 뒤로가기 막기
+  openConfirm(t('confirm_quit'),function(){
+    if(window.electronAPI){window.electronAPI.confirmQuit();return;}
+    saveGame();
+    history.go(-2); // 쌓인 state 제거 후 실제 뒤로가기
+  });
+});
+// 앱 시작 시 history state 추가
+_pushBackState();
 
 if(window.electronAPI&&window.electronAPI.onRequestQuit){
   window.electronAPI.onRequestQuit(function(){quitGame();});
