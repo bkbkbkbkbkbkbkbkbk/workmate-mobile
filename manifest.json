@@ -10,14 +10,15 @@
   "icons": [
     {
       "src": "assets/game_icon.png",
-      "sizes": "128x128",
-      "type": "image/png"
+      "sizes": "138x196",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "assets/game_icon_256.png",
       "sizes": "256x256",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
