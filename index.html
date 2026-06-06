@@ -2776,6 +2776,7 @@ const LANG_DATA={
     set_support_copy:'복사',
     set_support_copied:'✓',
     confirm_quit:'게임을 종료하시겠습니까?',
+    quit_mobile_hint:'홈 버튼을 눌러 앱을 종료해주세요.',
     custom_unlock_title:'커스텀 아이템 해금!',
     custom_unlock_desc:'룸 레벨 <b>Lv.17</b> 달성으로<br>상점의 <b>커스텀 배경</b>과 <b>스티커</b>가<br>해금됐어요!',
     custom_unlock_bg:'커스텀 배경',
@@ -3356,6 +3357,7 @@ const LANG_DATA={
     set_support_update_sub:'Official Postype Page',
     set_support_copy:'Copy', set_support_copied:'✓',
     confirm_quit:'Are you sure you want to quit?',
+    quit_mobile_hint:'Press the home button to close the app.',
     custom_unlock_title:'Custom Items Unlocked!',
     custom_unlock_desc:'Reached room level <b>Lv.17</b>!<br><b>Custom backgrounds</b> and <b>stickers</b><br>are now available in the shop!',
     custom_unlock_bg:'Custom Background',
@@ -3894,6 +3896,7 @@ const LANG_DATA={
     set_support_update_sub:'公式Postypeページ',
     set_support_copy:'コピー', set_support_copied:'✓',
     confirm_quit:'ゲームを終了しますか？',
+    quit_mobile_hint:'ホームボタンを押してアプリを終了してください。',
     custom_unlock_title:'カスタムアイテム解放！',
     custom_unlock_desc:'ルームレベル <b>Lv.17</b> 達成！<br>ショップの<b>カスタム背景</b>と<b>スタンプ</b>が<br>解放されました！',
     custom_unlock_bg:'カスタム背景',
@@ -4432,6 +4435,7 @@ const LANG_DATA={
     set_support_update_sub:'官方Postype页面',
     set_support_copy:'复制', set_support_copied:'✓',
     confirm_quit:'确定要退出游戏吗？',
+    quit_mobile_hint:'请按主页键退出应用。',
     custom_unlock_title:'自定义道具解锁！',
     custom_unlock_desc:'达成房间等级 <b>Lv.17</b>！<br>商店中的<b>自定义背景</b>和<b>贴纸</b><br>已解锁！',
     custom_unlock_bg:'自定义背景',
@@ -5127,8 +5131,19 @@ function openWarn(msg){document.getElementById('warn-msg').textContent=msg;docum
 function closeWarn(){document.getElementById('warn-modal').classList.remove('open');}
 function quitGame(){
   openConfirm(t('confirm_quit'),function(){
-    if(window.electronAPI)window.electronAPI.confirmQuit();
-    else window.close();
+    if(window.electronAPI){window.electronAPI.confirmQuit();return;}
+    saveGame();
+    // PWA/모바일: window.close()는 보안 정책상 작동 안 함
+    // 저장 후 홈 화면으로 안내
+    var pop=document.createElement('div');
+    pop.className='modal-bg open';
+    pop.innerHTML='<div class="modal-box" style="max-width:260px;padding:24px 18px;text-align:center;border-radius:18px">'+
+      '<div style="font-size:28px;margin-bottom:10px">💾</div>'+
+      '<div style="font-size:13px;font-weight:900;margin-bottom:8px">'+t('game_saved')+'</div>'+
+      '<div style="font-size:11px;color:var(--text2);line-height:1.7">'+t('quit_mobile_hint')+'</div>'+
+    '</div>';
+    document.body.appendChild(pop);
+    setTimeout(function(){if(pop.parentNode)pop.remove();},3000);
   });
 }
 
