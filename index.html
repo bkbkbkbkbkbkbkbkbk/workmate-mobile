@@ -15131,18 +15131,25 @@ function openMenuRoulette(){
     +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">총 '+MENU_LIST.length+'가지 메뉴</div></div>'
     +'<button onclick="document.getElementById(\'menu-roulette-modal\').remove()" style="background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--text3)">×</button>'
     +'</div>'
-    // 카테고리 필터
-    +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px" id="roulette-cat-btns">'
-    +[['전체','var(--accent)','var(--accent)'],['한식','#e11d48','#e11d48'],['분식','#f97316','#f97316'],['일식','#0891b2','#0891b2'],['중식','#4f46e5','#4f46e5'],['양식','#16a34a','#16a34a'],['기타','#7c3aed','#7c3aed']].map(function(c){
+    // 카테고리 필터 (가로 스크롤 + 화살표)
+    +'<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px">'
+    +'<button onclick="document.getElementById(\'roulette-cat-scroll\').scrollBy({left:-80,behavior:\'smooth\'})" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 2px">‹</button>'
+    +'<div id="roulette-cat-scroll" style="display:flex;gap:5px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;padding:2px 0">'
+    +'<style>#roulette-cat-scroll::-webkit-scrollbar{display:none}</style>'
+    +'<div style="display:flex;gap:5px;flex-wrap:nowrap" id="roulette-cat-btns">'
+    +[['전체','var(--accent)'],['한식','#e11d48'],['분식','#f97316'],['일식','#0891b2'],['중식','#4f46e5'],['양식','#16a34a'],['기타','#7c3aed']].map(function(c){
       var active=_rouletteCat===c[0];
       return'<button data-rcat="'+c[0]+'" onclick="setRouletteCat(\''+c[0]+'\')" '
-        +'style="padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]+'22':'var(--surface)')+';color:'+(active?c[1]:'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+c[0]+'</button>';
+        +'style="white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]+'22':'var(--surface)')+';color:'+(active?c[1]:'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+c[0]+'</button>';
     }).join('')
-    +'</div>'
+    +'</div>'   // roulette-cat-btns
+    +'</div>'   // roulette-cat-scroll
+    +'<button onclick="document.getElementById(\'roulette-cat-scroll\').scrollBy({left:80,behavior:\'smooth\'})" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 2px">›</button>'
+    +'</div>'   // 화살표 래퍼
     +'<div class="slot-window"><div class="slot-reel" id="slot-reel"></div></div>'
     +'<div id="slot-result" style="text-align:center;min-height:28px;margin-bottom:12px"></div>'
     +'<button onclick="spinRoulette()" id="spin-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#fff;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.5px">돌리기!</button>'
-    +'</div>';
+    +'</div>'; // roulette-sheet
   pop.onclick=function(e){if(e.target===pop)pop.remove();};
   document.body.appendChild(pop);
   // 초기 릴 세팅
