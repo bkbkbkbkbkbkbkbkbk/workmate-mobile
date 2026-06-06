@@ -14302,19 +14302,19 @@ function renderLedger(){
   var bal=totalInc-totalExp;
   var MN=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   var header=
-    '<div style="background:var(--accent);border-radius:14px 14px 0 0;padding:14px 16px 10px;margin:-10px -10px 0">'
+    '<div style="background:linear-gradient(160deg,var(--accent) 0%,var(--accent-a35) 60%,transparent 100%);border-radius:14px 14px 0 0;padding:14px 16px 10px;margin:-10px -10px 0">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
-    +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8249;</button>'
-    +'<span style="font-size:15px;font-weight:900;color:#fff">'+y+'년 '+MN[m]+'</span>'
-    +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8250;</button>'
+    +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:var(--accent-a15);border:none;border-radius:50%;width:28px;height:28px;color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8249;</button>'
+    +'<span style="font-size:15px;font-weight:900;color:var(--text)">'+y+'년 '+MN[m]+'</span>'
+    +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:var(--accent-a15);border:none;border-radius:50%;width:28px;height:28px;color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8250;</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'
-    +'<div style="text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.7);margin-bottom:2px">수입</div><div style="font-size:13px;font-weight:900;color:#fff">'+totalInc.toLocaleString()+'</div></div>'
-    +'<div style="text-align:center;border-left:1px solid rgba(255,255,255,.2);border-right:1px solid rgba(255,255,255,.2)"><div style="font-size:9px;color:rgba(255,255,255,.7);margin-bottom:2px">지출</div><div style="font-size:13px;font-weight:900;color:rgba(255,255,255,.75)">'+totalExp.toLocaleString()+'</div></div>'
-    +'<div style="text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.7);margin-bottom:2px">잔액</div><div style="font-size:13px;font-weight:900;color:'+(bal>=0?'#fff':'rgba(255,255,255,.75)')+'">'+Math.abs(bal).toLocaleString()+'</div></div>'
+    +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">수입</div><div style="font-size:13px;font-weight:900;color:var(--accent)">'+totalInc.toLocaleString()+'</div></div>'
+    +'<div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">지출</div><div style="font-size:13px;font-weight:900;color:var(--red)">'+totalExp.toLocaleString()+'</div></div>'
+    +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">잔액</div><div style="font-size:13px;font-weight:900;color:'+(bal>=0?'var(--accent)':'var(--red)')+'">'+Math.abs(bal).toLocaleString()+'</div></div>'
     +'</div>'
-    +'<div style="display:flex;gap:4px;background:rgba(0,0,0,.15);border-radius:10px;padding:3px">'
-    +['daily','calendar','monthly'].map(function(v,i){var labels=['일일','달력','월별'];var active=S.ledgerView===v;return'<button onclick="S.ledgerView=\''+v+'\';renderToolPanel()" style="flex:1;padding:5px 0;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;'+(active?'background:#fff;color:var(--accent)':'background:transparent;color:rgba(255,255,255,.8)')+'">'+labels[i]+'</button>';}).join('')
+    +'<div style="display:flex;gap:4px;background:var(--accent-a18);border:1.5px solid var(--accent-a25);border-radius:10px;padding:3px">'
+    +['daily','calendar','monthly'].map(function(v,i){var labels=['일일','달력','월별'];var active=S.ledgerView===v;return'<button onclick="S.ledgerView=\''+v+'\';renderToolPanel()" style="flex:1;padding:5px 0;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;'+(active?'background:var(--surface);color:var(--accent)':'background:transparent;color:var(--text2)')+'">'+labels[i]+'</button>';}).join('')
     +'</div></div>';
   var catOptsE=_LEDGER_CATS.expense.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
   var addForm='';
