@@ -15146,8 +15146,9 @@ function openMenuRoulette(){
     +'<div style="display:flex;gap:5px;flex-wrap:nowrap" id="roulette-cat-btns">'
     +[['전체','var(--accent)'],['한식','#e11d48'],['분식','#f97316'],['일식','#0891b2'],['중식','#4f46e5'],['양식','#16a34a'],['기타','#7c3aed']].map(function(c){
       var active=_rouletteCat===c[0];
+      // 선택 시: 진한 배경 + 흰 글씨 / 미선택: 테두리만
       return'<button data-rcat="'+c[0]+'" onclick="setRouletteCat(\''+c[0]+'\')" '
-        +'style="white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]+'22':'var(--surface)')+';color:'+(active?c[1]:'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+c[0]+'</button>';
+        +'style="white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]:'var(--surface)')+';color:'+(active?'#fff':'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+c[0]+'</button>';
     }).join('')
     +'</div>'   // roulette-cat-btns
     +'</div>'   // roulette-cat-scroll
@@ -15172,8 +15173,8 @@ function setRouletteCat(cat){
     var bc=_CAT_COLORS[b.dataset.rcat]||'var(--accent)';
     var active=b.dataset.rcat===cat;
     b.style.borderColor=active?bc:'var(--border2)';
-    b.style.background=active?bc.replace(')',',0.13)').replace('rgb','rgba').replace('var(--accent)','var(--accent-a15)'):'var(--surface)';
-    b.style.color=active?bc:'var(--text3)';
+    b.style.background=active?bc:'var(--surface)';
+    b.style.color=active?'#fff':'var(--text3)';  // 선택 시 흰 글씨
   });
   // 메뉴 수 업데이트
   var filtered=cat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===cat;});
