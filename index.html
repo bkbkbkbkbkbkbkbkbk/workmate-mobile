@@ -5152,13 +5152,18 @@ window.addEventListener('popstate',function(e){
   // 설정/모달 등 열려있으면 닫기
   var openModal=document.querySelector('.modal-bg.open');
   if(openModal){openModal.remove();_pushBackState();return;}
-  // 아무것도 열려있지 않으면 종료 확인
-  _pushBackState(); // 뒤로가기 막기
+  // 종료 확인 — state를 먼저 push하지 않음
   openConfirm(t('confirm_quit'),function(){
     if(window.electronAPI){window.electronAPI.confirmQuit();return;}
     saveGame();
-    history.go(-2); // 쌓인 state 제거 후 실제 뒤로가기
+    history.back(); // 히스토리 끝이면 PWA가 닫힘
   });
+  // 취소/배경클릭 시 state 복원
+  var cancelBtn=document.getElementById('confirm-cancel-btn');
+  cancelBtn.onclick=function(){closeConfirm();_pushBackState();};
+  document.getElementById('confirm-modal').onclick=function(ev){
+    if(ev.target.id==='confirm-modal'){closeConfirm();_pushBackState();}
+  };
 });
 // 앱 시작 시 history state 추가
 _pushBackState();
