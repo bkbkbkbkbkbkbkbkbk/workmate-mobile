@@ -1,6 +1,6 @@
 ﻿// ── Work Mate Service Worker ──────────────────────────
 // 버전을 바꾸면 캐시가 갱신됩니다
-const CACHE_VERSION = 'workmate-v23';
+const CACHE_VERSION = 'workmate-v24';
 const ASSET_CACHE   = CACHE_VERSION + '-assets';
 const PAGE_CACHE    = CACHE_VERSION + '-pages';
 
