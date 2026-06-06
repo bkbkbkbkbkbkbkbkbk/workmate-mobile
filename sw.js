@@ -1,6 +1,6 @@
 ﻿// ── Work Mate Service Worker ──────────────────────────
 // 버전을 바꾸면 캐시가 갱신됩니다
-const CACHE_VERSION = 'workmate-v6';
+const CACHE_VERSION = 'workmate-v7';
 const ASSET_CACHE   = CACHE_VERSION + '-assets';
 const PAGE_CACHE    = CACHE_VERSION + '-pages';
 
@@ -302,6 +302,11 @@ const GAME_ASSETS = [
   './assets/soundtrack/November_Snow-cynicmusic.mp3',
   './assets/soundtrack/Red_Heels_Piano-TAD.mp3',
 ];
+
+// ── 메시지 수신 (업데이트 즉시 적용) ─────────────────
+self.addEventListener('message', e => {
+  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
 // ── Install: 모든 에셋 사전 캐싱 ─────────────────────
 self.addEventListener('install', e => {

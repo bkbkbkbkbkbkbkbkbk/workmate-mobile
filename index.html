@@ -2742,6 +2742,8 @@ const LANG_DATA={
     sync_qr_hint:'PC에서 생성한 QR 코드를 카메라에 맞춰주세요',
     sync_qr_nosupport:'QR 스캔이 지원되지 않아요. JSON 파일을 사용해주세요.',
     sync_qr_error:'WorkMate QR 코드가 아닙니다',
+    update_title:'업데이트 알림', update_body:'새 버전이 출시됐어요!\n지금 업데이트할까요?',
+    update_confirm:'업데이트', update_later:'나중에',
     // ── 문의 / 업데이트
     set_support_title:'문의 · 업데이트',
     set_support_contact:'문의하기',
@@ -3311,6 +3313,8 @@ const LANG_DATA={
     sync_qr_hint:'Point your camera at the QR code generated on PC',
     sync_qr_nosupport:'QR scan not supported. Please use JSON file.',
     sync_qr_error:'Not a WorkMate QR code',
+    update_title:'Update Available', update_body:'A new version is available!\nUpdate now?',
+    update_confirm:'Update', update_later:'Later',
     set_support_title:'Contact · Updates',
     set_support_contact:'Contact Us',
     set_support_contact_sub:'qlzpdl00@gmail.com',
@@ -3836,6 +3840,8 @@ const LANG_DATA={
     sync_qr_hint:'PCで生成したQRコードにカメラを向けてください',
     sync_qr_nosupport:'QRスキャン非対応です。JSONファイルを使用してください。',
     sync_qr_error:'WorkMate QRコードではありません',
+    update_title:'アップデート通知', update_body:'新しいバージョンがリリースされました！\n今すぐアップデートしますか？',
+    update_confirm:'アップデート', update_later:'後で',
     set_support_title:'お問い合わせ · アップデート',
     set_support_contact:'お問い合わせ',
     set_support_contact_sub:'qlzpdl00@gmail.com',
@@ -4361,6 +4367,8 @@ const LANG_DATA={
     sync_qr_hint:'请将摄像头对准PC生成的QR码',
     sync_qr_nosupport:'不支持QR扫描，请使用JSON文件。',
     sync_qr_error:'不是WorkMate的QR码',
+    update_title:'更新通知', update_body:'新版本已发布！\n立即更新吗？',
+    update_confirm:'更新', update_later:'稍后',
     set_support_title:'联系 · 更新',
     set_support_contact:'联系我们',
     set_support_contact_sub:'qlzpdl00@gmail.com',
@@ -15601,9 +15609,40 @@ function spinRoulette(){
   },3300);
 }
 
-// ── 서비스워커 등록 ──
+// ── 서비스워커 등록 + 업데이트 감지 ──
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(function(){});
+  navigator.serviceWorker.register('./sw.js').then(function(reg){
+    reg.addEventListener('updatefound',function(){
+      var newWorker=reg.installing;
+      newWorker.addEventListener('statechange',function(){
+        if(newWorker.state==='installed'&&navigator.serviceWorker.controller){
+          _showUpdatePopup(newWorker);
+        }
+      });
+    });
+  }).catch(function(){});
+}
+function _showUpdatePopup(newWorker){
+  var old=document.getElementById('sw-update-popup');if(old)old.remove();
+  var pop=document.createElement('div');
+  pop.className='modal-bg open';pop.id='sw-update-popup';
+  pop.innerHTML=
+    '<div class="modal-box" style="max-width:280px;padding:20px 18px 16px;text-align:center;border-radius:18px">'+
+      '<div style="font-size:22px;margin-bottom:8px">🎉</div>'+
+      '<div style="font-size:14px;font-weight:900;margin-bottom:8px">'+t('update_title')+'</div>'+
+      '<div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:16px;white-space:pre-line">'+t('update_body')+'</div>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button class="btn btn-accent" style="flex:1" id="sw-update-ok">'+t('update_confirm')+'</button>'+
+        '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'sw-update-popup\').remove()">'+t('update_later')+'</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(pop);
+  document.getElementById('sw-update-ok').onclick=function(){
+    if(newWorker)newWorker.postMessage({type:'SKIP_WAITING'});
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      location.reload();
+    });
+  };
 }
 
 // ══════════════════════════════════════════════════════
