@@ -6760,7 +6760,8 @@ function _petBubbleLeft(petId,goingRight){
 }
 
 function petSVG(id,fallbackIcon,variant){
-  var src='assets/pets/'+(variant?id+'_'+variant:id)+'.png';
+  // variant 1(또는 falsy)은 기본 파일(dog.png), 2 이상은 dog_2.png 형식
+  var src='assets/pets/'+(variant&&variant>1?id+'_'+variant:id)+'.png';
   return '<img src="'+src+'" style="display:block;width:56px;height:56px;object-fit:contain" draggable="false"'
     +' onerror="this.style.display=\'none\';this.nextSibling.style.display=\'\'">'
     +'<span style="display:none;font-size:28px">'+fallbackIcon+'</span>';
