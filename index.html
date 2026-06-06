@@ -307,6 +307,38 @@ body.focus-mode #focus-music-btn{display:flex!important}
 #toast{max-width:80vw!important;white-space:normal!important;text-align:center}
 #room-notif{max-width:80%!important;white-space:normal!important;text-align:center}
 
+/* ── 모바일 포커스 모드 (홈 버튼 → 자동 진입) ── */
+body.mobile-focus-mode #sticky-header,
+body.mobile-focus-mode #icon-bar,
+body.mobile-focus-mode #top-panel-wrap,
+body.mobile-focus-mode #tool-tabs,
+body.mobile-focus-mode #tool-panel,
+body.mobile-focus-mode .float-win{display:none!important}
+body.mobile-focus-mode #app{background:transparent!important;border:none!important;box-shadow:none!important}
+body.mobile-focus-mode #room-wrap{padding:0!important;flex:1}
+body.mobile-focus-mode #room{border-radius:0!important;border:none!important;width:100%!important;aspect-ratio:auto!important;flex:1}
+
+/* 복귀 버튼 오버레이 */
+#mobile-focus-return-btn{
+  display:none;
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  z-index:9999;
+  background:rgba(108,99,255,.92);color:#fff;
+  border:none;border-radius:30px;
+  padding:12px 28px;font-size:14px;font-weight:900;
+  font-family:'Nunito',sans-serif;
+  box-shadow:0 4px 20px rgba(108,99,255,.5);
+  cursor:pointer;white-space:nowrap;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  animation:mfReturnPulse 2s ease-in-out infinite;
+}
+@keyframes mfReturnPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(108,99,255,.5)}
+  50%{box-shadow:0 4px 28px rgba(108,99,255,.85),0 0 0 6px rgba(108,99,255,.18)}
+}
+body.mobile-focus-mode #mobile-focus-return-btn{display:block}
+
 /* ── 모바일 반응형 Media Query ── */
 @media(max-width:480px){
   /* 모달 너비 화면에 맞게 */
@@ -461,6 +493,10 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
   <div id="room-clock"></div>
   <div id="room-buff-tooltip"><span id="room-buff-ticker"></span></div>
   <div id="room-notif"></div>
+  <!-- 모바일 포커스 모드 복귀 버튼 -->
+  <button id="mobile-focus-return-btn" onclick="mobileExitFocusMode()">
+    ◀ 전체 화면으로 돌아가기
+  </button>
   <div id="food-tip" style="display:none;position:fixed;z-index:9999;background:rgba(15,18,40,.96);border:1.5px solid rgba(108,99,255,.45);border-radius:10px;padding:9px 12px;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.55);min-width:120px;max-width:190px"></div>
 
   <!-- BG preset button -->
@@ -14527,9 +14563,50 @@ function _tutEnd(){
 <div id="yt-audio-container" style="position:fixed;top:-9999px;left:-9999px;width:320px;height:180px;overflow:hidden;pointer-events:none"></div>
 <audio id="bgm-audio" preload="none"></audio>
 <script>
+// ── 서비스워커 등록 ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
+
+// ══════════════════════════════════════════════════════
+// ── 모바일 포커스 모드 (홈 버튼 → 자동 진입) ──────────
+// ══════════════════════════════════════════════════════
+var _mobileFocusActive = false;
+var _mobileHiddenAt   = 0;
+var _MOBILE_FOCUS_DELAY_MS = 3000; // 3초 이상 홈 화면에 있다가 돌아오면 포커스 모드
+
+function mobileEnterFocusMode(){
+  if(_mobileFocusActive) return;
+  _mobileFocusActive = true;
+  document.body.classList.add('mobile-focus-mode');
+  // 기존 모달/창 닫기
+  if(typeof _mobileCloseAllWindows === 'function') _mobileCloseAllWindows();
+  // 스크롤 최상단으로
+  var app = document.getElementById('app');
+  if(app) app.scrollTo({top: 0, behavior: 'auto'});
+}
+
+function mobileExitFocusMode(){
+  if(!_mobileFocusActive) return;
+  _mobileFocusActive = false;
+  document.body.classList.remove('mobile-focus-mode');
+}
+
+// Page Visibility API: 홈 버튼 감지
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){
+    // 앱이 백그라운드로 → 시간 기록
+    _mobileHiddenAt = Date.now();
+  } else {
+    // 앱으로 돌아옴
+    var hiddenDuration = Date.now() - _mobileHiddenAt;
+    if(_mobileHiddenAt > 0 && hiddenDuration >= _MOBILE_FOCUS_DELAY_MS){
+      // 3초 이상 홈 화면에 있었으면 포커스 모드 진입
+      mobileEnterFocusMode();
+    }
+    _mobileHiddenAt = 0;
+  }
+});
 </script>
 </body>
 </html>
