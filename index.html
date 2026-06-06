@@ -304,6 +304,29 @@ body.focus-mode #focus-music-btn{display:flex!important}
 .modal-bg .modal-box{flex-shrink:0;transform:scale(var(--modal-scale,1));transform-origin:center top;margin:0 auto}
 #toast{max-width:80vw!important;white-space:normal!important;text-align:center}
 #room-notif{max-width:80%!important;white-space:normal!important;text-align:center}
+
+/* ── 모바일 반응형 Media Query ── */
+@media(max-width:480px){
+  /* 모달 너비 화면에 맞게 */
+  .modal-box{width:calc(100vw - 32px)!important;max-width:100%!important;max-height:80dvh!important;overflow-y:auto!important}
+  /* 튜토리얼 박스 */
+  #tutorial-box{width:calc(100vw - 40px)!important;max-width:300px}
+  /* 노래/YouTube 튜토리얼 모달 스크롤 허용 */
+  #yt-tutorial-modal .modal-box{overflow-y:auto!important;max-height:80dvh!important}
+  #yt-tutorial-modal .modal-box>div[style*="flex-direction:column"]{max-height:50dvh;overflow-y:auto}
+  /* 커스터마이즈 모달 미리보기 크기 */
+  #cust-preview{width:100px!important;min-height:180px!important}
+  /* 캐릭터 모달/상점 모달 */
+  #char-modal,#shop-modal,#couple-modal{width:calc(100vw - 16px)!important;max-height:85dvh!important}
+  /* 버튼 터치 영역 확보 */
+  .btn{min-height:40px}
+  .bar-btn{width:40px!important;height:40px!important}
+  /* 탑바 pill 간격 */
+  #topbar-right{gap:4px}
+  .top-pill{padding:4px 8px!important}
+  /* 탭바 폰트/아이콘 */
+  .ttab{font-size:9px!important;gap:2px!important}
+}
 body.char-only-mode{padding:0!important;align-items:flex-start!important;justify-content:flex-start!important}
 body.char-only-mode #app{width:100%!important;min-width:0!important;height:100vh!important;min-height:0!important;box-shadow:none!important;border:none!important;overflow:hidden!important;background:transparent!important;resize:none!important}
 body.char-only-mode #room-wrap{padding:8px!important;flex:1!important;display:flex!important;flex-direction:column!important}
@@ -758,9 +781,9 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
 </div>
 
 <!-- YouTube Tutorial -->
-<div class="modal-bg" id="yt-tutorial-modal">
+<div class="modal-bg modal-scrollable" id="yt-tutorial-modal">
   <div class="modal-box" style="width:300px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;position:sticky;top:0;background:var(--bg2);z-index:1;padding-bottom:8px;border-bottom:1px solid var(--border)">
       <span style="font-size:15px;font-weight:900">유튜브 사용 가이드</span>
       <button class="btn btn-ghost btn-sm" onclick="closeYtTutorial()" data-i18n="btn_close">닫기</button>
     </div>
@@ -5668,16 +5691,16 @@ function showLevelUnlockPopup(lv,onClose){
       /* bady.png(피부) + 점 PNG를 겹쳐서 피부 위에 점이 보이는 형태로 표시
          transform-origin을 점 위치로 설정해 확대 시 점이 아이콘 중앙에 오도록 계산 */
       var _ficfg={
-        'p1':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p2':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p3':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p4':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p5':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p6':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p7':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p8':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p9':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'},
-        'p10':{s:8,  tx:-3.5, ty:2.2, ox:'60%',oy:'50%'}
+        'p1':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p2':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p3':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p4':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p5':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p6':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p7':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p8':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p9':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'},
+        'p10':{s:8,  tx:-3.5, ty:3.8, ox:'60%',oy:'50%'}
       };
       var _fc=_ficfg[item.id]||{s:8,tx:-3.5,ty:2.2,ox:'60%',oy:'50%'};
       var _ftf='scale('+_fc.s+') translate('+_fc.tx+'%,'+_fc.ty+'%)';
