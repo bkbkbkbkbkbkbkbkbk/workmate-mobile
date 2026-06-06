@@ -6686,33 +6686,30 @@ var _charDragPx=0;
 var _charDragAccum=0;
 var _petDragPx=0;
 var _petDragAccum=0;
-document.addEventListener('mousemove',function(e){
+// ── 공통 드래그 이동 함수 (mouse / touch 공유) ──
+function _charPetDragMove(cx,cy){
   if(_charDrag){
-    const r=document.getElementById('room'),rect=r.getBoundingClientRect();
-    const dx=e.clientX-_charDrag.ox,dy=e.clientY-_charDrag.oy;
-    _charDrag.ox=e.clientX;_charDrag.oy=e.clientY;
-    const el=_charDrag.el;
-    const elScale=parseFloat(el.style.scale)||1;
-    const charW=120*elScale/rect.width*100,px10=10/rect.width*100;
-    const nx=Math.max(-px10,Math.min(100-charW+px10,parseFloat(el.style.left||'32')+dx/rect.width*100));
-    const ny=Math.max(FLOOR_PCT,Math.min(92,parseFloat(el.style.bottom||FLOOR_PCT)-dy/rect.height*100));
+    var r=document.getElementById('room'),rect=r.getBoundingClientRect();
+    var dx=cx-_charDrag.ox,dy=cy-_charDrag.oy;
+    _charDrag.ox=cx;_charDrag.oy=cy;
+    var el=_charDrag.el;
+    var elScale=parseFloat(el.style.scale)||1;
+    var charW=120*elScale/rect.width*100,px10=10/rect.width*100;
+    var nx=Math.max(-px10,Math.min(100-charW+px10,parseFloat(el.style.left||'32')+dx/rect.width*100));
+    var ny=Math.max(FLOOR_PCT,Math.min(92,parseFloat(el.style.bottom||FLOOR_PCT)-dy/rect.height*100));
     el.style.left=nx+'%';el.style.bottom=ny+'%';
     if(_charDrag.charData)_charDrag.charData.x=nx;
     if(_charDrag.npcData)_charDrag.npcData.x=nx;
     _charDragPx+=Math.sqrt(dx*dx+dy*dy);
-    // 집 버튼 위에 드래그 중이면 탭 자동 열기
     var _fBtn=document.getElementById('room-floor-btn');
     var _fsub=document.getElementById('floor-submenu');
     if(_fBtn&&_fBtn.style.display!=='none'){
-      var _overEl=document.elementFromPoint(e.clientX,e.clientY);
+      var _overEl=document.elementFromPoint(cx,cy);
       var _onFloorBtn=_overEl===_fBtn||(_fBtn.contains&&_fBtn.contains(_overEl));
-      if(_onFloorBtn&&_fsub&&!_fsub.classList.contains('show')){
-        toggleFloorMenu(true);
-      }
+      if(_onFloorBtn&&_fsub&&!_fsub.classList.contains('show'))toggleFloorMenu(true);
     }
-    // 층 버튼 위에 드래그 중이면 하이라이트
     if(_fsub&&_fsub.classList.contains('show')){
-      var _over=document.elementFromPoint(e.clientX,e.clientY);
+      var _over=document.elementFromPoint(cx,cy);
       document.querySelectorAll('._floor-sub-btn').forEach(function(b){
         var isHover=b===_over||b.contains(_over);
         b.style.background=isHover?'var(--accent)':'rgba(0,0,0,0.42)';
@@ -6722,27 +6719,24 @@ document.addEventListener('mousemove',function(e){
     }
   }
   if(_petDrag){
-    const r=document.getElementById('room'),rect=r.getBoundingClientRect();
-    const dx=e.clientX-_petDrag.ox,dy=e.clientY-_petDrag.oy;
-    _petDrag.ox=e.clientX;_petDrag.oy=e.clientY;
-    const el=_petDrag.el;
-    const nx=Math.max(2,Math.min(82,parseFloat(el.style.left||'60')+dx/rect.width*100));
-    const ny=Math.max(FLOOR_PCT,Math.min(65,parseFloat(el.style.bottom||FLOOR_PCT)-dy/rect.height*100));
+    var r=document.getElementById('room'),rect=r.getBoundingClientRect();
+    var dx=cx-_petDrag.ox,dy=cy-_petDrag.oy;
+    _petDrag.ox=cx;_petDrag.oy=cy;
+    var el=_petDrag.el;
+    var nx=Math.max(2,Math.min(82,parseFloat(el.style.left||'60')+dx/rect.width*100));
+    var ny=Math.max(FLOOR_PCT,Math.min(65,parseFloat(el.style.bottom||FLOOR_PCT)-dy/rect.height*100));
     el.style.left=nx+'%';el.style.bottom=ny+'%';
     if(S[_petDrag.petKey||'pet'])S[_petDrag.petKey||'pet'].x=nx;
     _petDragPx+=Math.sqrt(dx*dx+dy*dy);
-    // 층 버튼 위에 드래그 중이면 탭 자동 열기
     var _pfBtn=document.getElementById('room-floor-btn');
     var _pfsub=document.getElementById('floor-submenu');
     if(_pfBtn&&_pfBtn.style.display!=='none'){
-      var _pOverEl=document.elementFromPoint(e.clientX,e.clientY);
+      var _pOverEl=document.elementFromPoint(cx,cy);
       var _pOnFloorBtn=_pOverEl===_pfBtn||(_pfBtn.contains&&_pfBtn.contains(_pOverEl));
-      if(_pOnFloorBtn&&_pfsub&&!_pfsub.classList.contains('show')){
-        toggleFloorMenu(true);
-      }
+      if(_pOnFloorBtn&&_pfsub&&!_pfsub.classList.contains('show'))toggleFloorMenu(true);
     }
     if(_pfsub&&_pfsub.classList.contains('show')){
-      var _pOver=document.elementFromPoint(e.clientX,e.clientY);
+      var _pOver=document.elementFromPoint(cx,cy);
       document.querySelectorAll('._floor-sub-btn').forEach(function(b){
         var isHover=b===_pOver||b.contains(_pOver);
         b.style.background=isHover?'var(--accent)':'rgba(0,0,0,0.42)';
@@ -6751,15 +6745,23 @@ document.addEventListener('mousemove',function(e){
       });
     }
   }
-});
-document.addEventListener('mouseup',function(e){
+}
+document.addEventListener('mousemove',function(e){_charPetDragMove(e.clientX,e.clientY);});
+// 터치 이동 (passive:false → preventDefault 가능)
+document.addEventListener('touchmove',function(e){
+  if(!_charDrag&&!_petDrag)return;
+  e.preventDefault();
+  var t=e.touches[0];
+  _charPetDragMove(t.clientX,t.clientY);
+},{passive:false});
+// ── 공통 드래그 종료 함수 (mouse / touch 공유) ──
+function _charPetDragEnd(cx,cy){
   if(_charDrag){
     const{el,charData,npcData}=_charDrag;
     const dist=_charDragPx;_charDragPx=0;
-    // 층 버튼 위에 드롭했으면 방 이동
     var _fsubDrop=document.getElementById('floor-submenu');
     if(_fsubDrop&&_fsubDrop.classList.contains('show')){
-      var _dropTarget=document.elementFromPoint(e.clientX,e.clientY);
+      var _dropTarget=document.elementFromPoint(cx,cy);
       var _floorBtn=_dropTarget?(_dropTarget.classList.contains('_floor-sub-btn')?_dropTarget:_dropTarget.closest('._floor-sub-btn')):null;
       if(_floorBtn){
         var _targetFloor=parseInt(_floorBtn.dataset.floor);
@@ -6804,7 +6806,7 @@ document.addEventListener('mouseup',function(e){
     // 층 버튼 위에 드롭했으면 방 이동
     var _psubDrop=document.getElementById('floor-submenu');
     if(_psubDrop&&_psubDrop.classList.contains('show')){
-      var _pdropTarget=document.elementFromPoint(e.clientX,e.clientY);
+      var _pdropTarget=document.elementFromPoint(cx,cy);
       var _pfloorBtn=_pdropTarget?(_pdropTarget.classList.contains('_floor-sub-btn')?_pdropTarget:_pdropTarget.closest('._floor-sub-btn')):null;
       if(_pfloorBtn){
         var _ptargetFloor=parseInt(_pfloorBtn.dataset.floor);
@@ -6840,6 +6842,13 @@ document.addEventListener('mouseup',function(e){
       }
     }
   }
+}
+document.addEventListener('mouseup',function(e){_charPetDragEnd(e.clientX,e.clientY);});
+// 터치 종료
+document.addEventListener('touchend',function(e){
+  if(!_charDrag&&!_petDrag)return;
+  var t=e.changedTouches[0];
+  _charPetDragEnd(t.clientX,t.clientY);
 });
 function _next7AM(){
   const d=new Date();
@@ -7020,20 +7029,29 @@ function showOverworkInjuryPopup(c){
   };
 }
 function makeDraggable(el,charData,_,npcData){
-  el.addEventListener('mousedown',function(e){
-    if(e.target.closest('.char-bubble-room'))return;
-    _charDrag={el,charData,npcData,ox:e.clientX,oy:e.clientY};
+  function _startCharDrag(cx,cy){
+    _charDrag={el,charData,npcData,ox:cx,oy:cy};
     el.classList.remove('a-idle','a-work','a-eat');el.classList.add('a-drag');
     if(++_charDragZ>9)_charDragZ=6;
     el.style.zIndex=String(_charDragZ);
     if(charData&&S.speechOn){const dq=getPersonalityQuotes(charData,'drag');showBubble(charData.id,dq[Math.floor(Math.random()*dq.length)]);}
-    if(npcData&&S.speechOn){const dq=getPersonalityQuotes(npcData,'drag');showBubble(npcData.id,dq[Math.floor(Math.random()*dq.length)]);};
+    if(npcData&&S.speechOn){const dq=getPersonalityQuotes(npcData,'drag');showBubble(npcData.id,dq[Math.floor(Math.random()*dq.length)]);}
+  }
+  el.addEventListener('mousedown',function(e){
+    if(e.target.closest('.char-bubble-room'))return;
+    _startCharDrag(e.clientX,e.clientY);
     e.preventDefault();
   });
+  el.addEventListener('touchstart',function(e){
+    if(e.target.closest('.char-bubble-room'))return;
+    var t=e.touches[0];
+    _startCharDrag(t.clientX,t.clientY);
+    e.preventDefault();
+  },{passive:false});
 }
 // ─ DRAG pet ─
 function makePetDraggable(el,petKey){
-  el.addEventListener('mousedown',function(e){
+  function _startPetDrag(cx,cy){
     clearTimeout(petKey==='pet2'?petWalkIv2:petWalkIv);
     const room=document.getElementById('room');
     const roomRect=room.getBoundingClientRect();
@@ -7043,10 +7061,18 @@ function makePetDraggable(el,petKey){
     el.style.transition='none';
     el.style.left=snapLeft+'%';
     el.style.bottom=snapBottom+'%';
-    _petDrag={el,ox:e.clientX,oy:e.clientY,petKey:petKey||'pet'};
+    _petDrag={el,ox:cx,oy:cy,petKey:petKey||'pet'};
     el._dragging=true;
+  }
+  el.addEventListener('mousedown',function(e){
+    _startPetDrag(e.clientX,e.clientY);
     e.preventDefault();
   });
+  el.addEventListener('touchstart',function(e){
+    var t=e.touches[0];
+    _startPetDrag(t.clientX,t.clientY);
+    e.preventDefault();
+  },{passive:false});
 }
 
 // ─ ITEM DRAG-DROP ─
