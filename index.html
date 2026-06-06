@@ -807,9 +807,9 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
       <div style="font-size:10px;font-weight:800;color:var(--text2);margin-bottom:2px" data-i18n="sync_section_title">데이터 동기화</div>
       <!-- 가져오기 -->
       <div style="font-size:9px;color:var(--text3);font-weight:700;margin-bottom:1px" data-i18n="sync_import_label">가져오기</div>
-      <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileImportFromQR()">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8.5" y="8.5" width="2" height="2" fill="currentColor"/><path d="M7 9.5h1M10 7v1M10 10v1M7 11h1M11 9.5h1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <span data-i18n="sync_import_qr">QR 코드 스캔</span>
+      <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileImportFromText()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5h6M3.5 7.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span data-i18n="sync_text_import">텍스트 코드 붙여넣기</span>
       </button>
       <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileImportFromJSON()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2.5A1.5 1.5 0 013.5 1H8l3 3v7a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 012 10.5V2.5z" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 7.5L6.5 9.5L8.5 7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -817,9 +817,9 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
       </button>
       <!-- 내보내기 -->
       <div style="font-size:9px;color:var(--text3);font-weight:700;margin-top:4px;margin-bottom:1px" data-i18n="sync_export_label">내보내기</div>
-      <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileExportQR()">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8.5" y="8.5" width="2" height="2" fill="currentColor"/><path d="M7 9.5h1M10 7v1M10 10v1M7 11h1M11 9.5h1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <span data-i18n="sync_export_qr">QR 코드 생성</span>
+      <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileExportText()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5h6M3.5 7.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 9l1.5-1.5L9.5 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="sync_text_export">텍스트 코드 복사</span>
       </button>
       <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileExportJSON()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2.5A1.5 1.5 0 013.5 1H8l3 3v7a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 012 10.5V2.5z" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 9.5L6.5 7.5L8.5 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2744,6 +2744,14 @@ const LANG_DATA={
     sync_import_qr:'QR 코드 스캔',
     sync_import_json:'JSON 파일 가져오기',
     sync_export_qr:'QR 코드 생성',
+    sync_text_export:'텍스트 코드 복사',
+    sync_text_import:'텍스트 코드 붙여넣기',
+    sync_text_copied:'클립보드에 복사됐어요!',
+    sync_text_paste_title:'텍스트 코드 입력',
+    sync_text_paste_hint:'다른 기기에서 복사한 코드를 붙여넣으세요',
+    sync_text_paste_ph:'코드를 여기에 붙여넣으세요...',
+    sync_text_apply:'적용',
+    sync_text_invalid:'올바르지 않은 코드예요',
     sync_export_json:'JSON 파일 내보내기',
     sync_export_warn_title:'내보내기 안내',
     sync_export_qr_body:'<b>핵심 게임 데이터</b>가 QR 코드로 생성됩니다.<br><span style="color:var(--text3)">(할일·메모·가계부 제외)</span><br><br>다른 기기에서 스캔하면 해당 기기의 데이터가 덮어씌워집니다.',
@@ -3329,6 +3337,14 @@ const LANG_DATA={
     sync_import_qr:'Scan QR Code',
     sync_import_json:'Import JSON File',
     sync_export_qr:'Generate QR Code',
+    sync_text_export:'Copy Text Code',
+    sync_text_import:'Paste Text Code',
+    sync_text_copied:'Copied to clipboard!',
+    sync_text_paste_title:'Enter Text Code',
+    sync_text_paste_hint:'Paste the code copied from another device',
+    sync_text_paste_ph:'Paste code here...',
+    sync_text_apply:'Apply',
+    sync_text_invalid:'Invalid code',
     sync_export_json:'Export JSON File',
     sync_export_warn_title:'Export Info',
     sync_export_qr_body:'<b>Core game data</b> will be encoded as a QR code.<br><span style="color:var(--text3)">(Tasks·memos·ledger excluded)</span><br><br>Scanning on another device will overwrite its data.',
@@ -3870,6 +3886,14 @@ const LANG_DATA={
     sync_import_qr:'QRコードをスキャン',
     sync_import_json:'JSONファイルを読み込む',
     sync_export_qr:'QRコードを生成',
+    sync_text_export:'テキストコードをコピー',
+    sync_text_import:'テキストコードを貼り付け',
+    sync_text_copied:'クリップボードにコピーしました！',
+    sync_text_paste_title:'テキストコード入力',
+    sync_text_paste_hint:'他のデバイスでコピーしたコードを貼り付けてください',
+    sync_text_paste_ph:'ここにコードを貼り付け...',
+    sync_text_apply:'適用',
+    sync_text_invalid:'無効なコードです',
     sync_export_json:'JSONファイルを書き出す',
     sync_export_warn_title:'書き出し案内',
     sync_export_qr_body:'<b>主要ゲームデータ</b>をQRコードに変換します。<br><span style="color:var(--text3)">(タスク・メモ・家計簿除く)</span><br><br>他のデバイスでスキャンするとそのデータが上書きされます。',
@@ -4411,6 +4435,14 @@ const LANG_DATA={
     sync_import_qr:'扫描QR码',
     sync_import_json:'导入JSON文件',
     sync_export_qr:'生成QR码',
+    sync_text_export:'复制文字码',
+    sync_text_import:'粘贴文字码',
+    sync_text_copied:'已复制到剪贴板！',
+    sync_text_paste_title:'输入文字码',
+    sync_text_paste_hint:'请粘贴从其他设备复制的代码',
+    sync_text_paste_ph:'在此粘贴代码...',
+    sync_text_apply:'应用',
+    sync_text_invalid:'无效的代码',
     sync_export_json:'导出JSON文件',
     sync_export_warn_title:'导出说明',
     sync_export_qr_body:'将<b>核心游戏数据</b>编码为QR码。<br><span style="color:var(--text3)">(不含待办·备忘·家计簿)</span><br><br>其他设备扫描后将覆盖该设备的数据。',
@@ -12288,6 +12320,80 @@ function _doResetData(){
 }
 // ── LZString (lz-string 1.5.0 minified)
 var LZString=function(){function o(r,n){if(!t[r]){t[r]={};for(var e=0;e<r.length;e++)t[r][r.charAt(e)]=e}return t[r][n]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToEncodedURIComponent:function(r){return r==null?"":i._compress(r,6,function(r){return"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$".charAt(r)})},decompressFromEncodedURIComponent:function(r){return r==null?"":r==""?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(e){return o("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",r.charAt(e))}))},compress:function(r){return i._compress(r,16,function(r){return String.fromCharCode(r)})},_compress:function(r,n,e){if(r==null)return"";var t,o,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1){u=r.charAt(i);Object.prototype.hasOwnProperty.call(s,u)||(s[u]={},l++,p[u]=!0);c=a+u;if(Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(t=0;t<h;t++)m<<=1,v==n-1?(v=0,d.push(e(m)),m=0):v++;for(t=0,o=a.charCodeAt(0);t<8;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}else{for(t=0,o=1;t<h;t++)m=m<<1|o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o=0;for(t=0,o=a.charCodeAt(0);t<16;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=0,o=s[a];t<h;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}}if(a!==""){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(t=0;t<h;t++)m<<=1,v==n-1?(v=0,d.push(e(m)),m=0):v++;for(t=0,o=a.charCodeAt(0);t<8;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}else{for(t=0,o=1;t<h;t++)m=m<<1|o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o=0;for(t=0,o=a.charCodeAt(0);t<16;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=0,o=s[a];t<h;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(t=0,o=2;t<h;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1;for(;;){if(m<<=1,v==n-1){d.push(e(m));break}v++}return d.join("")},decompress:function(r){return r==null?"":r==""?null:i._decompress(r.length,32768,function(e){return r.charCodeAt(e)})},_decompress:function(n,e,t){var o,i,s,p,u,c,a,l=[],f=4,h=4,d=3,m="",v=[],g={val:t(0),position:e,index:1};for(o=0;o<3;o+=1)l[o]=o;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;switch(s=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;i=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;i=r(p);break;case 2:return""}for(v.push(i),l[3]=i,m=i;;){if(g.index>n)return"";for(p=0,c=Math.pow(2,d),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;switch(i=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;l[f++]=r(p),i=f-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;l[f++]=r(p),i=f-1,h--;break;case 2:return v.join("")}if(0==h&&(h=Math.pow(2,d),d++),l[i])s=l[i];else{if(i!==f)return null;s=m+m.charAt(0)}v.push(s),l[f++]=m+s.charAt(0),h--,m=s,0==h&&(h=Math.pow(2,d),d++)}}};return i}();
+
+// ── 텍스트 코드 내보내기/가져오기
+function mobileExportText(){
+  var body=t('sync_export_qr_body');
+  _mobileSyncExportWarn(t('sync_export_warn_title'),body,function(){
+    saveGame();
+    var d=S;
+    var accentEl=document.getElementById('accent-picker');
+    var bgEl=document.getElementById('bg-picker');
+    var core={_wm:1,_t:'qr',
+      gold:d.gold,characters:d.characters,npcs:d.npcs,
+      pet:d.pet,pet2:d.pet2,pet2Unlocked:d.pet2Unlocked,
+      inventory:d.inventory,ownedBgs:d.ownedBgs,ownedHairVariants:d.ownedHairVariants,
+      unlockedFloors:d.unlockedFloors,currentFloor:d.currentFloor,floorBgs:d.floorBgs,
+      inflationLevel:d.inflationLevel,roomBg:d.roomBg,
+      isDark:d.isDark,lang:d.lang,
+      accentColor:accentEl?accentEl.value:null,bgColor:bgEl?bgEl.value:null,
+      autoEat:d.autoEat,speechOn:d.speechOn,
+      bulkFoodUnlocked:d.bulkFoodUnlocked,bgPresetUnlocked:d.bgPresetUnlocked,
+      outfitPresetUnlocked:d.outfitPresetUnlocked,tutorialDone:d.tutorialDone,
+      customBgConfigs:d.customBgConfigs,customBgFilters:d.customBgFilters
+    };
+    var code='WM:'+LZString.compressToEncodedURIComponent(JSON.stringify(core));
+    navigator.clipboard.writeText(code).then(function(){
+      toast(t('sync_text_copied'));
+    }).catch(function(){
+      // 클립보드 API 실패 시 텍스트로 직접 보여주기
+      _mobileShowTextCode(code);
+    });
+  });
+}
+function _mobileShowTextCode(code){
+  var old=document.getElementById('mobile-text-code-modal');if(old)old.remove();
+  var pop=document.createElement('div');
+  pop.className='modal-bg open';pop.id='mobile-text-code-modal';
+  pop.innerHTML='<div class="modal-box" style="max-width:300px;padding:20px;text-align:center;border-radius:18px">'+
+    '<div style="font-size:13px;font-weight:900;margin-bottom:8px">'+t('sync_text_export')+'</div>'+
+    '<textarea readonly style="width:100%;height:100px;font-size:9px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);resize:none;word-break:break-all;box-sizing:border-box">'+code+'</textarea>'+
+    '<div style="font-size:9px;color:var(--text3);margin:8px 0">'+t('sync_text_paste_hint')+'</div>'+
+    '<button class="btn btn-ghost btn-sm" style="width:100%" onclick="document.getElementById(\'mobile-text-code-modal\').remove()">'+t('btn_close')+'</button>'+
+  '</div>';
+  pop.onclick=function(e){if(e.target===pop)pop.remove();};
+  document.body.appendChild(pop);
+}
+function mobileImportFromText(){
+  var old=document.getElementById('mobile-text-import-modal');if(old)old.remove();
+  var pop=document.createElement('div');
+  pop.className='modal-bg open';pop.id='mobile-text-import-modal';
+  pop.innerHTML='<div class="modal-box" style="max-width:300px;padding:20px;text-align:center;border-radius:18px">'+
+    '<div style="font-size:13px;font-weight:900;margin-bottom:4px">'+t('sync_text_paste_title')+'</div>'+
+    '<div style="font-size:9px;color:var(--text3);margin-bottom:10px">'+t('sync_text_paste_hint')+'</div>'+
+    '<textarea id="mobile-text-input" style="width:100%;height:100px;font-size:9px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);resize:none;word-break:break-all;box-sizing:border-box" placeholder="'+t('sync_text_paste_ph')+'"></textarea>'+
+    '<div style="display:flex;gap:8px;margin-top:10px">'+
+      '<button class="btn btn-accent" style="flex:1" onclick="_mobileApplyTextCode()">'+t('sync_text_apply')+'</button>'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'mobile-text-import-modal\').remove()">'+t('btn_close')+'</button>'+
+    '</div>'+
+  '</div>';
+  pop.onclick=function(e){if(e.target===pop)pop.remove();};
+  document.body.appendChild(pop);
+}
+function _mobileApplyTextCode(){
+  var input=document.getElementById('mobile-text-input');
+  if(!input)return;
+  var raw=input.value.trim();
+  var idx=raw.indexOf('WM:');
+  if(idx<0){toast(t('sync_text_invalid'));return;}
+  try{
+    var compressed=raw.slice(idx+3);
+    var json=LZString.decompressFromEncodedURIComponent(compressed);
+    var data=JSON.parse(json);
+    document.getElementById('mobile-text-import-modal').remove();
+    _mobileShowSyncWarn(data,'qr');
+  }catch(e){toast(t('sync_text_invalid'));}
+}
 
 // ── 모바일 내보내기 함수
 function mobileExportQR(){
