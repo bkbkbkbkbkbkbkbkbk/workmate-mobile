@@ -12304,7 +12304,7 @@ function mobileExportText(){
       outfitPresetUnlocked:d.outfitPresetUnlocked,tutorialDone:d.tutorialDone,
       customBgConfigs:d.customBgConfigs,customBgFilters:d.customBgFilters
     };
-    var code='WM:'+LZString.compressToEncodedURIComponent(JSON.stringify(core));
+    var code='WMB:'+LZString.compressToBase64(JSON.stringify(core));
     navigator.clipboard.writeText(code).then(function(){
       toast(t('sync_text_copied'));
     }).catch(function(){
@@ -12345,12 +12345,18 @@ function mobileImportFromText(){
 function _mobileApplyTextCode(){
   var input=document.getElementById('mobile-text-input');
   if(!input)return;
-  var raw=input.value.trim();
-  var idx=raw.indexOf('WM:');
-  if(idx<0){toast(t('sync_text_invalid'));return;}
+  // 공백/줄바꿈/보이지않는문자 전부 제거 (메신저 전송 시 변형 대비)
+  var raw=input.value.replace(/\s+/g,'');
+  var json=null;
   try{
-    var compressed=raw.slice(idx+3);
-    var json=LZString.decompressFromEncodedURIComponent(compressed);
+    if(raw.indexOf('WMB:')>=0){
+      // base64 형식 (신규)
+      json=LZString.decompressFromBase64(raw.slice(raw.indexOf('WMB:')+4));
+    } else if(raw.indexOf('WM:')>=0){
+      // 구형 URI 인코딩 형식 (하위 호환)
+      json=LZString.decompressFromEncodedURIComponent(raw.slice(raw.indexOf('WM:')+3));
+    }
+    if(!json)throw new Error('no prefix');
     var data=JSON.parse(json);
     document.getElementById('mobile-text-import-modal').remove();
     _mobileShowSyncWarn(data,'qr');
