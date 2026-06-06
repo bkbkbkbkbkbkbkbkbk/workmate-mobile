@@ -15117,6 +15117,7 @@ var MENU_LIST=[
   {n:'포케',c:'기타',col:'#7c3aed'}
 ];
 var _rouletteSpinning=false;
+var _rouletteCat='전체'; // 선택된 카테고리
 
 function openMenuRoulette(){
   var old=document.getElementById('menu-roulette-modal');if(old)old.remove();
@@ -15125,19 +15126,22 @@ function openMenuRoulette(){
   pop.innerHTML=
     '<div class="roulette-sheet">'
     +'<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
     +'<div><div style="font-size:16px;font-weight:900;color:var(--text)">오늘 뭐 먹지?</div>'
-    +'<div style="font-size:10px;color:var(--text3);margin-top:1px">총 '+MENU_LIST.length+'가지 메뉴</div></div>'
+    +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">총 '+MENU_LIST.length+'가지 메뉴</div></div>'
     +'<button onclick="document.getElementById(\'menu-roulette-modal\').remove()" style="background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--text3)">×</button>'
+    +'</div>'
+    // 카테고리 필터
+    +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px" id="roulette-cat-btns">'
+    +[['전체','var(--accent)','var(--accent)'],['한식','#e11d48','#e11d48'],['분식','#f97316','#f97316'],['일식','#0891b2','#0891b2'],['중식','#4f46e5','#4f46e5'],['양식','#16a34a','#16a34a'],['기타','#7c3aed','#7c3aed']].map(function(c){
+      var active=_rouletteCat===c[0];
+      return'<button data-rcat="'+c[0]+'" onclick="setRouletteCat(\''+c[0]+'\')" '
+        +'style="padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]+'22':'var(--surface)')+';color:'+(active?c[1]:'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+c[0]+'</button>';
+    }).join('')
     +'</div>'
     +'<div class="slot-window"><div class="slot-reel" id="slot-reel"></div></div>'
     +'<div id="slot-result" style="text-align:center;min-height:28px;margin-bottom:12px"></div>'
     +'<button onclick="spinRoulette()" id="spin-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#fff;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.5px">돌리기!</button>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:12px;justify-content:center">'
-    +[['한식','#e11d48'],['분식','#f97316'],['일식','#0891b2'],['중식','#4f46e5'],['양식','#16a34a'],['기타','#7c3aed']].map(function(c){
-      return'<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;background:'+c[1]+'22;color:'+c[1]+'">'+c[0]+'</span>';
-    }).join('')
-    +'</div>'
     +'</div>';
   pop.onclick=function(e){if(e.target===pop)pop.remove();};
   document.body.appendChild(pop);
@@ -15145,12 +15149,34 @@ function openMenuRoulette(){
   _buildReel(0);
 }
 
-function _buildReel(resultIdx){
+var _CAT_COLORS={'전체':'var(--accent)','한식':'#e11d48','분식':'#f97316','일식':'#0891b2','중식':'#4f46e5','양식':'#16a34a','기타':'#7c3aed'};
+
+function setRouletteCat(cat){
+  _rouletteCat=cat;
+  // 버튼 스타일 업데이트
+  document.querySelectorAll('[data-rcat]').forEach(function(b){
+    var bc=_CAT_COLORS[b.dataset.rcat]||'var(--accent)';
+    var active=b.dataset.rcat===cat;
+    b.style.borderColor=active?bc:'var(--border2)';
+    b.style.background=active?bc.replace(')',',0.13)').replace('rgb','rgba').replace('var(--accent)','var(--accent-a15)'):'var(--surface)';
+    b.style.color=active?bc:'var(--text3)';
+  });
+  // 메뉴 수 업데이트
+  var filtered=cat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===cat;});
+  var cnt=document.getElementById('roulette-count');
+  if(cnt)cnt.textContent=(cat==='전체'?'전체 ':'['+cat+'] ')+filtered.length+'가지 메뉴';
+  // 결과 초기화
+  var res=document.getElementById('slot-result');if(res)res.innerHTML='';
+  var btn=document.getElementById('spin-btn');if(btn)btn.textContent='돌리기!';
+}
+
+function _buildReel(pickedMenu){
   var reel=document.getElementById('slot-reel');if(!reel)return;
-  // 릴에 아이템 60개 나열 (랜덤 셔플 + 결과를 마지막에)
+  var pool=_rouletteCat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===_rouletteCat;});
+  // 58개 랜덤 + 마지막에 결과
   var items=[];
-  for(var i=0;i<58;i++)items.push(MENU_LIST[Math.floor(Math.random()*MENU_LIST.length)]);
-  items.push(MENU_LIST[resultIdx]); // 59번째 = 결과
+  for(var i=0;i<58;i++)items.push(pool[Math.floor(Math.random()*pool.length)]);
+  items.push(pickedMenu);
   reel.innerHTML=items.map(function(m){
     return'<div class="slot-item">'
       +'<div class="slot-name">'+m.n+'</div>'
@@ -15167,12 +15193,16 @@ function spinRoulette(){
   var btn=document.getElementById('spin-btn');
   var resultEl=document.getElementById('slot-result');
   if(!reel||!btn)return;
+  // 카테고리 필터 적용
+  var pool=_rouletteCat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===_rouletteCat;});
+  if(!pool.length){toast('선택한 카테고리에 메뉴가 없어요.');return;}
   _rouletteSpinning=true;
   btn.disabled=true;btn.style.opacity='.5';
   resultEl.innerHTML='';
-  // 결과 선택
-  var resultIdx=Math.floor(Math.random()*MENU_LIST.length);
-  _buildReel(resultIdx);
+  // pool 기반 결과 선택
+  var resultIdxInPool=Math.floor(Math.random()*pool.length);
+  var pickedMenu=pool[resultIdxInPool];
+  _buildReel(pickedMenu);
   // 아이템 높이 72px, 총 59개 → 마지막(결과)까지 = -(58 * 72)px
   var totalPx=58*72;
   // 슬롯 애니메이션: 빠르게 → 서서히 감속
@@ -15185,10 +15215,9 @@ function spinRoulette(){
     _rouletteSpinning=false;
     btn.disabled=false;btn.style.opacity='1';
     btn.textContent='다시 돌리기!';
-    var m=MENU_LIST[resultIdx];
     resultEl.innerHTML=
-      '<div style="font-size:13px;font-weight:900;color:'+m.col+';animation:slotResult .5s ease">'
-      +'오늘은 <span style="font-size:16px">'+m.n+'</span> 어때요?'
+      '<div style="font-size:13px;font-weight:900;color:'+pickedMenu.col+';animation:slotResult .5s ease">'
+      +'오늘은 <span style="font-size:16px">'+pickedMenu.n+'</span> 어때요?'
       +'</div>';
   },3300);
 }
