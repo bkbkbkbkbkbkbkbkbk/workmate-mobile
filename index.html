@@ -12342,7 +12342,7 @@ function _doPetBringGift(){
 // ─────────────────────────────────
 // TOOL TABS
 // ─────────────────────────────────
-function bindToolTabs(){document.querySelectorAll('.ttab').forEach(b=>{b.onclick=()=>{S.toolTab=b.dataset.tab;document.querySelectorAll('.ttab').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderToolPanel();if(b.dataset.tab==='music'&&!S.ytTutorialShown)showYtTutorial();else if(b.dataset.tab==='cal'&&!S.calTutorialShown)showCalTutorial();else if(b.dataset.tab==='timer'&&!S.timerTutorialShown)showTimerTutorial();};});}
+function bindToolTabs(){document.querySelectorAll('.ttab').forEach(b=>{b.onclick=()=>{S.toolTab=b.dataset.tab;document.querySelectorAll('.ttab').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderToolPanel();if(b.dataset.tab==='cal'&&!S.calTutorialShown)showCalTutorial();else if(b.dataset.tab==='timer'&&!S.timerTutorialShown)showTimerTutorial();};});}
 function renderToolPanel(){
   const el=document.getElementById('tool-panel'),t=S.toolTab;
   if(t==='music'){
@@ -13581,16 +13581,11 @@ function _ytUpdateUI(){
   _ytPushToPopup();
 }
 function renderMusic(){
-  var tab=S.bgmTab||'youtube';
-  var tabBtn=function(id,label){
-    return '<button onclick="S.bgmTab=\''+id+'\';renderToolPanel()" style="flex:1;padding:4px 0;font-size:10px;font-weight:800;border-radius:8px;border:1.5px solid '+(tab===id?'var(--accent)':'var(--border2)')+';background:'+(tab===id?'rgba(108,99,255,.1)':'var(--surface)')+';color:'+(tab===id?'var(--accent)':'var(--text2)')+';cursor:pointer;transition:.15s">'+label+'</button>';
-  };
-  var tabs='<div style="display:flex;gap:5px;margin-bottom:10px">'+tabBtn('youtube',t('music_tab_yt'))+tabBtn('bgm',t('music_tab_bgm'))+'</div>';
+  var tab='bgm'; // 모바일: 유튜브 제거, BGM만 표시
+  var tabs='';
 
-  if(tab==='youtube'){
-    var BKMK_SVG='<svg width="11" height="13" viewBox="0 0 11 13" fill="none"><path d="M1.5 1h8v11l-4-2.5L1.5 12V1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
-    var PLAY_SVG='<svg width="9" height="10" viewBox="0 0 9 10" fill="none"><path d="M1 1l7 4-7 4V1Z" fill="currentColor"/></svg>';
-    var PAUSE_SVG='<svg width="10" height="10" viewBox="0 0 12 12"><rect x="1.5" y="1" width="3" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1" width="3" height="10" rx="1" fill="currentColor"/></svg>';
+  if(false){ // [모바일] 유튜브 섹션 제거
+    var BKMK_SVG=''; var PLAY_SVG=''; var PAUSE_SVG='';
     var favs=S.ytFavorites||[];
     var saveForm=_ytSavingUrl?
       '<div style="display:flex;gap:5px;margin-bottom:8px;align-items:center">'+
