@@ -667,6 +667,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
   <button class="ttab active" data-tab="todo"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 6.5l2 2L9.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tab_todo">할일</span></button>
   <button class="ttab" data-tab="memo"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5h6M3.5 7.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_memo">메모</span></button>
   <button class="ttab" data-tab="calc"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 4.5h2M7.5 4.5h2M4 8h2M7.5 8h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_calc">계산기</span></button>
+  <button class="ttab" data-tab="ledger"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 4.5h2.5M3.5 6.5h5M3.5 8.5h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9 3.5v2M8 4.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>가계부</span></button>
   <button class="ttab" data-tab="timer"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 5v2.5l1.5.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 1h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_timer">타이머</span></button>
   <button class="ttab" data-tab="cal"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2.5" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h11M4.5 1v3M8.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_cal">캘린더</span></button>
 </div>
@@ -1528,6 +1529,7 @@ const S={
   calYear:new Date().getFullYear(), calMonth:new Date().getMonth(),
   musicPlaying:false, musicTrack:0, ytUrl:'', ytPlaying:false, ytPaused:false, ytRepeat:false, ytMuted:false, ytVol:1, ytFavorites:[], bgmMuted:false, ytTutorialShown:false, calTutorialShown:false, ddayTutorialShown:false, timerTutorialShown:false, floorTutorialShown:false, bgPresetTutorialShown:false, accTutDone:false,
   bgmTab:'youtube', bgmIdx:0, bgmVol:0.7, bgmShuffle:false, bgmLoop:false, autoEat:true, bgPresets:[null,null,null,null,null], bgPresetUnlocked:false, outfitPresetUnlocked:false, inflationLevel:0, customBgConfigs:{}, customBgFilters:{},
+  ledger:[], ledgerYear:new Date().getFullYear(), ledgerMonth:new Date().getMonth(),
   calcExpr:'', calcVal:'0',
   timerSec:0, timerTotal:25*60, timerRunning:false,
   swSec:0, swRunning:false, timerChimeVol:0.35, timerChimeIdx:10, timerChimeOpen:false,
@@ -1600,7 +1602,7 @@ function saveGame(){
     localStorage.setItem(SAVE_KEY,JSON.stringify({
       gold:S.gold, isDark:S.isDark, speechOn:S.speechOn, lang:S.lang,
       characters:S.characters, npcs:S.npcs, pet:S.pet, pet2:S.pet2, pet2Unlocked:S.pet2Unlocked,
-      ddays:S.ddays, todos:S.todos, doneTodos:S.doneTodos, inventory:S.inventory,
+      ddays:S.ddays, todos:S.todos, doneTodos:S.doneTodos, inventory:S.inventory, ledger:S.ledger,
       roomBg:S.roomBg, ownedBgs:S.ownedBgs, ownedHairVariants:S.ownedHairVariants, memos:_memos, alwaysOnTop:S.alwaysOnTop, opacity:S.opacity, ytUrl:S.ytUrl, ytRepeat:S.ytRepeat, ytVol:S.ytVol, ytFavorites:S.ytFavorites, ytTutorialShown:S.ytTutorialShown, calTutorialShown:S.calTutorialShown, ddayTutorialShown:S.ddayTutorialShown, timerTutorialShown:S.timerTutorialShown, floorTutorialShown:S.floorTutorialShown, bgPresetTutorialShown:S.bgPresetTutorialShown, accTutDone:S.accTutDone,
       bgmTab:S.bgmTab, bgmIdx:S.bgmIdx, bgmVol:S.bgmVol, bgmShuffle:S.bgmShuffle, bgmLoop:S.bgmLoop, bgmPlaying:_bgmPlaying, autoEat:S.autoEat, bgPresetUnlocked:S.bgPresetUnlocked, outfitPresetUnlocked:S.outfitPresetUnlocked, pomWorkMin:S.pomWorkMin, pomBreakMin:S.pomBreakMin, pomWorkSec:S.pomWorkSec, pomWorkDate:S.pomWorkDate, timerChimeIdx:S.timerChimeIdx, workworkMode:S.workworkMode, workworkPrograms:S.workworkPrograms, gameSavedAt:Date.now(),
       todoRewardDate:S.todoRewardDate, todoRewardCount:S.todoRewardCount, roomGifts:S.roomGifts, petGiftLastTime:S.petGiftLastTime, holidayClaimedDates:S.holidayClaimedDates, tutorialDone:S.tutorialDone, inflationLevel:S.inflationLevel, customBgConfigs:S.customBgConfigs, customBgFilters:S.customBgFilters, bulkFoodUnlocked:S.bulkFoodUnlocked, unlockedFloors:S.unlockedFloors, currentFloor:S.currentFloor, floorBgs:S.floorBgs,
@@ -1692,6 +1694,7 @@ function loadGame(){
     if(d.todoRewardDate)S.todoRewardDate=d.todoRewardDate;
     if(d.todoRewardCount!=null)S.todoRewardCount=d.todoRewardCount;
     if(d.holidayClaimedDates&&typeof d.holidayClaimedDates==='object')S.holidayClaimedDates=d.holidayClaimedDates;
+    if(Array.isArray(d.ledger))S.ledger=d.ledger;
     if(d.tutorialDone)S.tutorialDone=true;
     if(d.bulkFoodUnlocked)S.bulkFoodUnlocked=true;
     if(d.unlockedFloors&&d.unlockedFloors>1)S.unlockedFloors=d.unlockedFloors;
@@ -12236,6 +12239,7 @@ function renderToolPanel(){
   else if(t==='calc')el.innerHTML=renderCalc();
   else if(t==='timer')el.innerHTML=renderTimerPanel();
   else if(t==='cal')el.innerHTML=renderCal();
+  else if(t==='ledger')el.innerHTML=renderLedger();
 }
 function _bindMemoInputs(idx){
   var ti=document.getElementById('memo-title-inp');
@@ -14145,6 +14149,162 @@ function renderCal(){
     +' <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:var(--pink);vertical-align:middle"></span>'+t('cal_legend_dday')
     +'</div></div>';
 }
+// ══════════════════════════════════════════════════════
+// ── 가계부 ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+var _LEDGER_CATS={
+  expense:[
+    {id:'food',    icon:'🍚', name:'식비'},
+    {id:'cafe',    icon:'☕', name:'카페'},
+    {id:'trans',   icon:'🚌', name:'교통'},
+    {id:'shop',    icon:'🛍️', name:'쇼핑'},
+    {id:'health',  icon:'💊', name:'의료'},
+    {id:'beauty',  icon:'💇', name:'미용'},
+    {id:'culture', icon:'🎬', name:'문화'},
+    {id:'tel',     icon:'📱', name:'통신'},
+    {id:'house',   icon:'🏠', name:'주거'},
+    {id:'edu',     icon:'📚', name:'교육'},
+    {id:'etc_e',   icon:'📌', name:'기타'},
+  ],
+  income:[
+    {id:'salary',  icon:'💰', name:'급여'},
+    {id:'allowance',icon:'🎁', name:'용돈'},
+    {id:'extra',   icon:'💵', name:'부수입'},
+    {id:'etc_i',   icon:'📌', name:'기타'},
+  ]
+};
+
+function _ledgerCatInfo(catId){
+  var all=[..._LEDGER_CATS.expense,..._LEDGER_CATS.income];
+  return all.find(function(c){return c.id===catId;})||{icon:'📌',name:'기타'};
+}
+
+function _ledgerFmt(n){
+  return Number(n).toLocaleString('ko-KR')+'원';
+}
+
+function addLedgerEntry(){
+  var type=document.getElementById('ldg-type').value;
+  var amtStr=document.getElementById('ldg-amount').value.replace(/,/g,'').trim();
+  var amt=parseInt(amtStr);
+  if(!amt||amt<=0){toast('금액을 입력해주세요.');return;}
+  var cat=document.getElementById('ldg-cat').value;
+  var memo=document.getElementById('ldg-memo').value.trim();
+  var date=document.getElementById('ldg-date').value||new Date().toISOString().slice(0,10);
+  S.ledger.push({id:Date.now(),type:type,amount:amt,cat:cat,memo:memo,date:date});
+  S.ledger.sort(function(a,b){return b.date.localeCompare(a.date)||b.id-a.id;});
+  scheduleSave();
+  toast((type==='income'?'수입':'지출')+' '+_ledgerFmt(amt)+' 추가됨!');
+  renderToolPanel();
+}
+
+function deleteLedgerEntry(id){
+  S.ledger=S.ledger.filter(function(e){return e.id!==id;});
+  scheduleSave();
+  renderToolPanel();
+}
+
+function renderLedger(){
+  var y=S.ledgerYear, m=S.ledgerMonth;
+  var today=new Date();
+  var monthStr=y+'-'+String(m+1).padStart(2,'0');
+  var monthItems=S.ledger.filter(function(e){return e.date&&e.date.startsWith(monthStr);});
+
+  // 요약
+  var totalIncome=monthItems.filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
+  var totalExpense=monthItems.filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
+  var balance=totalIncome-totalExpense;
+
+  // 월 네비
+  var MN=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  var nav='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">‹</button>'
+    +'<span style="font-size:13px;font-weight:900">'+y+'년 '+MN[m]+'</span>'
+    +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">›</button>'
+    +'</div>';
+
+  // 요약 카드
+  var summary='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">'
+    +'<div style="background:rgba(22,163,74,.1);border:1.5px solid rgba(22,163,74,.25);border-radius:12px;padding:8px;text-align:center">'
+    +'<div style="font-size:9px;color:var(--green);font-weight:800;margin-bottom:2px">💰 수입</div>'
+    +'<div style="font-size:11px;font-weight:900;color:var(--green)">'+_ledgerFmt(totalIncome)+'</div></div>'
+    +'<div style="background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:12px;padding:8px;text-align:center">'
+    +'<div style="font-size:9px;color:var(--red);font-weight:800;margin-bottom:2px">💸 지출</div>'
+    +'<div style="font-size:11px;font-weight:900;color:var(--red)">'+_ledgerFmt(totalExpense)+'</div></div>'
+    +'<div style="background:'+(balance>=0?'rgba(108,99,255,.08)':'rgba(239,68,68,.08)')+';border:1.5px solid '+(balance>=0?'rgba(108,99,255,.25)':'rgba(239,68,68,.2)')+';border-radius:12px;padding:8px;text-align:center">'
+    +'<div style="font-size:9px;color:'+(balance>=0?'var(--accent)':'var(--red)')+';font-weight:800;margin-bottom:2px">🏦 잔액</div>'
+    +'<div style="font-size:11px;font-weight:900;color:'+(balance>=0?'var(--accent)':'var(--red)')+'">'+_ledgerFmt(Math.abs(balance))+'</div></div>'
+    +'</div>';
+
+  // 입력 폼
+  var cats=_LEDGER_CATS;
+  var typeVal='expense'; // 기본값
+  var catOpts_e=cats.expense.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.name+'</option>';}).join('');
+  var catOpts_i=cats.income.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.name+'</option>';}).join('');
+
+  var form='<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:10px;margin-bottom:10px">'
+    +'<div style="display:flex;gap:5px;margin-bottom:8px">'
+    +'<button id="ldg-btn-exp" onclick="document.getElementById(\'ldg-type\').value=\'expense\';document.getElementById(\'ldg-cat\').innerHTML=\''+catOpts_e+'\';this.style.background=\'rgba(239,68,68,.15)\';this.style.color=\'var(--red)\';this.style.borderColor=\'var(--red)\';document.getElementById(\'ldg-btn-inc\').style.background=\'\';document.getElementById(\'ldg-btn-inc\').style.color=\'var(--text2)\';document.getElementById(\'ldg-btn-inc\').style.borderColor=\'var(--border2)\';" '
+    +'style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--red);background:rgba(239,68,68,.15);color:var(--red);font-size:11px;font-weight:900;cursor:pointer">💸 지출</button>'
+    +'<button id="ldg-btn-inc" onclick="document.getElementById(\'ldg-type\').value=\'income\';document.getElementById(\'ldg-cat\').innerHTML=\''+catOpts_i+'\';this.style.background=\'rgba(22,163,74,.12)\';this.style.color=\'var(--green)\';this.style.borderColor=\'var(--green)\';document.getElementById(\'ldg-btn-exp\').style.background=\'\';document.getElementById(\'ldg-btn-exp\').style.color=\'var(--text2)\';document.getElementById(\'ldg-btn-exp\').style.borderColor=\'var(--border2)\';" '
+    +'style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--border2);color:var(--text2);font-size:11px;font-weight:900;cursor:pointer">💰 수입</button>'
+    +'</div>'
+    +'<input type="hidden" id="ldg-type" value="expense">'
+    +'<div style="display:flex;gap:5px;margin-bottom:6px">'
+    +'<input id="ldg-amount" type="number" placeholder="금액 (원)" min="0" inputmode="numeric"'
+    +' style="flex:1;padding:6px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
+    +'<select id="ldg-cat" style="width:100px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'+catOpts_e+'</select>'
+    +'</div>'
+    +'<div style="display:flex;gap:5px">'
+    +'<input id="ldg-memo" type="text" placeholder="메모 (선택)" maxlength="30"'
+    +' style="flex:1;padding:6px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
+    +'<input id="ldg-date" type="date" value="'+new Date().toISOString().slice(0,10)+'"'
+    +' style="width:110px;padding:5px 6px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'
+    +'</div>'
+    +'<button onclick="addLedgerEntry()" class="btn btn-accent" style="width:100%;margin-top:8px;font-size:12px">+ 추가</button>'
+    +'</div>';
+
+  // 내역 리스트 (날짜 그룹)
+  var list='';
+  if(!monthItems.length){
+    list='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">이번 달 내역이 없어요<br><span style="font-size:20px">💸</span></div>';
+  } else {
+    // 날짜별 그룹
+    var grouped={};
+    monthItems.forEach(function(e){
+      if(!grouped[e.date])grouped[e.date]=[];
+      grouped[e.date].push(e);
+    });
+    var dates=Object.keys(grouped).sort(function(a,b){return b.localeCompare(a);});
+    dates.forEach(function(date){
+      var d=new Date(date+'T00:00:00');
+      var dayNames=['일','월','화','수','목','금','토'];
+      var dayLabel=d.getMonth()+1+'월 '+d.getDate()+'일 ('+dayNames[d.getDay()]+')';
+      var dayIncome=grouped[date].filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
+      var dayExpense=grouped[date].filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
+      list+='<div style="margin-bottom:6px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:4px">'
+        +'<span style="font-size:10px;font-weight:800;color:var(--text2)">'+dayLabel+'</span>'
+        +'<span style="font-size:9px;color:var(--text3)">'+(dayIncome?'<span style="color:var(--green)">+'+_ledgerFmt(dayIncome)+'</span> ':'')+( dayExpense?'<span style="color:var(--red)">-'+_ledgerFmt(dayExpense)+'</span>':'')+'</span>'
+        +'</div>';
+      grouped[date].forEach(function(e){
+        var ci=_ledgerCatInfo(e.cat);
+        list+='<div style="display:flex;align-items:center;gap:7px;padding:5px 4px;border-radius:10px;margin-bottom:2px;background:var(--surface)">'
+          +'<span style="font-size:18px;flex-shrink:0">'+ci.icon+'</span>'
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:11px;font-weight:700;color:var(--text)">'+ci.name+(e.memo?' · <span style="font-weight:400;color:var(--text3)">'+e.memo+'</span>':'')+'</div>'
+          +'</div>'
+          +'<span style="font-size:12px;font-weight:900;color:'+(e.type==='income'?'var(--green)':'var(--red)');'+(e.type==='income'?'+':'-')+_ledgerFmt(e.amount)+'</span>'
+          +'<button onclick="deleteLedgerEntry('+e.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px;flex-shrink:0">×</button>'
+          +'</div>';
+      });
+      list+='</div>';
+    });
+  }
+
+  return '<div class="card" style="padding:10px">'+nav+summary+form+list+'</div>';
+}
+
 var _calEvType='todo';
 function setCalEvType(t){
   _calEvType=t;
