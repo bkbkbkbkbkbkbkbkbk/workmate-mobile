@@ -14002,11 +14002,13 @@ function renderMusic(){
 const _memos=[''];
 function renderTodo(cid){
   // ── 입력 행
-  let html='<div style="display:flex;gap:5px;margin-bottom:6px">'+
+  let html='<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px">'+
+    '<div style="display:flex;gap:5px">'+
     '<input type="text" id="ti-'+cid+'" placeholder="'+t('todo_ph')+'" style="flex:1;font-size:11px;padding:5px 8px">'+
-    '<input type="date" id="td-'+cid+'" style="width:110px;font-size:10px;padding:5px 6px" title="'+t('todo_due_ph')+'">'+
     '<button class="btn btn-accent btn-sm" onclick="addTodo(\''+cid+'\')">+</button>'+
-    '<button class="btn btn-ghost btn-sm" onclick="oFT()">↗</button></div>';
+    '<button class="btn btn-ghost btn-sm" onclick="oFT()">↗</button></div>'+
+    '<input type="date" id="td-'+cid+'" style="width:100%;font-size:11px;padding:5px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text)" title="'+t('todo_due_ph')+'">'+
+    '</div>';
   // ── 미완료 목록
   const _todosOnly=S.todos.filter(t=>t.type!=='outing');
   if(_todosOnly.length===0){
@@ -15495,7 +15497,7 @@ function openMenuRoulette(){
     +'<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
     +'<div><div style="font-size:16px;font-weight:900;color:var(--text)">'+t('roulette_title')+'</div>'
-    +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">총 '+MENU_LIST.length+'가지 메뉴</div></div>'
+    +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">'+t('roulette_menus',MENU_LIST.length)+'</div></div>'
     +'<button onclick="document.getElementById(\'menu-roulette-modal\').remove()" style="background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--text3)">×</button>'
     +'</div>'
     // 카테고리 필터 (가로 스크롤 + 화살표)
@@ -15504,11 +15506,10 @@ function openMenuRoulette(){
     +'<div id="roulette-cat-scroll" style="display:flex;gap:5px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;padding:2px 0">'
     +'<style>#roulette-cat-scroll::-webkit-scrollbar{display:none}</style>'
     +'<div style="display:flex;gap:5px;flex-wrap:nowrap" id="roulette-cat-btns">'
-    +[['전체','var(--accent)'],['한식','#e11d48'],['분식','#f97316'],['일식','#0891b2'],['중식','#4f46e5'],['양식','#16a34a'],['기타','#7c3aed']].map(function(c){
+    +Object.entries(_CAT_COLORS).map(function(c){
       var active=_rouletteCat===c[0];
-      // 선택 시: 진한 배경 + 흰 글씨 / 미선택: 테두리만
       return'<button data-rcat="'+c[0]+'" onclick="setRouletteCat(\''+c[0]+'\')" '
-        +'style="white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]:'var(--surface)')+';color:'+(active?'#fff':'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+c[0]+'</button>';
+        +'style="white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:20px;border:1.5px solid '+(active?c[1]:'var(--border2)')+';background:'+(active?c[1]:'var(--surface)')+';color:'+(active?'#fff':'var(--text3)')+';font-size:11px;font-weight:800;cursor:pointer;transition:.15s">'+_rcatLabel(c[0])+'</button>';
     }).join('')
     +'</div>'   // roulette-cat-btns
     +'</div>'   // roulette-cat-scroll
@@ -15525,6 +15526,11 @@ function openMenuRoulette(){
 }
 
 var _CAT_COLORS={'전체':'var(--accent)','한식':'#e11d48','분식':'#f97316','일식':'#0891b2','중식':'#4f46e5','양식':'#16a34a','기타':'#7c3aed'};
+var _RCAT_KEYS={
+  '전체':'rcat_all','한식':'rcat_korean','분식':'rcat_snack',
+  '일식':'rcat_japanese','중식':'rcat_chinese','양식':'rcat_western','기타':'rcat_other'
+};
+function _rcatLabel(k){return t(_RCAT_KEYS[k]||('rcat_'+k))||k;}
 
 function setRouletteCat(cat){
   _rouletteCat=cat;
@@ -15539,7 +15545,7 @@ function setRouletteCat(cat){
   // 메뉴 수 업데이트
   var filtered=cat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===cat;});
   var cnt=document.getElementById('roulette-count');
-  if(cnt)cnt.textContent=(cat==='전체'?'전체 ':'['+cat+'] ')+filtered.length+'가지 메뉴';
+  if(cnt)cnt.textContent=(cat==='전체'?'':('['+_rcatLabel(cat)+'] '))+t('roulette_menus',filtered.length);
   // 결과 초기화
   var res=document.getElementById('slot-result');if(res)res.innerHTML='';
   var btn=document.getElementById('spin-btn');if(btn)btn.textContent=t('roulette_spin');
@@ -15555,7 +15561,7 @@ function _buildReel(pickedMenu){
   reel.innerHTML=items.map(function(m){
     return'<div class="slot-item">'
       +'<div class="slot-name">'+m.n+'</div>'
-      +'<div class="slot-cat" style="background:'+m.col+'22;color:'+m.col+'">'+m.c+'</div>'
+      +'<div class="slot-cat" style="background:'+m.col+'22;color:'+m.col+'">'+_rcatLabel(m.c)+'</div>'
       +'</div>';
   }).join('');
   reel.style.transform='translateY(0)';
