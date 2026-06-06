@@ -11751,7 +11751,7 @@ function upgradeStat(statId){
   S.gold-=cost;c[statId]=lv+1;
   if(!c.statXp)c.statXp={};c.statXp[statId]=0;
   if(statId==='workSpeed'){if(S.npcs.indexOf(c)>=0)scheduleNpcEarn(c);else scheduleEarn(c);}
-  updateGoldDisplay();toast(st.icon+' '+t(_statNameKey[statId]||statId)+' Lv'+c[statId]+'!');addXP(30);renderTopPanel();saveGame();
+  updateGoldDisplay();toast(st.icon+' '+t(_statNameKey[statId]||statId)+' Lv'+c[statId]+'!');addXP(30);renderTopPanel();renderToolPanel();saveGame();
 }
 function buyJob(jobId){
   const job=JOBS.find(j=>j.id===jobId);
