@@ -12,6 +12,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/game_icon_256.png">
 <title>Work Mate</title>
+<!-- Google Identity Services (OAuth 2.0) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 :root{
@@ -14038,6 +14040,177 @@ function getHoliday(y,m,d){
   if(!names.length)return null;
   return{name:names.join(' / '),type:isHoliday?'holiday':'special'};
 }
+// ══════════════════════════════════════════════════════
+// ── Google Calendar 연동 ────────────────────────────
+// ══════════════════════════════════════════════════════
+var _gcalEvents=[];          // [{id,title,date,endDate}]
+var _gcalAccessToken=null;
+var _gcalTokenClient=null;
+var _gcalSyncing=false;
+
+// localStorage에서 Client ID & 토큰 복구
+var _GCAL_CLIENT_ID_KEY='workmate_gcal_client_id';
+var _GCAL_TOKEN_KEY='workmate_gcal_token';
+var _GCAL_EVENTS_KEY='workmate_gcal_events';
+
+function gcalGetClientId(){return localStorage.getItem(_GCAL_CLIENT_ID_KEY)||'';}
+function gcalIsConnected(){return!!_gcalAccessToken;}
+
+function gcalSaveClientId(id){
+  id=(id||'').trim();
+  if(!id){toast('Client ID를 입력해주세요.');return;}
+  localStorage.setItem(_GCAL_CLIENT_ID_KEY,id);
+  _gcalTokenClient=null; // 리셋 후 재생성
+  toast('Client ID 저장됨. 이제 연결해주세요.');
+  renderToolPanel();
+}
+
+function _gcalInitClient(cb){
+  var cid=gcalGetClientId();
+  if(!cid){toast('Google Client ID를 먼저 설정해주세요.');return;}
+  if(typeof google==='undefined'||!google.accounts){
+    toast('Google 라이브러리 로딩 중... 잠시 후 다시 시도해주세요.');return;
+  }
+  if(!_gcalTokenClient){
+    _gcalTokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:cid,
+      scope:'https://www.googleapis.com/auth/calendar.readonly',
+      callback:function(resp){
+        if(resp.error){toast('Google 로그인 실패: '+resp.error);return;}
+        _gcalAccessToken=resp.access_token;
+        localStorage.setItem(_GCAL_TOKEN_KEY,resp.access_token);
+        if(cb)cb();
+      }
+    });
+  }
+  _gcalTokenClient.requestAccessToken();
+}
+
+function gcalConnect(){
+  if(!gcalGetClientId()){
+    // Client ID 입력 UI 표시
+    renderToolPanel();
+    setTimeout(function(){
+      var el=document.getElementById('gcal-client-input');
+      if(el)el.focus();
+    },100);
+    return;
+  }
+  _gcalInitClient(function(){
+    toast('Google 캘린더 연결 완료 ✓');
+    gcalSync();
+  });
+}
+
+function gcalDisconnect(){
+  _gcalAccessToken=null;
+  _gcalTokenClient=null;
+  _gcalEvents=[];
+  localStorage.removeItem(_GCAL_TOKEN_KEY);
+  localStorage.removeItem(_GCAL_EVENTS_KEY);
+  if(typeof google!=='undefined'&&google.accounts&&google.accounts.oauth2){
+    google.accounts.oauth2.revoke(_gcalAccessToken,function(){});
+  }
+  toast('Google 캘린더 연결 해제');
+  renderToolPanel();
+}
+
+async function gcalSync(){
+  if(_gcalSyncing)return;
+  if(!_gcalAccessToken){gcalConnect();return;}
+  _gcalSyncing=true;
+  toast('Google 캘린더 동기화 중...');
+  var y=S.calYear,m=S.calMonth;
+  var timeMin=new Date(y,m,1).toISOString();
+  var timeMax=new Date(y,m+1,0,23,59,59).toISOString();
+  try{
+    var res=await fetch(
+      'https://www.googleapis.com/calendar/v3/calendars/primary/events'
+      +'?timeMin='+encodeURIComponent(timeMin)
+      +'&timeMax='+encodeURIComponent(timeMax)
+      +'&singleEvents=true&orderBy=startTime&maxResults=100',
+      {headers:{Authorization:'Bearer '+_gcalAccessToken}}
+    );
+    if(res.status===401){
+      // 토큰 만료 → 재로그인
+      _gcalAccessToken=null;
+      localStorage.removeItem(_GCAL_TOKEN_KEY);
+      gcalConnect();
+      _gcalSyncing=false;
+      return;
+    }
+    var data=await res.json();
+    _gcalEvents=(data.items||[]).map(function(e){
+      return{
+        id:e.id,
+        title:e.summary||'(제목 없음)',
+        date:(e.start.date||e.start.dateTime||'').slice(0,10),
+        endDate:(e.end.date||e.end.dateTime||'').slice(0,10)
+      };
+    });
+    // 캐시 저장 (오프라인 대비)
+    try{localStorage.setItem(_GCAL_EVENTS_KEY,JSON.stringify({y:y,m:m,events:_gcalEvents}));}catch(e){}
+    toast('Google 캘린더 동기화 완료 ✓ ('+_gcalEvents.length+'개)');
+    renderToolPanel();
+  }catch(err){
+    toast('동기화 실패: 네트워크를 확인해주세요.');
+  }
+  _gcalSyncing=false;
+}
+
+// 앱 시작 시 캐시된 이벤트 & 토큰 복구
+(function(){
+  var saved=localStorage.getItem(_GCAL_EVENTS_KEY);
+  if(saved){try{var p=JSON.parse(saved);if(Array.isArray(p.events))_gcalEvents=p.events;}catch(e){}}
+  var tk=localStorage.getItem(_GCAL_TOKEN_KEY);
+  if(tk)_gcalAccessToken=tk; // 만료됐을 수 있음 — 동기화 시 자동 재로그인
+})();
+
+function _renderGcalSection(){
+  var cid=gcalGetClientId();
+  var connected=gcalIsConnected();
+  var html='<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px">';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+  html+='<span style="font-size:10px;font-weight:900;color:var(--text2)">📅 Google 캘린더 연동</span>';
+  if(connected){
+    html+='<div style="display:flex;gap:4px">';
+    html+='<button class="btn btn-ghost btn-sm" onclick="gcalSync()" style="font-size:9px">🔄 동기화</button>';
+    html+='<button class="btn btn-ghost btn-sm" onclick="gcalDisconnect()" style="font-size:9px;color:var(--red)">연결 해제</button>';
+    html+='</div>';
+  }else{
+    html+='<button class="btn btn-accent btn-sm" onclick="gcalConnect()" style="font-size:9px">연결</button>';
+  }
+  html+='</div>';
+  // Client ID 입력 섹션 (연결 전)
+  if(!connected){
+    html+='<div style="font-size:9px;color:var(--text3);line-height:1.6;margin-bottom:6px">';
+    html+='Google Cloud Console에서 OAuth 2.0 Client ID를 발급받아 입력하세요.<br>';
+    html+='<a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">console.cloud.google.com</a>';
+    html+='</div>';
+    html+='<div style="display:flex;gap:4px;margin-bottom:4px">';
+    html+='<input id="gcal-client-input" type="text" value="'+cid+'" placeholder="xxxxxxxx.apps.googleusercontent.com"';
+    html+=' style="flex:1;font-size:9px;padding:4px 7px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);outline:none">';
+    html+='<button class="btn btn-ghost btn-sm" onclick="gcalSaveClientId(document.getElementById(\'gcal-client-input\').value)" style="font-size:9px">저장</button>';
+    html+='</div>';
+  }
+  // 연동된 이벤트 미리보기
+  if(_gcalEvents.length){
+    html+='<div style="font-size:9px;color:var(--text3);margin-bottom:3px">이번 달 이벤트 '+_gcalEvents.length+'개 표시 중</div>';
+    html+='<div style="max-height:80px;overflow-y:auto;display:flex;flex-direction:column;gap:2px">';
+    _gcalEvents.slice(0,5).forEach(function(e){
+      html+='<div style="font-size:9px;display:flex;gap:5px;align-items:center">';
+      html+='<span style="color:#4285f4;font-size:8px">●</span>';
+      html+='<span style="color:var(--text2)">['+e.date+']</span>';
+      html+='<span style="color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">'+e.title+'</span>';
+      html+='</div>';
+    });
+    if(_gcalEvents.length>5)html+='<div style="font-size:9px;color:var(--text3)">... 외 '+(_gcalEvents.length-5)+'개</div>';
+    html+='</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
 function renderCal(){
   const y=S.calYear,m=S.calMonth,today=new Date();
   const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
@@ -14047,9 +14220,50 @@ function renderCal(){
   const _pet2Dday=(S.pet2&&S.pet2.since)?(function(){const pi=PET_ITEMS.find(p=>p.id===S.pet2.id);return{id:'__pet2__',date:S.pet2.since,name:(pi?pi.name:'펫2')+' 입양일',icon:pi?pi.icon:'🐾',imgSrc:pi?pi.img:null};})():null;
   const _allDdays=[...S.ddays,...(_petDday?[_petDday]:[]),...(_pet2Dday?[_pet2Dday]:[])];
   for(let i=first-1;i>=0;i--)cells+='<div class="cal-day other">'+(pv-i)+'</div>';
-  for(let d=1;d<=days;d++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const isT=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;const _allTodos=[...S.todos,...(S.doneTodos||[])];const dayTodos=_allTodos.filter(t=>t.date&&(t.dateEnd?ds>=t.date&&ds<=t.dateEnd:t.date===ds));const dayOutings=dayTodos.filter(t=>t.type==='outing');const dayRegTodos=dayTodos.filter(t=>t.type!=='outing');const dayDdays=_allDdays.filter(dd=>{const dt=new Date(dd.date);return dt.getDate()===d&&dt.getMonth()===m;});const hasTodo=dayRegTodos.length>0;const hasDday=dayDdays.length>0;const holiday=getHoliday(y,m+1,d);let tipLines=[];if(holiday)tipLines.push('<span style="color:'+(holiday.type==='holiday'?'var(--pink)':'var(--accent)')+';font-weight:800">'+holiday.name+'</span>');if(hasDday)dayDdays.forEach(dd=>{tipLines.push('<span style="color:var(--pink);font-weight:800">'+dd.name+'</span>');});if(dayOutings.length>0)dayOutings.forEach(t=>tipLines.push('<span style="color:#5B9CF6;font-weight:700">'+t.text+'</span>'));if(hasTodo)dayRegTodos.forEach(t=>tipLines.push((t.done?'<span style="color:var(--text3);text-decoration:line-through">':'<span>')+t.text+'</span>'));const tipAttr=tipLines.length?' data-tip="'+tipLines.join('|').replace(/"/g,'&quot;')+'"':'';var dots=[];if(hasTodo)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:var(--green)"></span>');if(dayOutings.length>0)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:#5B9CF6"></span>');if(hasDday)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:var(--pink)"></span>');var dotsHtml=dots.length?'<span class="cal-day-dots">'+dots.join('')+'</span>':'';cells+='<div class="cal-day'+(isT?' today':'')+(holiday?(holiday.type==='holiday'?' is-holiday':' is-special'):'')+'"'+tipAttr+' onclick="calClick(\''+ds+'\')" onmouseenter="showCalTip(event,this)" onmouseleave="hideCalTip()">'+d+dotsHtml+'</div>';}
-  return '<div id="cal-month-nav" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><button onclick="S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">‹</button><span style="font-size:13px;font-weight:800">'+t('cal_year_fmt',y,MN[m])+'</span><button onclick="S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">›</button></div><div id="cal-grid-wrap" class="cal-grid">'+t('cal_days').map(d=>'<div style="text-align:center;font-size:9px;font-weight:800;color:var(--text3);padding:2px 0">'+d+'</div>').join('')+cells+'</div>'+
-  '<div id="cal-dday-section" style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'+_allDdays.map(d=>{const dt=new Date(d.date),diff=Math.floor((today-dt)/86400000);const lbl=diff<0?'D'+diff:diff===0?'D-Day':'D+'+diff;const col=diff<0?'var(--accent)':diff===0?'var(--green)':'var(--pink)';return'<div style="display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:3px"><span>'+d.name+'</span><span style="margin-left:auto;color:'+col+';font-weight:800">'+lbl+'</span></div>';}).join('')+'<div style="font-size:9px;color:var(--text3);margin-top:3px;display:flex;gap:8px;align-items:center"><span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:var(--green);vertical-align:middle"></span>'+t('cal_legend_todo')+' <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:#5B9CF6;vertical-align:middle"></span>'+t('cal_legend_outing')+' <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:var(--pink);vertical-align:middle"></span>'+t('cal_legend_dday')+'</div></div>';
+  for(let d=1;d<=days;d++){
+    const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isT=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;
+    const _allTodos=[...S.todos,...(S.doneTodos||[])];
+    const dayTodos=_allTodos.filter(t=>t.date&&(t.dateEnd?ds>=t.date&&ds<=t.dateEnd:t.date===ds));
+    const dayOutings=dayTodos.filter(t=>t.type==='outing');
+    const dayRegTodos=dayTodos.filter(t=>t.type!=='outing');
+    const dayDdays=_allDdays.filter(dd=>{const dt=new Date(dd.date);return dt.getDate()===d&&dt.getMonth()===m;});
+    const hasTodo=dayRegTodos.length>0;
+    const hasDday=dayDdays.length>0;
+    const holiday=getHoliday(y,m+1,d);
+    // ── Google Calendar 이벤트 ──
+    const dayGcal=_gcalEvents.filter(function(e){return e.date===ds||(e.endDate&&ds>=e.date&&ds<e.endDate);});
+    const hasGcal=dayGcal.length>0;
+    let tipLines=[];
+    if(holiday)tipLines.push('<span style="color:'+(holiday.type==='holiday'?'var(--pink)':'var(--accent)')+';font-weight:800">'+holiday.name+'</span>');
+    if(hasDday)dayDdays.forEach(dd=>{tipLines.push('<span style="color:var(--pink);font-weight:800">'+dd.name+'</span>');});
+    if(dayOutings.length>0)dayOutings.forEach(t=>tipLines.push('<span style="color:#5B9CF6;font-weight:700">'+t.text+'</span>'));
+    if(hasTodo)dayRegTodos.forEach(t=>tipLines.push((t.done?'<span style="color:var(--text3);text-decoration:line-through">':'<span>')+t.text+'</span>'));
+    // Google 이벤트 툴팁
+    if(hasGcal)dayGcal.forEach(function(e){tipLines.push('<span style="color:#4285f4;font-weight:700">📅 '+e.title+'</span>');});
+    const tipAttr=tipLines.length?' data-tip="'+tipLines.join('|').replace(/"/g,'&quot;')+'"':'';
+    var dots=[];
+    if(hasTodo)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:var(--green)"></span>');
+    if(dayOutings.length>0)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:#5B9CF6"></span>');
+    if(hasDday)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:var(--pink)"></span>');
+    if(hasGcal)dots.push('<span style="display:inline-block;width:5px;height:3px;border-radius:2px;background:#4285f4"></span>');
+    var dotsHtml=dots.length?'<span class="cal-day-dots">'+dots.join('')+'</span>':'';
+    cells+='<div class="cal-day'+(isT?' today':'')+(holiday?(holiday.type==='holiday'?' is-holiday':' is-special'):'')+'"'+tipAttr+' onclick="calClick(\''+ds+'\')" onmouseenter="showCalTip(event,this)" onmouseleave="hideCalTip()">'+d+dotsHtml+'</div>';
+  }
+  return '<div id="cal-month-nav" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    +'<button onclick="S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">‹</button>'
+    +'<span style="font-size:13px;font-weight:800">'+t('cal_year_fmt',y,MN[m])+'</span>'
+    +'<button onclick="S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">›</button></div>'
+    +'<div id="cal-grid-wrap" class="cal-grid">'+t('cal_days').map(d=>'<div style="text-align:center;font-size:9px;font-weight:800;color:var(--text3);padding:2px 0">'+d+'</div>').join('')+cells+'</div>'
+    +'<div id="cal-dday-section" style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+    +_allDdays.map(d=>{const dt=new Date(d.date),diff=Math.floor((today-dt)/86400000);const lbl=diff<0?'D'+diff:diff===0?'D-Day':'D+'+diff;const col=diff<0?'var(--accent)':diff===0?'var(--green)':'var(--pink)';return'<div style="display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:3px"><span>'+d.name+'</span><span style="margin-left:auto;color:'+col+';font-weight:800">'+lbl+'</span></div>';}).join('')
+    +'<div style="font-size:9px;color:var(--text3);margin-top:3px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">'
+    +'<span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:var(--green);vertical-align:middle"></span>'+t('cal_legend_todo')
+    +' <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:#5B9CF6;vertical-align:middle"></span>'+t('cal_legend_outing')
+    +' <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:var(--pink);vertical-align:middle"></span>'+t('cal_legend_dday')
+    +' <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:#4285f4;vertical-align:middle"></span>Google'
+    +'</div></div>'
+    +_renderGcalSection(); // Google Calendar 연동 UI
 }
 var _calEvType='todo';
 function setCalEvType(t){
