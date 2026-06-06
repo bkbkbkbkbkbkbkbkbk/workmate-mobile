@@ -14154,23 +14154,23 @@ function renderCal(){
 // ══════════════════════════════════════════════════════
 var _LEDGER_CATS={
   expense:[
-    {id:'food',    icon:'🍚', name:'식비'},
-    {id:'cafe',    icon:'☕', name:'카페'},
-    {id:'trans',   icon:'🚌', name:'교통'},
-    {id:'shop',    icon:'🛍️', name:'쇼핑'},
-    {id:'health',  icon:'💊', name:'의료'},
-    {id:'beauty',  icon:'💇', name:'미용'},
-    {id:'culture', icon:'🎬', name:'문화'},
-    {id:'tel',     icon:'📱', name:'통신'},
-    {id:'house',   icon:'🏠', name:'주거'},
-    {id:'edu',     icon:'📚', name:'교육'},
-    {id:'etc_e',   icon:'📌', name:'기타'},
+    {id:'food',    icon:'', name:'식비'},
+    {id:'cafe',    icon:'', name:'카페'},
+    {id:'trans',   icon:'', name:'교통'},
+    {id:'shop',    icon:'', name:'쇼핑'},
+    {id:'health',  icon:'', name:'의료'},
+    {id:'beauty',  icon:'', name:'미용'},
+    {id:'culture', icon:'', name:'문화'},
+    {id:'tel',     icon:'', name:'통신'},
+    {id:'house',   icon:'', name:'주거'},
+    {id:'edu',     icon:'', name:'교육'},
+    {id:'etc_e',   icon:'', name:'기타'},
   ],
   income:[
-    {id:'salary',  icon:'💰', name:'급여'},
-    {id:'allowance',icon:'🎁', name:'용돈'},
-    {id:'extra',   icon:'💵', name:'부수입'},
-    {id:'etc_i',   icon:'📌', name:'기타'},
+    {id:'salary',  icon:'', name:'급여'},
+    {id:'allowance',icon:'', name:'용돈'},
+    {id:'extra',   icon:'', name:'부수입'},
+    {id:'etc_i',   icon:'', name:'기타'},
   ]
 };
 
@@ -14226,13 +14226,13 @@ function renderLedger(){
   // 요약 카드
   var summary='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">'
     +'<div style="background:rgba(22,163,74,.1);border:1.5px solid rgba(22,163,74,.25);border-radius:12px;padding:8px;text-align:center">'
-    +'<div style="font-size:9px;color:var(--green);font-weight:800;margin-bottom:2px">💰 수입</div>'
+    +'<div style="font-size:9px;color:var(--green);font-weight:800;margin-bottom:2px">수입</div>'
     +'<div style="font-size:11px;font-weight:900;color:var(--green)">'+_ledgerFmt(totalIncome)+'</div></div>'
     +'<div style="background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:12px;padding:8px;text-align:center">'
-    +'<div style="font-size:9px;color:var(--red);font-weight:800;margin-bottom:2px">💸 지출</div>'
+    +'<div style="font-size:9px;color:var(--red);font-weight:800;margin-bottom:2px">지출</div>'
     +'<div style="font-size:11px;font-weight:900;color:var(--red)">'+_ledgerFmt(totalExpense)+'</div></div>'
     +'<div style="background:'+(balance>=0?'rgba(108,99,255,.08)':'rgba(239,68,68,.08)')+';border:1.5px solid '+(balance>=0?'rgba(108,99,255,.25)':'rgba(239,68,68,.2)')+';border-radius:12px;padding:8px;text-align:center">'
-    +'<div style="font-size:9px;color:'+(balance>=0?'var(--accent)':'var(--red)')+';font-weight:800;margin-bottom:2px">🏦 잔액</div>'
+    +'<div style="font-size:9px;color:'+(balance>=0?'var(--accent)':'var(--red)')+';font-weight:800;margin-bottom:2px">잔액</div>'
     +'<div style="font-size:11px;font-weight:900;color:'+(balance>=0?'var(--accent)':'var(--red)')+'">'+_ledgerFmt(Math.abs(balance))+'</div></div>'
     +'</div>';
 
@@ -14245,9 +14245,9 @@ function renderLedger(){
   var form='<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:10px;margin-bottom:10px">'
     +'<div style="display:flex;gap:5px;margin-bottom:8px">'
     +'<button id="ldg-btn-exp" onclick="document.getElementById(\'ldg-type\').value=\'expense\';document.getElementById(\'ldg-cat\').innerHTML=\''+catOpts_e+'\';this.style.background=\'rgba(239,68,68,.15)\';this.style.color=\'var(--red)\';this.style.borderColor=\'var(--red)\';document.getElementById(\'ldg-btn-inc\').style.background=\'\';document.getElementById(\'ldg-btn-inc\').style.color=\'var(--text2)\';document.getElementById(\'ldg-btn-inc\').style.borderColor=\'var(--border2)\';" '
-    +'style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--red);background:rgba(239,68,68,.15);color:var(--red);font-size:11px;font-weight:900;cursor:pointer">💸 지출</button>'
+    +'style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--red);background:rgba(239,68,68,.15);color:var(--red);font-size:11px;font-weight:900;cursor:pointer">지출</button>'
     +'<button id="ldg-btn-inc" onclick="document.getElementById(\'ldg-type\').value=\'income\';document.getElementById(\'ldg-cat\').innerHTML=\''+catOpts_i+'\';this.style.background=\'rgba(22,163,74,.12)\';this.style.color=\'var(--green)\';this.style.borderColor=\'var(--green)\';document.getElementById(\'ldg-btn-exp\').style.background=\'\';document.getElementById(\'ldg-btn-exp\').style.color=\'var(--text2)\';document.getElementById(\'ldg-btn-exp\').style.borderColor=\'var(--border2)\';" '
-    +'style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--border2);color:var(--text2);font-size:11px;font-weight:900;cursor:pointer">💰 수입</button>'
+    +'style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--border2);color:var(--text2);font-size:11px;font-weight:900;cursor:pointer">수입</button>'
     +'</div>'
     +'<input type="hidden" id="ldg-type" value="expense">'
     +'<div style="display:flex;gap:5px;margin-bottom:6px">'
@@ -14267,7 +14267,7 @@ function renderLedger(){
   // 내역 리스트 (날짜 그룹)
   var list='';
   if(!monthItems.length){
-    list='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">이번 달 내역이 없어요<br><span style="font-size:20px">💸</span></div>';
+    list='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">이번 달 내역이 없어요</div>';
   } else {
     // 날짜별 그룹
     var grouped={};
@@ -14289,12 +14289,11 @@ function renderLedger(){
         +'</div>';
       grouped[date].forEach(function(e){
         var ci=_ledgerCatInfo(e.cat);
-        list+='<div style="display:flex;align-items:center;gap:7px;padding:5px 4px;border-radius:10px;margin-bottom:2px;background:var(--surface)">'
-          +'<span style="font-size:18px;flex-shrink:0">'+ci.icon+'</span>'
+        list+='<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:10px;margin-bottom:2px;background:var(--surface)">'
           +'<div style="flex:1;min-width:0">'
           +'<div style="font-size:11px;font-weight:700;color:var(--text)">'+ci.name+(e.memo?' · <span style="font-weight:400;color:var(--text3)">'+e.memo+'</span>':'')+'</div>'
           +'</div>'
-          +'<span style="font-size:12px;font-weight:900;color:'+(e.type==='income'?'var(--green)':'var(--red)');'+(e.type==='income'?'+':'-')+_ledgerFmt(e.amount)+'</span>'
+          +'<span style="font-size:12px;font-weight:900;color:'+(e.type==='income'?'var(--green)':'var(--red)')+'">'+( e.type==='income'?'+':'-')+_ledgerFmt(e.amount)+'</span>'
           +'<button onclick="deleteLedgerEntry('+e.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px;flex-shrink:0">×</button>'
           +'</div>';
       });
