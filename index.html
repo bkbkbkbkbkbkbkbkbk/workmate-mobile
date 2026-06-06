@@ -1540,7 +1540,7 @@ const S={
   calYear:new Date().getFullYear(), calMonth:new Date().getMonth(),
   musicPlaying:false, musicTrack:0, ytUrl:'', ytPlaying:false, ytPaused:false, ytRepeat:false, ytMuted:false, ytVol:1, ytFavorites:[], bgmMuted:false, ytTutorialShown:false, calTutorialShown:false, ddayTutorialShown:false, timerTutorialShown:false, floorTutorialShown:false, bgPresetTutorialShown:false, accTutDone:false,
   bgmTab:'youtube', bgmIdx:0, bgmVol:0.7, bgmShuffle:false, bgmLoop:false, autoEat:true, bgPresets:[null,null,null,null,null], bgPresetUnlocked:false, outfitPresetUnlocked:false, inflationLevel:0, customBgConfigs:{}, customBgFilters:{},
-  ledger:[], ledgerYear:new Date().getFullYear(), ledgerMonth:new Date().getMonth(),
+  ledger:[], ledgerYear:new Date().getFullYear(), ledgerMonth:new Date().getMonth(), ledgerView:'daily', ledgerAddOpen:false,
   calcExpr:'', calcVal:'0',
   timerSec:0, timerTotal:25*60, timerRunning:false,
   swSec:0, swRunning:false, timerChimeVol:0.35, timerChimeIdx:10, timerChimeOpen:false,
@@ -14215,7 +14215,26 @@ function deleteLedgerEntry(id){
   renderToolPanel();
 }
 
-// 지출/수입 타입 전환 함수 (인라인 onclick 대신 분리)
+// ── 가계부 ──────────────────────────────────────────
+var _LEDGER_CATS={
+  expense:[
+    {id:'food',name:'식비'},{id:'cafe',name:'카페'},
+    {id:'trans',name:'교통'},{id:'shop',name:'쇼핑'},
+    {id:'health',name:'의료'},{id:'beauty',name:'미용'},
+    {id:'culture',name:'문화'},{id:'tel',name:'통신'},
+    {id:'house',name:'주거'},{id:'edu',name:'교육'},
+    {id:'etc_e',name:'기타'},
+  ],
+  income:[
+    {id:'salary',name:'급여'},{id:'allowance',name:'용돈'},
+    {id:'extra',name:'부수입'},{id:'etc_i',name:'기타'},
+  ]
+};
+function _ledgerCatInfo(catId){
+  var all=[..._LEDGER_CATS.expense,..._LEDGER_CATS.income];
+  return all.find(function(c){return c.id===catId;})||{name:'기타'};
+}
+function _ledgerFmt(n){return Number(n).toLocaleString('ko-KR')+'원';}
 function ldgSetType(type){
   var inp=document.getElementById('ldg-type');
   var cat=document.getElementById('ldg-cat');
@@ -14223,105 +14242,165 @@ function ldgSetType(type){
   var btnI=document.getElementById('ldg-btn-inc');
   if(!inp||!cat||!btnE||!btnI)return;
   inp.value=type;
-  // 카테고리 옵션 교체
   var cats=type==='expense'?_LEDGER_CATS.expense:_LEDGER_CATS.income;
   cat.innerHTML=cats.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
-  // 버튼 스타일
-  if(type==='expense'){
-    btnE.style.cssText='flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--red);background:rgba(239,68,68,.15);color:var(--red);font-size:11px;font-weight:900;cursor:pointer';
-    btnI.style.cssText='flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--border2);background:;color:var(--text2);font-size:11px;font-weight:900;cursor:pointer';
-  }else{
-    btnI.style.cssText='flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--green);background:rgba(22,163,74,.12);color:var(--green);font-size:11px;font-weight:900;cursor:pointer';
-    btnE.style.cssText='flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--border2);background:;color:var(--text2);font-size:11px;font-weight:900;cursor:pointer';
-  }
+  var ON_E='flex:1;padding:7px;border-radius:10px;border:none;background:rgba(239,68,68,.18);color:var(--red);font-size:12px;font-weight:900;cursor:pointer';
+  var ON_I='flex:1;padding:7px;border-radius:10px;border:none;background:rgba(108,99,255,.18);color:var(--accent);font-size:12px;font-weight:900;cursor:pointer';
+  var OFF='flex:1;padding:7px;border-radius:10px;border:none;background:var(--surface2);color:var(--text3);font-size:12px;font-weight:900;cursor:pointer';
+  btnE.style.cssText=type==='expense'?ON_E:OFF;
+  btnI.style.cssText=type==='income'?ON_I:OFF;
 }
-
+function addLedgerEntry(){
+  var type=document.getElementById('ldg-type').value;
+  var amtStr=(document.getElementById('ldg-amount').value||'').replace(/,/g,'').trim();
+  var amt=parseInt(amtStr);
+  if(!amt||amt<=0){toast('금액을 입력해주세요.');return;}
+  var cat=document.getElementById('ldg-cat').value;
+  var memo=document.getElementById('ldg-memo').value.trim();
+  var date=document.getElementById('ldg-date').value||new Date().toISOString().slice(0,10);
+  S.ledger.push({id:Date.now(),type:type,amount:amt,cat:cat,memo:memo,date:date});
+  S.ledger.sort(function(a,b){return b.date.localeCompare(a.date)||b.id-a.id;});
+  S.ledgerAddOpen=false;
+  scheduleSave();
+  toast((type==='income'?'수입':'지출')+' '+_ledgerFmt(amt)+' 추가됨!');
+  renderToolPanel();
+}
+function deleteLedgerEntry(id){
+  S.ledger=S.ledger.filter(function(e){return e.id!==id;});
+  scheduleSave();renderToolPanel();
+}
 function renderLedger(){
-  var y=S.ledgerYear, m=S.ledgerMonth;
+  var y=S.ledgerYear,m=S.ledgerMonth;
   var monthStr=y+'-'+String(m+1).padStart(2,'0');
   var monthItems=S.ledger.filter(function(e){return e.date&&e.date.startsWith(monthStr);});
-
-  var totalIncome=monthItems.filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
-  var totalExpense=monthItems.filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
-  var balance=totalIncome-totalExpense;
-
+  var totalInc=monthItems.filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
+  var totalExp=monthItems.filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
+  var bal=totalInc-totalExp;
   var MN=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-
-  // 월 네비
-  var nav='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-    +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">‹</button>'
-    +'<span style="font-size:13px;font-weight:900">'+y+'년 '+MN[m]+'</span>'
-    +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2)">›</button>'
-    +'</div>';
-
-  // 요약 카드
-  var summary='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">'
-    +'<div style="background:rgba(22,163,74,.1);border:1.5px solid rgba(22,163,74,.25);border-radius:12px;padding:8px;text-align:center">'
-    +'<div style="font-size:9px;color:var(--green);font-weight:800;margin-bottom:2px">수입</div>'
-    +'<div style="font-size:11px;font-weight:900;color:var(--green)">'+_ledgerFmt(totalIncome)+'</div></div>'
-    +'<div style="background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:12px;padding:8px;text-align:center">'
-    +'<div style="font-size:9px;color:var(--red);font-weight:800;margin-bottom:2px">지출</div>'
-    +'<div style="font-size:11px;font-weight:900;color:var(--red)">'+_ledgerFmt(totalExpense)+'</div></div>'
-    +'<div style="background:'+(balance>=0?'rgba(108,99,255,.08)':'rgba(239,68,68,.08)')+';border:1.5px solid '+(balance>=0?'rgba(108,99,255,.25)':'rgba(239,68,68,.2)')+';border-radius:12px;padding:8px;text-align:center">'
-    +'<div style="font-size:9px;color:'+(balance>=0?'var(--accent)':'var(--red)')+';font-weight:800;margin-bottom:2px">잔액</div>'
-    +'<div style="font-size:11px;font-weight:900;color:'+(balance>=0?'var(--accent)':'var(--red)')+'">'+_ledgerFmt(Math.abs(balance))+'</div></div>'
-    +'</div>';
-
-  // 카테고리 옵션 (expense 기본)
+  var header=
+    '<div style="background:var(--accent);border-radius:14px 14px 0 0;padding:14px 16px 10px;margin:-10px -10px 0">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+    +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8249;</button>'
+    +'<span style="font-size:15px;font-weight:900;color:#fff">'+y+'년 '+MN[m]+'</span>'
+    +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8250;</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'
+    +'<div style="text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.7);margin-bottom:2px">수입</div><div style="font-size:13px;font-weight:900;color:#fff">'+totalInc.toLocaleString()+'</div></div>'
+    +'<div style="text-align:center;border-left:1px solid rgba(255,255,255,.2);border-right:1px solid rgba(255,255,255,.2)"><div style="font-size:9px;color:rgba(255,255,255,.7);margin-bottom:2px">지출</div><div style="font-size:13px;font-weight:900;color:#fca5a5">'+totalExp.toLocaleString()+'</div></div>'
+    +'<div style="text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.7);margin-bottom:2px">잔액</div><div style="font-size:13px;font-weight:900;color:'+(bal>=0?'#86efac':'#fca5a5')+'">'+Math.abs(bal).toLocaleString()+'</div></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:4px;background:rgba(0,0,0,.15);border-radius:10px;padding:3px">'
+    +['daily','calendar','monthly'].map(function(v,i){var labels=['일일','달력','월별'];var active=S.ledgerView===v;return'<button onclick="S.ledgerView=\''+v+'\';renderToolPanel()" style="flex:1;padding:5px 0;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;'+(active?'background:#fff;color:var(--accent)':'background:transparent;color:rgba(255,255,255,.8)')+'">'+labels[i]+'</button>';}).join('')
+    +'</div></div>';
   var catOptsE=_LEDGER_CATS.expense.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
-
-  // 입력 폼 - onclick을 함수 호출로 단순화
-  var form='<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:10px;margin-bottom:10px">'
-    +'<div style="display:flex;gap:5px;margin-bottom:8px">'
-    +'<button id="ldg-btn-exp" onclick="ldgSetType(\'expense\')" style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--red);background:rgba(239,68,68,.15);color:var(--red);font-size:11px;font-weight:900;cursor:pointer">지출</button>'
-    +'<button id="ldg-btn-inc" onclick="ldgSetType(\'income\')" style="flex:1;padding:6px;border-radius:10px;border:1.5px solid var(--border2);color:var(--text2);font-size:11px;font-weight:900;cursor:pointer">수입</button>'
-    +'</div>'
-    +'<input type="hidden" id="ldg-type" value="expense">'
-    +'<div style="display:flex;gap:5px;margin-bottom:6px">'
-    +'<input id="ldg-amount" type="number" placeholder="금액 (원)" min="0" inputmode="numeric" style="flex:1;padding:6px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
-    +'<select id="ldg-cat" style="width:100px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'+catOptsE+'</select>'
-    +'</div>'
-    +'<div style="display:flex;gap:5px">'
-    +'<input id="ldg-memo" type="text" placeholder="메모 (선택)" maxlength="30" style="flex:1;padding:6px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
-    +'<input id="ldg-date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:110px;padding:5px 6px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'
-    +'</div>'
-    +'<button onclick="addLedgerEntry()" class="btn btn-accent" style="width:100%;margin-top:8px;font-size:12px">+ 추가</button>'
-    +'</div>';
-
-  // 내역 리스트
-  var list='';
-  if(!monthItems.length){
-    list='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">이번 달 내역이 없어요</div>';
-  }else{
-    var grouped={};
-    monthItems.forEach(function(e){if(!grouped[e.date])grouped[e.date]=[];grouped[e.date].push(e);});
-    var dates=Object.keys(grouped).sort(function(a,b){return b.localeCompare(a);});
-    dates.forEach(function(date){
-      var d=new Date(date+'T00:00:00');
-      var dayNames=['일','월','화','수','목','금','토'];
-      var dayLabel=(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+dayNames[d.getDay()]+')';
-      var dayIncome=grouped[date].filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
-      var dayExpense=grouped[date].filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
-      list+='<div style="margin-bottom:6px">'
-        +'<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:4px">'
-        +'<span style="font-size:10px;font-weight:800;color:var(--text2)">'+dayLabel+'</span>'
-        +'<span style="font-size:9px">'+(dayIncome?'<span style="color:var(--green)">+'+_ledgerFmt(dayIncome)+'</span> ':'')+(dayExpense?'<span style="color:var(--red)">-'+_ledgerFmt(dayExpense)+'</span>':'')+'</span>'
-        +'</div>';
-      grouped[date].forEach(function(e){
-        var ci=_ledgerCatInfo(e.cat);
-        list+='<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:10px;margin-bottom:2px;background:var(--surface)">'
-          +'<div style="flex:1;min-width:0">'
-          +'<div style="font-size:11px;font-weight:700;color:var(--text)">'+ci.name+(e.memo?' · <span style="font-weight:400;color:var(--text3)">'+e.memo+'</span>':'')+'</div>'
-          +'</div>'
-          +'<span style="font-size:12px;font-weight:900;color:'+(e.type==='income'?'var(--green)':'var(--red)')+'">'+( e.type==='income'?'+':'-')+_ledgerFmt(e.amount)+'</span>'
-          +'<button onclick="deleteLedgerEntry('+e.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 4px;flex-shrink:0">×</button>'
-          +'</div>';
-      });
-      list+='</div>';
-    });
+  var addForm='';
+  if(S.ledgerAddOpen){
+    addForm='<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:12px;margin-top:10px">'
+      +'<div style="display:flex;gap:5px;margin-bottom:10px">'
+      +'<button id="ldg-btn-exp" onclick="ldgSetType(\'expense\')" style="flex:1;padding:7px;border-radius:10px;border:none;background:rgba(239,68,68,.18);color:var(--red);font-size:12px;font-weight:900;cursor:pointer">지출</button>'
+      +'<button id="ldg-btn-inc" onclick="ldgSetType(\'income\')" style="flex:1;padding:7px;border-radius:10px;border:none;background:var(--surface2);color:var(--text3);font-size:12px;font-weight:900;cursor:pointer">수입</button>'
+      +'</div>'
+      +'<input type="hidden" id="ldg-type" value="expense">'
+      +'<div style="display:flex;gap:5px;margin-bottom:8px">'
+      +'<input id="ldg-amount" type="number" placeholder="금액" min="0" inputmode="numeric" style="flex:1;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-weight:700;outline:none;font-family:Nunito,sans-serif">'
+      +'<select id="ldg-cat" style="width:90px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'+catOptsE+'</select>'
+      +'</div>'
+      +'<div style="display:flex;gap:5px;margin-bottom:10px">'
+      +'<input id="ldg-memo" type="text" placeholder="메모" maxlength="30" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
+      +'<input id="ldg-date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:120px;padding:7px 6px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'
+      +'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button onclick="S.ledgerAddOpen=false;renderToolPanel()" style="flex:0.4;padding:9px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer">취소</button>'
+      +'<button onclick="addLedgerEntry()" class="btn btn-accent" style="flex:1;font-size:13px;border-radius:10px">저장</button>'
+      +'</div></div>';
   }
-
-  return '<div class="card" style="padding:10px">'+nav+summary+form+list+'</div>';
+  var addBtn='<div style="position:sticky;bottom:0;padding:8px 0 0;background:var(--bg2)">'
+    +'<button onclick="S.ledgerAddOpen=!S.ledgerAddOpen;renderToolPanel()" style="width:100%;padding:11px;border-radius:12px;border:none;background:'+(S.ledgerAddOpen?'var(--surface2)':'var(--accent)')+';color:'+(S.ledgerAddOpen?'var(--text2)':'#fff')+';font-size:13px;font-weight:900;cursor:pointer">'
+    +(S.ledgerAddOpen?'닫기':'+ 내역 추가')+'</button></div>';
+  var body='';
+  if(S.ledgerView==='daily'){
+    if(!monthItems.length){body='<div style="text-align:center;color:var(--text3);font-size:12px;padding:32px 0">이번 달 내역이 없어요</div>';}
+    else{
+      var grouped={};
+      monthItems.forEach(function(e){if(!grouped[e.date])grouped[e.date]=[];grouped[e.date].push(e);});
+      var dates=Object.keys(grouped).sort(function(a,b){return b.localeCompare(a);});
+      dates.forEach(function(date){
+        var d=new Date(date+'T00:00:00');
+        var dayNames=['일','월','화','수','목','금','토'];
+        var dn=d.getDay();
+        var dayColor=dn===0?'var(--red)':dn===6?'var(--accent)':'var(--text2)';
+        var dayInc=grouped[date].filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
+        var dayExp=grouped[date].filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
+        body+='<div style="margin-bottom:6px">'
+          +'<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1.5px solid var(--border)">'
+          +'<span style="font-size:18px;font-weight:900;color:'+dayColor+'">'+d.getDate()+'</span>'
+          +'<span style="font-size:10px;font-weight:700;color:'+dayColor+'">'+dayNames[dn]+'</span>'
+          +'<div style="flex:1"></div>'
+          +(dayInc?'<span style="font-size:10px;font-weight:700;color:var(--accent)">+'+dayInc.toLocaleString()+'</span>':'')
+          +(dayExp?'<span style="font-size:10px;font-weight:700;color:var(--red);margin-left:6px">-'+dayExp.toLocaleString()+'</span>':'')
+          +'</div>';
+        grouped[date].forEach(function(e){
+          var ci=_ledgerCatInfo(e.cat);
+          body+='<div style="display:flex;align-items:center;padding:8px 4px;border-bottom:1px solid var(--border)">'
+            +'<div style="width:36px;height:36px;border-radius:10px;background:'+(e.type==='income'?'rgba(108,99,255,.12)':'rgba(239,68,68,.1)')+';display:flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0">'
+            +'<span style="font-size:8px;font-weight:900;color:'+(e.type==='income'?'var(--accent)':'var(--red)')+'">'+ci.name+'</span></div>'
+            +'<div style="flex:1;min-width:0">'
+            +'<div style="font-size:12px;font-weight:700;color:var(--text)">'+ci.name+'</div>'
+            +(e.memo?'<div style="font-size:10px;color:var(--text3);margin-top:1px">'+e.memo+'</div>':'')
+            +'</div>'
+            +'<span style="font-size:13px;font-weight:900;color:'+(e.type==='income'?'var(--accent)':'var(--red)')+';">'+(e.type==='income'?'':'-')+e.amount.toLocaleString()+'</span>'
+            +'<button onclick="deleteLedgerEntry('+e.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 0 0 8px;flex-shrink:0">x</button>'
+            +'</div>';
+        });
+        body+='</div>';
+      });
+    }
+  }
+  else if(S.ledgerView==='calendar'){
+    var first=new Date(y,m,1).getDay();
+    var days=new Date(y,m+1,0).getDate();
+    var pv=new Date(y,m,0).getDate();
+    var dayHdr=['일','월','화','수','목','금','토'].map(function(d,i){return'<div style="text-align:center;font-size:9px;font-weight:800;padding:4px 0;color:'+(i===0?'var(--red)':i===6?'var(--accent)':'var(--text3)')+'">'+d+'</div>';}).join('');
+    var cells='';
+    for(var i2=first-1;i2>=0;i2--)cells+='<div style="min-height:52px;padding:3px;opacity:.2"><span style="font-size:10px;color:var(--text3)">'+(pv-i2)+'</span></div>';
+    var todayStr=new Date().toISOString().slice(0,10);
+    for(var dd=1;dd<=days;dd++){
+      var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+      var isT=todayStr===ds;
+      var di=S.ledger.filter(function(e){return e.date===ds&&e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
+      var de=S.ledger.filter(function(e){return e.date===ds&&e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
+      var col=(dd+first-1)%7;
+      var nc=col===0?'var(--red)':col===6?'var(--accent)':'var(--text)';
+      cells+='<div style="min-height:52px;padding:3px;border-radius:7px;background:'+(isT?'rgba(108,99,255,.1)':'transparent')+';border:'+(isT?'1.5px solid rgba(108,99,255,.3)':'1px solid transparent')+'">'
+        +'<div style="font-size:11px;font-weight:'+(isT?900:700)+';color:'+nc+';margin-bottom:1px">'+dd+'</div>'
+        +(di?'<div style="font-size:8px;font-weight:700;color:var(--accent);line-height:1.4">'+di.toLocaleString()+'</div>':'')
+        +(de?'<div style="font-size:8px;font-weight:700;color:var(--red);line-height:1.4">'+de.toLocaleString()+'</div>':'')
+        +'</div>';
+    }
+    body='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-top:4px">'+dayHdr+cells+'</div>';
+  }
+  else if(S.ledgerView==='monthly'){
+    body='<div>';
+    for(var mi2=0;mi2<12;mi2++){
+      var ms=y+'-'+String(mi2+1).padStart(2,'0');
+      var mInc=S.ledger.filter(function(e){return e.date&&e.date.startsWith(ms)&&e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
+      var mExp=S.ledger.filter(function(e){return e.date&&e.date.startsWith(ms)&&e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
+      var mBal=mInc-mExp;
+      var isCur=mi2===m;
+      body+='<div onclick="S.ledgerMonth='+mi2+';S.ledgerView=\'daily\';renderToolPanel()" style="display:flex;align-items:center;padding:10px 8px;border-radius:10px;margin-bottom:4px;cursor:pointer;background:'+(isCur?'rgba(108,99,255,.1)':'var(--surface)')+';border:1.5px solid '+(isCur?'rgba(108,99,255,.35)':'var(--border)')+'">'
+        +'<div style="width:36px;font-size:13px;font-weight:900;color:'+(isCur?'var(--accent)':'var(--text2)')+'">'+MN[mi2]+'</div>'
+        +'<div style="flex:1;display:flex;gap:6px;align-items:center">'
+        +(mInc?'<span style="font-size:10px;font-weight:700;color:var(--accent)">+'+mInc.toLocaleString()+'</span>':'')
+        +(mExp?'<span style="font-size:10px;font-weight:700;color:var(--red)">-'+mExp.toLocaleString()+'</span>':'')
+        +(!mInc&&!mExp?'<span style="font-size:10px;color:var(--text3)">내역 없음</span>':'')
+        +'</div>'
+        +'<span style="font-size:11px;font-weight:900;color:'+(mBal>=0?'var(--text)':'var(--red)')+'">'+mBal.toLocaleString()+'</span>'
+        +'<span style="font-size:12px;color:var(--text3);margin-left:4px">&#8250;</span>'
+        +'</div>';
+    }
+    body+='</div>';
+  }
+  return'<div class="card" style="padding:10px;overflow:visible">'+header+'<div style="padding-top:10px">'+addForm+body+'</div>'+addBtn+'</div>';
 }
 
 var _calEvType='todo';
