@@ -12442,13 +12442,23 @@ function _mobileLoadJsQR(cb){
 }
 function _mobileHandleQRResult(raw){
   _mobileStopQRScan();
-  if(raw.startsWith('WM:')){
+  // BOM, 공백, 보이지 않는 문자 제거 후 WM: 위치 탐색
+  var str=raw.replace(/^﻿/,'').trim();
+  var idx=str.indexOf('WM:');
+  if(idx>=0){
     try{
-      var json=LZString.decompressFromEncodedURIComponent(raw.slice(3));
+      var compressed=str.slice(idx+3);
+      var json=LZString.decompressFromEncodedURIComponent(compressed);
       var data=JSON.parse(json);
       _mobileShowSyncWarn(data,'qr');
-    }catch(e){toast(t('sync_fail'));}
-  }else{toast(t('sync_qr_error'));}
+    }catch(e){
+      console.error('QR decode error:',e,'raw:',str.slice(0,50));
+      toast(t('sync_fail'));
+    }
+  }else{
+    console.log('QR not WM, got:',str.slice(0,50));
+    toast(t('sync_qr_error'));
+  }
 }
 function _mobileStopQRScan(){
   if(_mobileQRAnimId){cancelAnimationFrame(_mobileQRAnimId);_mobileQRAnimId=null;}
