@@ -1919,6 +1919,21 @@ window.addEventListener('DOMContentLoaded',()=>{
     // 모바일: 터치 시 혹시라도 떠있는 food-tip 즉시 숨김
     document.addEventListener('touchstart',function(){var tip=document.getElementById('food-tip');if(tip)tip.style.display='none';},{passive:true});
     if(S.musicPlaying){setTimeout(()=>bgmLoad(S.bgmIdx||0,true),500);}
+    // ── 모바일 BGM 자동 재생: 첫 터치/클릭 시 시작 (브라우저 autoplay 정책 우회) ──
+    (function(){
+      var _bgmAutoTriggered=false;
+      function _tryBgmAutoStart(){
+        if(_bgmAutoTriggered)return;
+        _bgmAutoTriggered=true;
+        document.removeEventListener('touchstart',_tryBgmAutoStart,true);
+        document.removeEventListener('click',_tryBgmAutoStart,true);
+        // 이미 재생 중이면 스킵, 유튜브 재생 중이면 스킵
+        if(_bgmPlaying||S.ytPlaying)return;
+        bgmLoad(S.bgmIdx||0,true);
+      }
+      document.addEventListener('touchstart',_tryBgmAutoStart,{once:true,capture:true});
+      document.addEventListener('click',_tryBgmAutoStart,{once:true,capture:true});
+    })();
   }
   if(hasSave&&S.characters.length>0){
     preloadAllLineart();
@@ -12385,9 +12400,18 @@ function ytPlay(){
   if(inp)S.ytUrl=inp.value.trim();
   const id=getYtId(S.ytUrl);
   if(!id){openWarn(t('yt_invalid_url'));return;}
+  // ── 모바일: 외부 YouTube 앱/브라우저로 열기 + BGM 일시정지 ──
+  if(!window.electronAPI){
+    bgmPause(); // BGM 끄기
+    var ytOpenUrl='https://www.youtube.com/watch?v='+id;
+    window.open(ytOpenUrl,'_blank');
+    toast('유튜브 앱에서 열립니다 🎵');
+    return;
+  }
   S.ytPlaying=true;
+  bgmPause(); // 유튜브 재생 시 BGM 자동 꺼짐
   saveGame();
-  if(window.electronAPI)window.electronAPI.youtubePlay(id,S.ytRepeat);
+  window.electronAPI.youtubePlay(id,S.ytRepeat);
   _ytUpdateUI();
 }
 function ytToggleRepeat(){
@@ -13250,6 +13274,8 @@ function ytStop(){
   S.ytPlaying=false;S.ytPaused=false;
   if(window.electronAPI)window.electronAPI.youtubeStop();
   _ytUpdateUI();
+  // 유튜브 정지 시 BGM 복구
+  if(!_bgmPlaying)bgmPlay();
 }
 function ytPause(){
   S.ytPaused=true;
@@ -13420,16 +13446,18 @@ function renderMusic(){
         }).join('')+
         '</div>'+
       '</div>':'';
-    return '<div class="card" style="padding:10px">'+tabs+
+    var _mobileYtNotice=window.electronAPI?'':
+      '<div style="font-size:10px;color:var(--text3);background:var(--surface2);border-radius:8px;padding:6px 8px;margin-bottom:6px;line-height:1.5">'+
+      '📱 모바일에서는 URL 입력 후 <b>▶ 앱에서 열기</b>를 누르면 유튜브 앱이 열립니다.<br>즐겨찾기 저장 후 탭하면 바로 열 수 있어요.</div>';
+    return '<div class="card" style="padding:10px">'+_mobileYtNotice+tabs+
       '<div style="display:flex;gap:5px;margin-bottom:5px">'+
         '<div style="flex:1;position:relative;display:flex;align-items:center">'+
           '<input id="yt-url-input" type="text" placeholder="'+t('yt_url_ph')+'" style="width:100%;font-size:10px;padding:5px 22px 5px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text);outline:none;box-sizing:border-box" value="'+(S.ytUrl||'')+'">'+
           '<button onclick="ytClearUrl()" title="URL 지우기" style="position:absolute;right:5px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;line-height:1;padding:0;display:flex;align-items:center" onmouseover="this.style.color=\'var(--text)\'" onmouseout="this.style.color=\'var(--text3)\'">×</button>'+
         '</div>'+
-        '<button id="yt-play-btn" class="btn btn-accent btn-sm" onclick="S.ytPlaying?ytStop():ytPlay()">'+(S.ytPlaying?t('yt_stop'):t('yt_play'))+'</button>'+
-        '<button id="yt-ytpopup-btn" onclick="if(window.electronAPI)window.electronAPI.youtubeTogglePopup()" title="유튜브 창 열기/최소화" style="width:30px;height:30px;flex-shrink:0;background:var(--surface);border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:.15s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border2)\'">'+
-          '<svg width="16" height="12" viewBox="0 0 16 12" fill="none"><rect width="16" height="12" rx="3" fill="#FF0000"/><path d="M6.5 3.5L11 6L6.5 8.5V3.5Z" fill="white"/></svg>'+
-        '</button>'+
+        '<button id="yt-play-btn" class="btn btn-accent btn-sm" onclick="S.ytPlaying?ytStop():ytPlay()" title="'+(window.electronAPI?'':(S.lang==='ko'?'유튜브 앱에서 열기':'Open in YouTube app'))+'">'+(window.electronAPI?(S.ytPlaying?t('yt_stop'):t('yt_play')):'▶ 앱에서 열기')+'</button>'+
+        // 모바일: 팝업 버튼 숨김 (electronAPI 없으면 미작동)
+        (window.electronAPI?'<button id="yt-ytpopup-btn" onclick="window.electronAPI.youtubeTogglePopup()" title="유튜브 창 열기/최소화" style="width:30px;height:30px;flex-shrink:0;background:var(--surface);border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:.15s"><svg width="16" height="12" viewBox="0 0 16 12" fill="none"><rect width="16" height="12" rx="3" fill="#FF0000"/><path d="M6.5 3.5L11 6L6.5 8.5V3.5Z" fill="white"/></svg></button>':'')+
         '<button id="yt-bookmark-btn" onclick="ytSaveFavorite()" title="즐겨찾기 저장" style="width:30px;height:30px;flex-shrink:0;background:'+(_ytSavingUrl?'rgba(108,99,255,.15)':'var(--surface)')+';border:1.5px solid '+(_ytSavingUrl?'var(--accent)':'var(--border2)')+';border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:'+(_ytSavingUrl?'var(--accent)':'var(--text3)')+';transition:.15s" onmouseover="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\'" onmouseout="if(!'+!!_ytSavingUrl+'){this.style.borderColor=\'var(--border2)\';this.style.color=\'var(--text3)\';}">'+BKMK_SVG+'</button>'+
       '</div>'+
       saveForm+
