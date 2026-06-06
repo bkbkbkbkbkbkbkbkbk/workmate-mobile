@@ -2763,6 +2763,8 @@ const LANG_DATA={
     sync_qr_scan_title:'QR 코드 스캔',
     sync_qr_hint:'PC에서 생성한 QR 코드를 카메라에 맞춰주세요',
     sync_qr_nosupport:'QR 스캔이 지원되지 않아요. JSON 파일을 사용해주세요.',
+    sync_qr_gallery:'갤러리에서 QR 이미지 선택',
+    sync_qr_or:'또는',
     sync_qr_error:'WorkMate QR 코드가 아닙니다',
     update_title:'업데이트 알림', update_body:'새 버전이 출시됐어요!\n지금 업데이트할까요?',
     update_confirm:'업데이트', update_later:'나중에',
@@ -3346,6 +3348,8 @@ const LANG_DATA={
     sync_qr_scan_title:'Scan QR Code',
     sync_qr_hint:'Point your camera at the QR code generated on PC',
     sync_qr_nosupport:'QR scan not supported. Please use JSON file.',
+    sync_qr_gallery:'Select QR image from gallery',
+    sync_qr_or:'or',
     sync_qr_error:'Not a WorkMate QR code',
     update_title:'Update Available', update_body:'A new version is available!\nUpdate now?',
     update_confirm:'Update', update_later:'Later',
@@ -3885,6 +3889,8 @@ const LANG_DATA={
     sync_qr_scan_title:'QRコードスキャン',
     sync_qr_hint:'PCで生成したQRコードにカメラを向けてください',
     sync_qr_nosupport:'QRスキャン非対応です。JSONファイルを使用してください。',
+    sync_qr_gallery:'ギャラリーからQR画像を選択',
+    sync_qr_or:'または',
     sync_qr_error:'WorkMate QRコードではありません',
     update_title:'アップデート通知', update_body:'新しいバージョンがリリースされました！\n今すぐアップデートしますか？',
     update_confirm:'アップデート', update_later:'後で',
@@ -4424,6 +4430,8 @@ const LANG_DATA={
     sync_qr_scan_title:'扫描QR码',
     sync_qr_hint:'请将摄像头对准PC生成的QR码',
     sync_qr_nosupport:'不支持QR扫描，请使用JSON文件。',
+    sync_qr_gallery:'从相册选择QR图片',
+    sync_qr_or:'或',
     sync_qr_error:'不是WorkMate的QR码',
     update_title:'更新通知', update_body:'新版本已发布！\n立即更新吗？',
     update_confirm:'更新', update_later:'稍后',
@@ -12380,8 +12388,19 @@ function _mobileShowQRScanModal(){
     '<div style="position:relative;width:100%;border-radius:10px;overflow:hidden;background:#000">'+
       '<video id="mobile-qr-video" style="width:100%;display:block;max-height:260px" autoplay playsinline muted></video>'+
       '<canvas id="mobile-qr-canvas" style="display:none"></canvas>'+
+      // 스캔 가이드 프레임
+      '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:180px;height:180px;pointer-events:none">'+
+        '<div style="position:absolute;top:0;left:0;width:30px;height:30px;border-top:3px solid #fff;border-left:3px solid #fff;border-radius:2px 0 0 0"></div>'+
+        '<div style="position:absolute;top:0;right:0;width:30px;height:30px;border-top:3px solid #fff;border-right:3px solid #fff;border-radius:0 2px 0 0"></div>'+
+        '<div style="position:absolute;bottom:0;left:0;width:30px;height:30px;border-bottom:3px solid #fff;border-left:3px solid #fff;border-radius:0 0 0 2px"></div>'+
+        '<div style="position:absolute;bottom:0;right:0;width:30px;height:30px;border-bottom:3px solid #fff;border-right:3px solid #fff;border-radius:0 0 2px 0"></div>'+
+      '</div>'+
     '</div>'+
-    '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px" onclick="_mobileStopQRScan()">'+t('btn_close')+'</button>'+
+    '<div style="margin:10px 0;font-size:9px;color:var(--text3)">'+t('sync_qr_or')+'</div>'+
+    '<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="_mobileQRFromGallery()">'+
+      '🖼 '+t('sync_qr_gallery')+
+    '</button>'+
+    '<button class="btn btn-ghost btn-sm" style="width:100%" onclick="_mobileStopQRScan()">'+t('btn_close')+'</button>'+
   '</div>';
   pop.onclick=function(e){if(e.target===pop)_mobileStopQRScan();};
   document.body.appendChild(pop);
@@ -12482,6 +12501,37 @@ function _mobileHandleQRResult(raw){
     console.log('QR not WM, got:',str.slice(0,50));
     toast(t('sync_qr_error'));
   }
+}
+function _mobileQRFromGallery(){
+  var input=document.createElement('input');
+  input.type='file';input.accept='image/*';
+  input.onchange=function(e){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      var img=new Image();
+      img.onload=function(){
+        var canvas=document.createElement('canvas');
+        canvas.width=img.width;canvas.height=img.height;
+        var ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0);
+        var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+        _mobileLoadJsQR(function(){
+          var code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});
+          if(code){_mobileHandleQRResult(code.data);}
+          else{
+            // 반전 시도
+            var code2=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'invertFirst'});
+            if(code2){_mobileHandleQRResult(code2.data);}
+            else{toast(t('sync_fail'));}
+          }
+        });
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
 }
 function _mobileStopQRScan(){
   if(_mobileQRAnimId){cancelAnimationFrame(_mobileQRAnimId);_mobileQRAnimId=null;}
