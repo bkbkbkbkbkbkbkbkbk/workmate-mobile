@@ -14049,21 +14049,12 @@ var _gcalTokenClient=null;
 var _gcalSyncing=false;
 
 // localStorage에서 Client ID & 토큰 복구
-var _GCAL_CLIENT_ID_KEY='workmate_gcal_client_id';
+var _GCAL_CLIENT_ID='70632521584-g8p0dee190aup1p4j6t96h5qi81apvgf.apps.googleusercontent.com';
 var _GCAL_TOKEN_KEY='workmate_gcal_token';
 var _GCAL_EVENTS_KEY='workmate_gcal_events';
 
-function gcalGetClientId(){return localStorage.getItem(_GCAL_CLIENT_ID_KEY)||'';}
+function gcalGetClientId(){return _GCAL_CLIENT_ID;}
 function gcalIsConnected(){return!!_gcalAccessToken;}
-
-function gcalSaveClientId(id){
-  id=(id||'').trim();
-  if(!id){toast('Client ID를 입력해주세요.');return;}
-  localStorage.setItem(_GCAL_CLIENT_ID_KEY,id);
-  _gcalTokenClient=null; // 리셋 후 재생성
-  toast('Client ID 저장됨. 이제 연결해주세요.');
-  renderToolPanel();
-}
 
 function _gcalInitClient(cb){
   var cid=gcalGetClientId();
@@ -14087,15 +14078,6 @@ function _gcalInitClient(cb){
 }
 
 function gcalConnect(){
-  if(!gcalGetClientId()){
-    // Client ID 입력 UI 표시
-    renderToolPanel();
-    setTimeout(function(){
-      var el=document.getElementById('gcal-client-input');
-      if(el)el.focus();
-    },100);
-    return;
-  }
   _gcalInitClient(function(){
     toast('Google 캘린더 연결 완료 ✓');
     gcalSync();
@@ -14181,16 +14163,10 @@ function _renderGcalSection(){
     html+='<button class="btn btn-accent btn-sm" onclick="gcalConnect()" style="font-size:9px">연결</button>';
   }
   html+='</div>';
-  // Client ID 입력 섹션 (연결 전)
+  // 연결 전 안내
   if(!connected){
-    html+='<div style="font-size:9px;color:var(--text3);line-height:1.6;margin-bottom:6px">';
-    html+='Google Cloud Console에서 OAuth 2.0 Client ID를 발급받아 입력하세요.<br>';
-    html+='<a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">console.cloud.google.com</a>';
-    html+='</div>';
-    html+='<div style="display:flex;gap:4px;margin-bottom:4px">';
-    html+='<input id="gcal-client-input" type="text" value="'+cid+'" placeholder="xxxxxxxx.apps.googleusercontent.com"';
-    html+=' style="flex:1;font-size:9px;padding:4px 7px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);outline:none">';
-    html+='<button class="btn btn-ghost btn-sm" onclick="gcalSaveClientId(document.getElementById(\'gcal-client-input\').value)" style="font-size:9px">저장</button>';
+    html+='<div style="font-size:9px;color:var(--text3);line-height:1.6;margin-bottom:4px">';
+    html+='Google 계정으로 로그인하면 캘린더 일정을 자동으로 가져옵니다.';
     html+='</div>';
   }
   // 연동된 이벤트 미리보기
