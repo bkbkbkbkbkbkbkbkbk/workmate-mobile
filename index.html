@@ -14259,6 +14259,66 @@ function _ledgerCatInfo(catId){
   return all.find(function(c){return c.id===catId;})||{name:'기타'};
 }
 function _ledgerFmt(n){return Number(n).toLocaleString('ko-KR')+'원';}
+// ── 가계부 검색 팝업 ──
+function openLedgerSearch(){
+  var old=document.getElementById('ldg-search-modal');if(old)old.remove();
+  var pop=document.createElement('div');
+  pop.id='ldg-search-modal';
+  pop.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center';
+  var q=S.ledgerSearch||'';
+  var catF=S.ledgerCatFilter||'all';
+  var typeF=S.ledgerTypeFilter||'all';
+  var catChips=[{id:'all',name:'전체'},..._LEDGER_CATS.expense,..._LEDGER_CATS.income].map(function(c){
+    var active=catF===c.id;
+    return'<button onclick="S.ledgerCatFilter=\''+c.id+'\';ldgSyncSearchUI()" style="flex-shrink:0;padding:6px 12px;border-radius:20px;border:1.5px solid '+(active?'var(--accent)':'var(--border2)')+';background:'+(active?'var(--accent-a10)':'var(--surface)')+';color:'+(active?'var(--accent)':'var(--text2)')+';font-size:11px;font-weight:800;cursor:pointer" data-cat="'+c.id+'">'+c.name+'</button>';
+  }).join('');
+  pop.innerHTML=
+    '<div style="width:100%;max-width:480px;background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 16px 32px;box-shadow:0 -8px 32px rgba(0,0,0,.2)">'
+    +'<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
+    +'<div style="font-size:14px;font-weight:900;color:var(--text);margin-bottom:14px">검색 및 필터</div>'
+    // 검색창
+    +'<div style="position:relative;margin-bottom:14px">'
+    +'<input id="ldg-sp-input" type="text" placeholder="메모, 카테고리 검색..." value="'+q.replace(/"/g,'&quot;')+'" '
+    +'style="width:100%;padding:10px 36px 10px 14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;font-family:Nunito,sans-serif">'
+    +'<span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none">&#128269;</span>'
+    +'</div>'
+    // 수입/지출 필터
+    +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">유형</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:14px">'
+    +[['all','전체'],['expense','지출'],['income','수입']].map(function(tf){
+      var active=typeF===tf[0];
+      return'<button onclick="S.ledgerTypeFilter=\''+tf[0]+'\';ldgSyncSearchUI()" data-type="'+tf[0]+'" style="flex:1;padding:8px 0;border-radius:10px;border:1.5px solid '+(active?'var(--accent)':'var(--border2)')+';background:'+(active?'var(--accent-a10)':'var(--surface)')+';color:'+(active?'var(--accent)':'var(--text2)')+';font-size:12px;font-weight:800;cursor:pointer">'+tf[1]+'</button>';
+    }).join('')
+    +'</div>'
+    // 카테고리 필터
+    +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">카테고리</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px" id="ldg-cat-chips">'+catChips+'</div>'
+    // 버튼
+    +'<div style="display:flex;gap:8px">'
+    +'<button onclick="S.ledgerSearch=\'\';S.ledgerCatFilter=\'all\';S.ledgerTypeFilter=\'all\';document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" style="flex:0.5;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:800;cursor:pointer">초기화</button>'
+    +'<button onclick="S.ledgerSearch=document.getElementById(\'ldg-sp-input\').value.trim();document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" class="btn btn-accent" style="flex:1;font-size:13px;border-radius:12px">적용</button>'
+    +'</div>'
+    +'</div>';
+  pop.onclick=function(e){if(e.target===pop){S.ledgerSearch=document.getElementById('ldg-sp-input').value.trim();pop.remove();renderToolPanel();}};
+  document.body.appendChild(pop);
+  setTimeout(function(){var inp=document.getElementById('ldg-sp-input');if(inp)inp.focus();},100);
+}
+function ldgSyncSearchUI(){
+  // 카테고리 칩 UI 동기화
+  document.querySelectorAll('#ldg-cat-chips button').forEach(function(b){
+    var active=b.dataset.cat===S.ledgerCatFilter;
+    b.style.borderColor=active?'var(--accent)':'var(--border2)';
+    b.style.background=active?'var(--accent-a10)':'var(--surface)';
+    b.style.color=active?'var(--accent)':'var(--text2)';
+  });
+  // 타입 버튼 UI 동기화
+  document.querySelectorAll('[data-type]').forEach(function(b){
+    var active=b.dataset.type===S.ledgerTypeFilter;
+    b.style.borderColor=active?'var(--accent)':'var(--border2)';
+    b.style.background=active?'var(--accent-a10)':'var(--surface)';
+    b.style.color=active?'var(--accent)':'var(--text2)';
+  });
+}
 function ldgSetType(type){
   var inp=document.getElementById('ldg-type');
   var cat=document.getElementById('ldg-cat');
@@ -14306,7 +14366,11 @@ function renderLedger(){
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
     +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:var(--accent-a15);border:none;border-radius:50%;width:28px;height:28px;color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8249;</button>'
     +'<span style="font-size:15px;font-weight:900;color:var(--text)">'+y+'년 '+MN[m]+'</span>'
+    +'<div style="display:flex;gap:4px;align-items:center">'
+    // 검색 버튼 (필터 적용 중이면 강조)
+    +'<button onclick="openLedgerSearch()" style="background:'+(S.ledgerSearch||S.ledgerCatFilter!==\'all\'||S.ledgerTypeFilter!==\'all\'?'var(--accent-a15)':'var(--surface)')+';border:1.5px solid '+(S.ledgerSearch||S.ledgerCatFilter!==\'all\'||S.ledgerTypeFilter!==\'all\'?'var(--accent)':'var(--border2)')+';border-radius:50%;width:28px;height:28px;color:'+(S.ledgerSearch||S.ledgerCatFilter!==\'all\'||S.ledgerTypeFilter!==\'all\'?'var(--accent)':'var(--text3)')+';font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128269;</button>'
     +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:var(--accent-a15);border:none;border-radius:50%;width:28px;height:28px;color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8250;</button>'
+    +'</div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'
     +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">수입</div><div style="font-size:13px;font-weight:900;color:var(--accent)">'+totalInc.toLocaleString()+'</div></div>'
@@ -14343,35 +14407,19 @@ function renderLedger(){
     +(S.ledgerAddOpen?'닫기':'+ 내역 추가')+'</button></div>';
   var body='';
   if(S.ledgerView==='daily'){
-    // ── 검색 & 필터 UI ──
     var searchQ=S.ledgerSearch||'';
     var catF=S.ledgerCatFilter||'all';
     var typeF=S.ledgerTypeFilter||'all';
-    var allCatIds=[..._LEDGER_CATS.expense,..._LEDGER_CATS.income].map(function(c){return c.id;});
-    body+='<div style="margin-bottom:8px">'
-      // 검색창
-      +'<div style="position:relative;margin-bottom:6px">'
-      +'<input id="ldg-search" type="text" placeholder="메모 검색..." value="'+searchQ.replace(/"/g,'&quot;')+'" oninput="S.ledgerSearch=this.value;renderToolPanel()" '
-      +'style="width:100%;padding:8px 32px 8px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;outline:none;box-sizing:border-box;font-family:Nunito,sans-serif">'
-      +'<span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none">🔍</span>'
-      +(searchQ?'<button onclick="S.ledgerSearch=\'\';renderToolPanel()" style="position:absolute;right:28px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0">×</button>':'')
-      +'</div>'
-      // 수입/지출 필터
-      +'<div style="display:flex;gap:4px;margin-bottom:6px">'
-      +[['all','전체'],['expense','지출'],['income','수입']].map(function(tf){
-        var active=typeF===tf[0];
-        return'<button onclick="S.ledgerTypeFilter=\''+tf[0]+'\';renderToolPanel()" style="padding:4px 10px;border-radius:20px;border:1.5px solid '+(active?'var(--accent)':'var(--border2)')+';background:'+(active?'var(--accent-a10)':'var(--surface)')+';color:'+(active?'var(--accent)':'var(--text3)')+';font-size:10px;font-weight:800;cursor:pointer">'+tf[1]+'</button>';
-      }).join('')
-      +'</div>'
-      // 카테고리 필터 칩
-      +'<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none">'
-      +'<button onclick="S.ledgerCatFilter=\'all\';renderToolPanel()" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1.5px solid '+(catF==='all'?'var(--accent)':'var(--border2)')+';background:'+(catF==='all'?'var(--accent-a10)':'var(--surface)')+';color:'+(catF==='all'?'var(--accent)':'var(--text3)')+';font-size:10px;font-weight:800;cursor:pointer">전체</button>'
-      +[..._LEDGER_CATS.expense,..._LEDGER_CATS.income].map(function(c){
-        var active=catF===c.id;
-        return'<button onclick="S.ledgerCatFilter=\''+c.id+'\';renderToolPanel()" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1.5px solid '+(active?'var(--accent)':'var(--border2)')+';background:'+(active?'var(--accent-a10)':'var(--surface)')+';color:'+(active?'var(--accent)':'var(--text3)')+';font-size:10px;font-weight:800;cursor:pointer">'+c.name+'</button>';
-      }).join('')
-      +'</div>'
-      +'</div>';
+    var hasFilter=searchQ||catF!=='all'||typeF!=='all';
+    // 필터 적용 중 표시 배너
+    if(hasFilter){
+      body+='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:10px;background:var(--accent-a10);border:1.5px solid var(--accent-a25);margin-bottom:8px">'
+        +'<span style="font-size:10px;font-weight:700;color:var(--accent)">'
+        +(searchQ?'"'+searchQ+'" ':'')+( catF!=='all'?_ledgerCatInfo(catF).name+' ':'')+(typeF!=='all'?(typeF==='expense'?'지출':'수입')+'만 ':'')+'필터 적용 중'
+        +'</span>'
+        +'<button onclick="S.ledgerSearch=\'\';S.ledgerCatFilter=\'all\';S.ledgerTypeFilter=\'all\';renderToolPanel()" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:11px;font-weight:800;padding:0">초기화</button>'
+        +'</div>';
+    }
     // 필터 적용
     var filteredItems=monthItems.filter(function(e){
       if(typeF!=='all'&&e.type!==typeF)return false;
@@ -14380,7 +14428,7 @@ function renderLedger(){
       return true;
     });
     if(!filteredItems.length){
-      body+='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">'+(searchQ||catF!=='all'||typeF!=='all'?'검색 결과가 없어요':'이번 달 내역이 없어요')+'</div>';
+      body+='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">'+(hasFilter?'검색 결과가 없어요':'이번 달 내역이 없어요')+'</div>';
     }else{
       var grouped={};
       filteredItems.forEach(function(e){if(!grouped[e.date])grouped[e.date]=[];grouped[e.date].push(e);});
