@@ -14367,8 +14367,10 @@ function renderLedger(){
     +'<button onclick="S.ledgerMonth--;if(S.ledgerMonth<0){S.ledgerMonth=11;S.ledgerYear--;}renderToolPanel()" style="background:var(--accent-a15);border:none;border-radius:50%;width:28px;height:28px;color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8249;</button>'
     +'<span style="font-size:15px;font-weight:900;color:var(--text)">'+y+'년 '+MN[m]+'</span>'
     +'<div style="display:flex;gap:4px;align-items:center">'
-    // 검색 버튼 (필터 적용 중이면 강조)
-    +'<button onclick="openLedgerSearch()" style="background:'+(S.ledgerSearch||S.ledgerCatFilter!==\'all\'||S.ledgerTypeFilter!==\'all\'?'var(--accent-a15)':'var(--surface)')+';border:1.5px solid '+(S.ledgerSearch||S.ledgerCatFilter!==\'all\'||S.ledgerTypeFilter!==\'all\'?'var(--accent)':'var(--border2)')+';border-radius:50%;width:28px;height:28px;color:'+(S.ledgerSearch||S.ledgerCatFilter!==\'all\'||S.ledgerTypeFilter!==\'all\'?'var(--accent)':'var(--text3)')+';font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128269;</button>'
+    +(function(){
+      var _hf=!!(S.ledgerSearch||(S.ledgerCatFilter&&S.ledgerCatFilter!=='all')||(S.ledgerTypeFilter&&S.ledgerTypeFilter!=='all'));
+      return '<button onclick="openLedgerSearch()" style="background:'+(_hf?'var(--accent-a15)':'var(--surface)')+';border:1.5px solid '+(_hf?'var(--accent)':'var(--border2)')+';border-radius:50%;width:28px;height:28px;color:'+(_hf?'var(--accent)':'var(--text3)')+';font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128269;</button>';
+    })()
     +'<button onclick="S.ledgerMonth++;if(S.ledgerMonth>11){S.ledgerMonth=0;S.ledgerYear++;}renderToolPanel()" style="background:var(--accent-a15);border:none;border-radius:50%;width:28px;height:28px;color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#8250;</button>'
     +'</div>'
     +'</div>'
