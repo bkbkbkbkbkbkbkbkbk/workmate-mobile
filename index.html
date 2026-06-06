@@ -316,36 +316,6 @@ body.focus-mode #focus-music-btn{display:flex!important}
 #room-notif{max-width:80%!important;white-space:normal!important;text-align:center}
 
 /* ── 모바일 포커스 모드 (홈 버튼 → 자동 진입) ── */
-body.mobile-focus-mode #sticky-header,
-body.mobile-focus-mode #icon-bar,
-body.mobile-focus-mode #top-panel-wrap,
-body.mobile-focus-mode #tool-tabs,
-body.mobile-focus-mode #tool-panel,
-body.mobile-focus-mode .float-win{display:none!important}
-body.mobile-focus-mode #app{background:transparent!important;border:none!important;box-shadow:none!important}
-body.mobile-focus-mode #room-wrap{padding:0!important;flex:1}
-body.mobile-focus-mode #room{border-radius:0!important;border:none!important;width:100%!important;aspect-ratio:auto!important;flex:1}
-
-/* 복귀 버튼 오버레이 */
-#mobile-focus-return-btn{
-  display:none;
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  z-index:9999;
-  background:rgba(108,99,255,.92);color:#fff;
-  border:none;border-radius:30px;
-  padding:12px 28px;font-size:14px;font-weight:900;
-  font-family:'Nunito',sans-serif;
-  box-shadow:0 4px 20px rgba(108,99,255,.5);
-  cursor:pointer;white-space:nowrap;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  animation:mfReturnPulse 2s ease-in-out infinite;
-}
-@keyframes mfReturnPulse{
-  0%,100%{box-shadow:0 4px 20px rgba(108,99,255,.5)}
-  50%{box-shadow:0 4px 28px rgba(108,99,255,.85),0 0 0 6px rgba(108,99,255,.18)}
-}
-body.mobile-focus-mode #mobile-focus-return-btn{display:block}
 
 /* ── 태블릿 / 아이패드 Split View 최적화 ── */
 @media(min-width:481px) and (max-width:900px){
@@ -532,10 +502,6 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
   <div id="room-clock"></div>
   <div id="room-buff-tooltip"><span id="room-buff-ticker"></span></div>
   <div id="room-notif"></div>
-  <!-- 모바일 포커스 모드 복귀 버튼 -->
-  <button id="mobile-focus-return-btn" onclick="mobileExitFocusMode()" data-i18n="focus_return">
-    ◀ 전체 화면으로 돌아가기
-  </button>
   <div id="food-tip" style="display:none;position:fixed;z-index:9999;background:rgba(15,18,40,.96);border:1.5px solid rgba(108,99,255,.45);border-radius:10px;padding:9px 12px;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.55);min-width:120px;max-width:190px"></div>
 
   <!-- BG preset button -->
@@ -3029,7 +2995,6 @@ const LANG_DATA={
     roulette_result:'{0} 어때요?', roulette_menus:'{0}가지 메뉴',
     rcat_all:'전체', rcat_korean:'한식', rcat_snack:'분식', rcat_japanese:'일식', rcat_chinese:'중식', rcat_western:'양식', rcat_other:'기타',
     // ── 모바일 포커스 복귀
-    focus_return:'◀ 전체 화면으로 돌아가기',
     // ── 음식 버프 레이블
     buff_satiety:'포만감', buff_earn:'수입 +{0}%', buff_xp:'XP +{0}%',
     buff_speed:'속도 +{0}%', buff_bargain:'할인 +{0}%',
@@ -3604,7 +3569,6 @@ const LANG_DATA={
     roulette_result:'How about {0}?', roulette_menus:'{0} menus',
     rcat_all:'All', rcat_korean:'Korean', rcat_snack:'Snack', rcat_japanese:'Japanese', rcat_chinese:'Chinese', rcat_western:'Western', rcat_other:'Other',
     // ── Mobile focus return
-    focus_return:'◀ Back to full view',
     // ── Food buff labels
     buff_satiety:'Satiety', buff_earn:'Income +{0}%', buff_xp:'XP +{0}%',
     buff_speed:'Speed +{0}%', buff_bargain:'Discount +{0}%',
@@ -4153,7 +4117,6 @@ const LANG_DATA={
     roulette_result:'{0}はいかが？', roulette_menus:'{0}種類のメニュー',
     rcat_all:'全て', rcat_korean:'韓食', rcat_snack:'軽食', rcat_japanese:'和食', rcat_chinese:'中華', rcat_western:'洋食', rcat_other:'その他',
     // ── モバイルフォーカス復帰
-    focus_return:'◀ 全画面に戻る',
     // ── 食べ物バフラベル
     buff_satiety:'満腹感', buff_earn:'収入+{0}%', buff_xp:'XP+{0}%',
     buff_speed:'速度+{0}%', buff_bargain:'割引+{0}%',
@@ -4702,7 +4665,6 @@ const LANG_DATA={
     roulette_result:'{0}怎么样？', roulette_menus:'{0}种菜单',
     rcat_all:'全部', rcat_korean:'韩餐', rcat_snack:'小吃', rcat_japanese:'日料', rcat_chinese:'中餐', rcat_western:'西餐', rcat_other:'其他',
     // ── 移动端专注模式返回
-    focus_return:'◀ 返回全屏',
     // ── 食物增益标签
     buff_satiety:'饱腹感', buff_earn:'收入+{0}%', buff_xp:'XP+{0}%',
     buff_speed:'速度+{0}%', buff_bargain:'折扣+{0}%',
@@ -16043,29 +16005,6 @@ function _showUpdatePopup(newWorker){
   };
 }
 
-// ══════════════════════════════════════════════════════
-// ── 모바일 포커스 모드 (홈 버튼 → 자동 진입) ──────────
-// ══════════════════════════════════════════════════════
-var _mobileFocusActive = false;
-var _mobileHiddenAt   = 0;
-var _MOBILE_FOCUS_DELAY_MS = 3000; // 3초 이상 홈 화면에 있다가 돌아오면 포커스 모드
-
-function mobileEnterFocusMode(){
-  if(_mobileFocusActive) return;
-  _mobileFocusActive = true;
-  document.body.classList.add('mobile-focus-mode');
-  // 기존 모달/창 닫기
-  if(typeof _mobileCloseAllWindows === 'function') _mobileCloseAllWindows();
-  // 스크롤 최상단으로
-  var app = document.getElementById('app');
-  if(app) app.scrollTo({top: 0, behavior: 'auto'});
-}
-
-function mobileExitFocusMode(){
-  if(!_mobileFocusActive) return;
-  _mobileFocusActive = false;
-  document.body.classList.remove('mobile-focus-mode');
-}
 
 // Page Visibility API: 백그라운드 복귀 시 저장만
 document.addEventListener('visibilitychange', function(){
