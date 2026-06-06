@@ -1568,7 +1568,7 @@ function loadGame(){
     if(d.pet2)S.pet2=d.pet2;
     if(d.pet2Unlocked)S.pet2Unlocked=d.pet2Unlocked;
     if(Array.isArray(d.ddays))S.ddays=d.ddays;
-    if(Array.isArray(d.todos)&&d.todos.length)S.todos=d.todos;
+    if(Array.isArray(d.todos))S.todos=d.todos; // 빈 배열([])도 localStorage 우선 적용
     if(Array.isArray(d.doneTodos))S.doneTodos=d.doneTodos;
     else{
       // 구버전 마이그레이션: done:true 항목을 doneTodos로 이동
