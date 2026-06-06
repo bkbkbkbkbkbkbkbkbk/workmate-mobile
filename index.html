@@ -533,7 +533,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
   <div id="room-buff-tooltip"><span id="room-buff-ticker"></span></div>
   <div id="room-notif"></div>
   <!-- 모바일 포커스 모드 복귀 버튼 -->
-  <button id="mobile-focus-return-btn" onclick="mobileExitFocusMode()">
+  <button id="mobile-focus-return-btn" onclick="mobileExitFocusMode()" data-i18n="focus_return">
     ◀ 전체 화면으로 돌아가기
   </button>
   <div id="food-tip" style="display:none;position:fixed;z-index:9999;background:rgba(15,18,40,.96);border:1.5px solid rgba(108,99,255,.45);border-radius:10px;padding:9px 12px;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.55);min-width:120px;max-width:190px"></div>
@@ -690,7 +690,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
   <button class="ttab active" data-tab="todo"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 6.5l2 2L9.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tab_todo">할일</span></button>
   <button class="ttab" data-tab="memo"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5h6M3.5 7.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_memo">메모</span></button>
   <button class="ttab" data-tab="calc"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 4.5h2M7.5 4.5h2M4 8h2M7.5 8h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_calc">계산기</span></button>
-  <button class="ttab" data-tab="ledger"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 4.5h2.5M3.5 6.5h5M3.5 8.5h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9 3.5v2M8 4.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>가계부</span></button>
+  <button class="ttab" data-tab="ledger"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 4.5h2.5M3.5 6.5h5M3.5 8.5h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9 3.5v2M8 4.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_ledger">가계부</span></button>
   <button class="ttab" data-tab="timer"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 5v2.5l1.5.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 1h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_timer">타이머</span></button>
   <button class="ttab" data-tab="cal"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2.5" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h11M4.5 1v3M8.5 1v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span data-i18n="tab_cal">캘린더</span></button>
 </div>
@@ -2942,7 +2942,27 @@ const LANG_DATA={
     // ── 하단 탭 / 캐릭터 버튼
     btn_char:'캐릭터',
     tab_music:'음악', tab_todo:'할일', tab_memo:'메모',
-    tab_calc:'계산기', tab_timer:'타이머', tab_cal:'캘린더',
+    tab_calc:'계산기', tab_timer:'타이머', tab_cal:'캘린더', tab_ledger:'가계부',
+    // ── 가계부
+    ldg_income:'수입', ldg_expense:'지출', ldg_balance:'잔액',
+    ldg_daily:'일일', ldg_calendar:'달력', ldg_monthly:'월별', ldg_stats:'통계',
+    ldg_add:'+ 내역 추가', ldg_close:'닫기', ldg_save:'저장', ldg_reset:'초기화',
+    ldg_search_title:'검색 및 필터', ldg_search_ph:'메모, 카테고리 검색...',
+    ldg_type:'유형', ldg_cat:'카테고리', ldg_apply:'적용',
+    ldg_all:'전체', ldg_no_entry:'이번 달 내역이 없어요', ldg_no_result:'검색 결과가 없어요',
+    ldg_avg_daily:'이번 달 일평균 지출', ldg_pattern:'이번 달 소비 패턴',
+    ldg_income_anal:'수입 분석', ldg_expense_anal:'지출 분석',
+    ldg_filter_on:'필터 적용 중', ldg_added:'추가됨!',
+    ldg_amount_ph:'금액', ldg_memo_ph:'메모',
+    ldg_cat_food:'식비', ldg_cat_cafe:'카페', ldg_cat_trans:'교통', ldg_cat_shop:'쇼핑',
+    ldg_cat_health:'의료', ldg_cat_beauty:'미용', ldg_cat_culture:'문화', ldg_cat_tel:'통신',
+    ldg_cat_house:'주거', ldg_cat_edu:'교육', ldg_cat_etc:'기타',
+    ldg_cat_salary:'급여', ldg_cat_allowance:'용돈', ldg_cat_extra:'부수입',
+    // ── 메뉴 룰렛
+    roulette_title:'오늘 뭐 먹지?', roulette_spin:'돌리기!', roulette_respin:'다시 돌리기!',
+    roulette_result:'{0} 어때요?', roulette_menus:'{0}가지 메뉴',
+    // ── 모바일 포커스 복귀
+    focus_return:'◀ 전체 화면으로 돌아가기',
     // ── 음식 버프 레이블
     buff_satiety:'포만감', buff_earn:'수입 +{0}%', buff_xp:'XP +{0}%',
     buff_speed:'속도 +{0}%', buff_bargain:'할인 +{0}%',
@@ -3454,7 +3474,27 @@ const LANG_DATA={
     // ── Bottom tabs / character button
     btn_char:'Character',
     tab_music:'Music', tab_todo:'To-do', tab_memo:'Memo',
-    tab_calc:'Calc', tab_timer:'Timer', tab_cal:'Calendar',
+    tab_calc:'Calc', tab_timer:'Timer', tab_cal:'Calendar', tab_ledger:'Ledger',
+    // ── Ledger
+    ldg_income:'Income', ldg_expense:'Expense', ldg_balance:'Balance',
+    ldg_daily:'Daily', ldg_calendar:'Calendar', ldg_monthly:'Monthly', ldg_stats:'Stats',
+    ldg_add:'+ Add Entry', ldg_close:'Close', ldg_save:'Save', ldg_reset:'Reset',
+    ldg_search_title:'Search & Filter', ldg_search_ph:'Search memo, category...',
+    ldg_type:'Type', ldg_cat:'Category', ldg_apply:'Apply',
+    ldg_all:'All', ldg_no_entry:'No entries this month', ldg_no_result:'No results found',
+    ldg_avg_daily:'Avg. daily expense', ldg_pattern:'This month\'s spending',
+    ldg_income_anal:'Income breakdown', ldg_expense_anal:'Expense breakdown',
+    ldg_filter_on:'Filter applied', ldg_added:'Added!',
+    ldg_amount_ph:'Amount', ldg_memo_ph:'Memo',
+    ldg_cat_food:'Food', ldg_cat_cafe:'Cafe', ldg_cat_trans:'Transport', ldg_cat_shop:'Shopping',
+    ldg_cat_health:'Medical', ldg_cat_beauty:'Beauty', ldg_cat_culture:'Culture', ldg_cat_tel:'Phone',
+    ldg_cat_house:'Housing', ldg_cat_edu:'Education', ldg_cat_etc:'Other',
+    ldg_cat_salary:'Salary', ldg_cat_allowance:'Allowance', ldg_cat_extra:'Side income',
+    // ── Menu Roulette
+    roulette_title:'What to eat today?', roulette_spin:'Spin!', roulette_respin:'Spin again!',
+    roulette_result:'How about {0}?', roulette_menus:'{0} menus',
+    // ── Mobile focus return
+    focus_return:'◀ Back to full view',
     // ── Food buff labels
     buff_satiety:'Satiety', buff_earn:'Income +{0}%', buff_xp:'XP +{0}%',
     buff_speed:'Speed +{0}%', buff_bargain:'Discount +{0}%',
@@ -3940,7 +3980,27 @@ const LANG_DATA={
     // ── 下部タブ / キャラクターボタン
     btn_char:'キャラクター',
     tab_music:'音楽', tab_todo:'タスク', tab_memo:'メモ',
-    tab_calc:'計算機', tab_timer:'タイマー', tab_cal:'カレンダー',
+    tab_calc:'計算機', tab_timer:'タイマー', tab_cal:'カレンダー', tab_ledger:'家計簿',
+    // ── 家計簿
+    ldg_income:'収入', ldg_expense:'支出', ldg_balance:'残高',
+    ldg_daily:'日別', ldg_calendar:'カレンダー', ldg_monthly:'月別', ldg_stats:'統計',
+    ldg_add:'+ 追加', ldg_close:'閉じる', ldg_save:'保存', ldg_reset:'リセット',
+    ldg_search_title:'検索・フィルター', ldg_search_ph:'メモ・カテゴリ検索...',
+    ldg_type:'種類', ldg_cat:'カテゴリ', ldg_apply:'適用',
+    ldg_all:'全て', ldg_no_entry:'今月の記録なし', ldg_no_result:'結果なし',
+    ldg_avg_daily:'今月の日平均支出', ldg_pattern:'今月の支出パターン',
+    ldg_income_anal:'収入内訳', ldg_expense_anal:'支出内訳',
+    ldg_filter_on:'フィルター適用中', ldg_added:'追加されました!',
+    ldg_amount_ph:'金額', ldg_memo_ph:'メモ',
+    ldg_cat_food:'食費', ldg_cat_cafe:'カフェ', ldg_cat_trans:'交通', ldg_cat_shop:'ショッピング',
+    ldg_cat_health:'医療', ldg_cat_beauty:'美容', ldg_cat_culture:'文化', ldg_cat_tel:'通信',
+    ldg_cat_house:'住居', ldg_cat_edu:'教育', ldg_cat_etc:'その他',
+    ldg_cat_salary:'給与', ldg_cat_allowance:'お小遣い', ldg_cat_extra:'副収入',
+    // ── メニュールーレット
+    roulette_title:'今日何食べる？', roulette_spin:'回す！', roulette_respin:'もう一回！',
+    roulette_result:'{0}はいかが？', roulette_menus:'{0}種類のメニュー',
+    // ── モバイルフォーカス復帰
+    focus_return:'◀ 全画面に戻る',
     // ── 食べ物バフラベル
     buff_satiety:'満腹感', buff_earn:'収入+{0}%', buff_xp:'XP+{0}%',
     buff_speed:'速度+{0}%', buff_bargain:'割引+{0}%',
@@ -4426,7 +4486,27 @@ const LANG_DATA={
     // ── 底部标签 / 角色按钮
     btn_char:'角色',
     tab_music:'音乐', tab_todo:'待办', tab_memo:'备忘',
-    tab_calc:'计算器', tab_timer:'计时器', tab_cal:'日历',
+    tab_calc:'计算器', tab_timer:'计时器', tab_cal:'日历', tab_ledger:'账本',
+    // ── 账本
+    ldg_income:'收入', ldg_expense:'支出', ldg_balance:'余额',
+    ldg_daily:'日记', ldg_calendar:'日历', ldg_monthly:'月度', ldg_stats:'统计',
+    ldg_add:'+ 添加记录', ldg_close:'关闭', ldg_save:'保存', ldg_reset:'重置',
+    ldg_search_title:'搜索与筛选', ldg_search_ph:'搜索备注、分类...',
+    ldg_type:'类型', ldg_cat:'分类', ldg_apply:'应用',
+    ldg_all:'全部', ldg_no_entry:'本月暂无记录', ldg_no_result:'无搜索结果',
+    ldg_avg_daily:'本月日均支出', ldg_pattern:'本月消费模式',
+    ldg_income_anal:'收入分析', ldg_expense_anal:'支出分析',
+    ldg_filter_on:'筛选中', ldg_added:'已添加!',
+    ldg_amount_ph:'金额', ldg_memo_ph:'备注',
+    ldg_cat_food:'餐饮', ldg_cat_cafe:'咖啡', ldg_cat_trans:'交通', ldg_cat_shop:'购物',
+    ldg_cat_health:'医疗', ldg_cat_beauty:'美容', ldg_cat_culture:'文娱', ldg_cat_tel:'通讯',
+    ldg_cat_house:'住房', ldg_cat_edu:'教育', ldg_cat_etc:'其他',
+    ldg_cat_salary:'工资', ldg_cat_allowance:'零花钱', ldg_cat_extra:'副业',
+    // ── 菜单转盘
+    roulette_title:'今天吃什么？', roulette_spin:'转！', roulette_respin:'再转一次！',
+    roulette_result:'{0}怎么样？', roulette_menus:'{0}种菜单',
+    // ── 移动端专注模式返回
+    focus_return:'◀ 返回全屏',
     // ── 食物增益标签
     buff_satiety:'饱腹感', buff_earn:'收入+{0}%', buff_xp:'XP+{0}%',
     buff_speed:'速度+{0}%', buff_bargain:'折扣+{0}%',
@@ -14290,23 +14370,23 @@ function openLedgerSearch(){
   pop.innerHTML=
     '<div style="width:100%;max-width:480px;background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 16px 32px;box-shadow:0 -8px 32px rgba(0,0,0,.2)">'
     +'<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
-    +'<div style="font-size:14px;font-weight:900;color:var(--text);margin-bottom:14px">검색 및 필터</div>'
+    +'<div style="font-size:14px;font-weight:900;color:var(--text);margin-bottom:14px">'+t('ldg_search_title')+'</div>'
     // 검색창
     +'<div style="position:relative;margin-bottom:14px">'
-    +'<input id="ldg-sp-input" type="text" placeholder="메모, 카테고리 검색..." value="'+q.replace(/"/g,'&quot;')+'" '
+    +'<input id="ldg-sp-input" type="text" placeholder="'+t('ldg_search_ph')+'" value="'+q.replace(/"/g,'&quot;')+'" '
     +'style="width:100%;padding:10px 36px 10px 14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;font-family:Nunito,sans-serif">'
     +'<span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;pointer-events:none">&#128269;</span>'
     +'</div>'
     // 수입/지출 필터
-    +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">유형</div>'
+    +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">'+t('ldg_type')+'</div>'
     +'<div style="display:flex;gap:6px;margin-bottom:14px">'
-    +[['all','전체'],['expense','지출'],['income','수입']].map(function(tf){
+    +[['all',t('ldg_all')],['expense',t('ldg_expense')],['income',t('ldg_income')]].map(function(tf){
       var active=typeF===tf[0];
       return'<button onclick="S.ledgerTypeFilter=\''+tf[0]+'\';ldgSyncSearchUI()" data-type="'+tf[0]+'" style="flex:1;padding:8px 0;border-radius:10px;border:1.5px solid '+(active?'var(--accent)':'var(--border2)')+';background:'+(active?'var(--accent-a10)':'var(--surface)')+';color:'+(active?'var(--accent)':'var(--text2)')+';font-size:12px;font-weight:800;cursor:pointer">'+tf[1]+'</button>';
     }).join('')
     +'</div>'
     // 카테고리 필터 (가로 스크롤 + 화살표)
-    +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">카테고리</div>'
+    +'<div style="font-size:10px;font-weight:900;color:var(--text2);margin-bottom:8px">'+t('ldg_cat')+'</div>'
     +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:20px">'
     +'<button class="chip-arrow" onclick="document.getElementById(\'ldg-cat-scroll\').scrollBy({left:-80,behavior:\'smooth\'})">‹</button>'
     +'<div id="ldg-cat-scroll" style="display:flex;gap:6px;overflow-x:auto;flex:1;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0"><div style="display:flex;gap:6px;flex-wrap:nowrap" id="ldg-cat-chips">'+catChips+'</div></div>'
@@ -14314,8 +14394,8 @@ function openLedgerSearch(){
     +'</div>'
     // 버튼
     +'<div style="display:flex;gap:8px">'
-    +'<button onclick="S.ledgerSearch=\'\';S.ledgerCatFilter=\'all\';S.ledgerTypeFilter=\'all\';document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" style="flex:0.5;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:800;cursor:pointer">초기화</button>'
-    +'<button onclick="S.ledgerSearch=document.getElementById(\'ldg-sp-input\').value.trim();document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" class="btn btn-accent" style="flex:1;font-size:13px;border-radius:12px">적용</button>'
+    +'<button onclick="S.ledgerSearch=\'\';S.ledgerCatFilter=\'all\';S.ledgerTypeFilter=\'all\';document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" style="flex:0.5;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:13px;font-weight:800;cursor:pointer">'+t('ldg_reset')+'</button>'
+    +'<button onclick="S.ledgerSearch=document.getElementById(\'ldg-sp-input\').value.trim();document.getElementById(\'ldg-search-modal\').remove();renderToolPanel()" class="btn btn-accent" style="flex:1;font-size:13px;border-radius:12px">'+t('ldg_apply')+'</button>'
     +'</div>'
     +'</div>';
   pop.onclick=function(e){if(e.target===pop){S.ledgerSearch=document.getElementById('ldg-sp-input').value.trim();pop.remove();renderToolPanel();}};
@@ -14379,7 +14459,7 @@ function renderLedger(){
   var totalInc=monthItems.filter(function(e){return e.type==='income';}).reduce(function(s,e){return s+e.amount;},0);
   var totalExp=monthItems.filter(function(e){return e.type==='expense';}).reduce(function(s,e){return s+e.amount;},0);
   var bal=totalInc-totalExp;
-  var MN=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  var MN=t('cal_months'); // 언어별 월 이름
   var header=
     '<div style="padding:4px 0 10px">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
@@ -14394,38 +14474,38 @@ function renderLedger(){
     +'</div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'
-    +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">수입</div><div style="font-size:13px;font-weight:900;color:var(--accent)">'+totalInc.toLocaleString()+'</div></div>'
-    +'<div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">지출</div><div style="font-size:13px;font-weight:900;color:var(--red)">'+totalExp.toLocaleString()+'</div></div>'
-    +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">잔액</div><div style="font-size:13px;font-weight:900;color:'+(bal>=0?'var(--accent)':'var(--red)')+'">'+Math.abs(bal).toLocaleString()+'</div></div>'
+    +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">'+t('ldg_income')+'</div><div style="font-size:13px;font-weight:900;color:var(--accent)">'+totalInc.toLocaleString()+'</div></div>'
+    +'<div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">'+t('ldg_expense')+'</div><div style="font-size:13px;font-weight:900;color:var(--red)">'+totalExp.toLocaleString()+'</div></div>'
+    +'<div style="text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">'+t('ldg_balance')+'</div><div style="font-size:13px;font-weight:900;color:'+(bal>=0?'var(--accent)':'var(--red)')+'">'+Math.abs(bal).toLocaleString()+'</div></div>'
     +'</div>'
     +'<div style="display:flex;gap:4px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:3px">'
-    +['daily','calendar','monthly','stats'].map(function(v,i){var labels=['일일','달력','월별','통계'];var active=S.ledgerView===v;return'<button onclick="S.ledgerView=\''+v+'\';renderToolPanel()" style="flex:1;padding:5px 0;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;'+(active?'background:var(--surface);color:var(--accent)':'background:transparent;color:var(--text2)')+'">'+labels[i]+'</button>';}).join('')
+    +['daily','calendar','monthly','stats'].map(function(v){var lbl=[t('ldg_daily'),t('ldg_calendar'),t('ldg_monthly'),t('ldg_stats')][['daily','calendar','monthly','stats'].indexOf(v)];var active=S.ledgerView===v;return'<button onclick="S.ledgerView=\''+v+'\';renderToolPanel()" style="flex:1;padding:5px 0;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;'+(active?'background:var(--surface);color:var(--accent)':'background:transparent;color:var(--text2)')+'">'+lbl+'</button>';}).join('')
     +'</div></div>';
   var catOptsE=_LEDGER_CATS.expense.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
   var addForm='';
   if(S.ledgerAddOpen){
     addForm='<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:12px;margin-top:10px">'
       +'<div style="display:flex;gap:5px;margin-bottom:10px">'
-      +'<button id="ldg-btn-exp" onclick="ldgSetType(\'expense\')" style="flex:1;padding:7px;border-radius:10px;border:none;background:rgba(239,68,68,.18);color:var(--red);font-size:12px;font-weight:900;cursor:pointer">지출</button>'
+      +'<button id="ldg-btn-exp" onclick="ldgSetType(\'expense\')" style="flex:1;padding:7px;border-radius:10px;border:none;background:rgba(239,68,68,.18);color:var(--red);font-size:12px;font-weight:900;cursor:pointer">'+t('ldg_expense')+'</button>'
       +'<button id="ldg-btn-inc" onclick="ldgSetType(\'income\')" style="flex:1;padding:7px;border-radius:10px;border:none;background:var(--surface2);color:var(--text3);font-size:12px;font-weight:900;cursor:pointer">수입</button>'
       +'</div>'
       +'<input type="hidden" id="ldg-type" value="expense">'
       +'<div style="display:flex;gap:5px;margin-bottom:8px">'
-      +'<input id="ldg-amount" type="number" placeholder="금액" min="0" inputmode="numeric" style="flex:1;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-weight:700;outline:none;font-family:Nunito,sans-serif">'
+      +'<input id="ldg-amount" type="number" placeholder="'+t('ldg_amount_ph')+'" min="0" inputmode="numeric" style="flex:1;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-weight:700;outline:none;font-family:Nunito,sans-serif">'
       +'<select id="ldg-cat" style="width:90px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'+catOptsE+'</select>'
       +'</div>'
       +'<div style="display:flex;gap:5px;margin-bottom:10px">'
-      +'<input id="ldg-memo" type="text" placeholder="메모" maxlength="30" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
+      +'<input id="ldg-memo" type="text" placeholder="'+t('ldg_memo_ph')+'" maxlength="30" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;outline:none;font-family:Nunito,sans-serif">'
       +'<input id="ldg-date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:120px;padding:7px 6px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;outline:none">'
       +'</div>'
       +'<div style="display:flex;gap:6px">'
-      +'<button onclick="S.ledgerAddOpen=false;renderToolPanel()" style="flex:0.4;padding:9px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer">취소</button>'
-      +'<button onclick="addLedgerEntry()" class="btn btn-accent" style="flex:1;font-size:13px;border-radius:10px">저장</button>'
+      +'<button onclick="S.ledgerAddOpen=false;renderToolPanel()" style="flex:0.4;padding:9px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer">'+t('ldg_close')+'</button>'
+      +'<button onclick="addLedgerEntry()" class="btn btn-accent" style="flex:1;font-size:13px;border-radius:10px">'+t('ldg_save')+'</button>'
       +'</div></div>';
   }
   var addBtn='<div style="position:sticky;bottom:0;padding:8px 0 0;background:var(--bg2)">'
     +'<button onclick="S.ledgerAddOpen=!S.ledgerAddOpen;renderToolPanel()" style="width:100%;padding:11px;border-radius:12px;border:none;background:'+(S.ledgerAddOpen?'var(--surface2)':'var(--accent)')+';color:'+(S.ledgerAddOpen?'var(--text2)':'#fff')+';font-size:13px;font-weight:900;cursor:pointer">'
-    +(S.ledgerAddOpen?'닫기':'+ 내역 추가')+'</button></div>';
+    +(S.ledgerAddOpen?t('ldg_close'):t('ldg_add'))+'</button></div>';
   var body='';
   if(S.ledgerView==='daily'){
     var searchQ=S.ledgerSearch||'';
@@ -14449,7 +14529,7 @@ function renderLedger(){
       return true;
     });
     if(!filteredItems.length){
-      body+='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">'+(hasFilter?'검색 결과가 없어요':'이번 달 내역이 없어요')+'</div>';
+      body+='<div style="text-align:center;color:var(--text3);font-size:12px;padding:24px 0">'+(hasFilter?t('ldg_no_result'):t('ldg_no_entry'))+'</div>';
     }else{
       var grouped={};
       filteredItems.forEach(function(e){if(!grouped[e.date])grouped[e.date]=[];grouped[e.date].push(e);});
@@ -14557,10 +14637,10 @@ function renderLedger(){
     body='<div>';
 
     // 이번 달 소비 패턴
-    body+='<div style="font-size:11px;font-weight:900;color:var(--text);margin-bottom:8px">이번 달 소비 패턴</div>';
+    body+='<div style="font-size:11px;font-weight:900;color:var(--text);margin-bottom:8px">'+t('ldg_pattern')+'</div>';
 
     if(!statsItems.length){
-      body+='<div style="text-align:center;color:var(--text3);font-size:12px;padding:20px 0">이번 달 내역이 없어요</div>';
+      body+='<div style="text-align:center;color:var(--text3);font-size:12px;padding:20px 0">'+t('ldg_no_entry')+'</div>';
     }else{
       // 수입/지출 비율 바
       var total=sTotalInc+sTotalExp;
@@ -14580,7 +14660,7 @@ function renderLedger(){
 
       // 지출 카테고리 분석
       if(expCatList.length){
-        body+='<div style="font-size:10px;font-weight:900;color:var(--red);margin-bottom:6px">지출 분석</div>';
+        body+='<div style="font-size:10px;font-weight:900;color:var(--red);margin-bottom:6px">'+t('ldg_expense_anal')+'</div>';
         expCatList.forEach(function(c){
           var pct=sTotalExp?Math.round(c.amount/sTotalExp*100):0;
           body+='<div style="margin-bottom:8px">'
@@ -14602,7 +14682,7 @@ function renderLedger(){
 
       // 수입 카테고리 분석
       if(incCatList.length){
-        body+='<div style="font-size:10px;font-weight:900;color:var(--accent);margin:10px 0 6px">수입 분석</div>';
+        body+='<div style="font-size:10px;font-weight:900;color:var(--accent);margin:10px 0 6px">'+t('ldg_income_anal')+'</div>';
         incCatList.forEach(function(c){
           var pct=sTotalInc?Math.round(c.amount/sTotalInc*100):0;
           body+='<div style="margin-bottom:8px">'
@@ -14627,7 +14707,7 @@ function renderLedger(){
       var daysPassed=m===new Date().getMonth()&&y===new Date().getFullYear()?new Date().getDate():daysInMonth;
       var avgDaily=daysPassed?Math.round(sTotalExp/daysPassed):0;
       body+='<div style="margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1.5px solid var(--border2)">'
-        +'<div style="font-size:9px;color:var(--text3);margin-bottom:4px">이번 달 일평균 지출</div>'
+        +'<div style="font-size:9px;color:var(--text3);margin-bottom:4px">'+t('ldg_avg_daily')+'</div>'
         +'<div style="font-size:16px;font-weight:900;color:var(--text)">'+avgDaily.toLocaleString()+'원</div>'
         +'<div style="font-size:9px;color:var(--text3);margin-top:2px">총 '+statsItems.length+'건 · '+daysPassed+'일 경과</div>'
         +'</div>';
@@ -15142,7 +15222,7 @@ function openMenuRoulette(){
     '<div class="roulette-sheet">'
     +'<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
-    +'<div><div style="font-size:16px;font-weight:900;color:var(--text)">오늘 뭐 먹지?</div>'
+    +'<div><div style="font-size:16px;font-weight:900;color:var(--text)">'+t('roulette_title')+'</div>'
     +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">총 '+MENU_LIST.length+'가지 메뉴</div></div>'
     +'<button onclick="document.getElementById(\'menu-roulette-modal\').remove()" style="background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--text3)">×</button>'
     +'</div>'
@@ -15164,7 +15244,7 @@ function openMenuRoulette(){
     +'</div>'   // 화살표 래퍼
     +'<div class="slot-window"><div class="slot-reel" id="slot-reel"></div></div>'
     +'<div id="slot-result" style="text-align:center;min-height:28px;margin-bottom:12px"></div>'
-    +'<button onclick="spinRoulette()" id="spin-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#fff;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.5px">돌리기!</button>'
+    +'<button onclick="spinRoulette()" id="spin-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#fff;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.5px">'+t('roulette_spin')+'</button>'
     +'</div>'; // roulette-sheet
   pop.onclick=function(e){if(e.target===pop)pop.remove();};
   document.body.appendChild(pop);
@@ -15190,7 +15270,7 @@ function setRouletteCat(cat){
   if(cnt)cnt.textContent=(cat==='전체'?'전체 ':'['+cat+'] ')+filtered.length+'가지 메뉴';
   // 결과 초기화
   var res=document.getElementById('slot-result');if(res)res.innerHTML='';
-  var btn=document.getElementById('spin-btn');if(btn)btn.textContent='돌리기!';
+  var btn=document.getElementById('spin-btn');if(btn)btn.textContent=t('roulette_spin');
 }
 
 function _buildReel(pickedMenu){
@@ -15237,10 +15317,10 @@ function spinRoulette(){
   setTimeout(function(){
     _rouletteSpinning=false;
     btn.disabled=false;btn.style.opacity='1';
-    btn.textContent='다시 돌리기!';
+    btn.textContent=t('roulette_respin');
     resultEl.innerHTML=
       '<div style="font-size:13px;font-weight:900;color:'+pickedMenu.col+';animation:slotResult .5s ease">'
-      +'오늘은 <span style="font-size:16px">'+pickedMenu.n+'</span> 어때요?'
+      +t('roulette_result').replace('{0}','<span style="font-size:16px">'+pickedMenu.n+'</span>')
       +'</div>';
   },3300);
 }
