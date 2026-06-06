@@ -15631,42 +15631,103 @@ function _tutEnd(){
 // ── 메뉴 룰렛 ──
 var MENU_LIST=[
   // 한식
-  {n:'김치찌개',c:'한식',col:'#e11d48'},{n:'된장찌개',c:'한식',col:'#e11d48'},{n:'부대찌개',c:'한식',col:'#e11d48'},
-  {n:'순두부찌개',c:'한식',col:'#e11d48'},{n:'청국장',c:'한식',col:'#e11d48'},{n:'삼겹살',c:'한식',col:'#e11d48'},
-  {n:'목살구이',c:'한식',col:'#e11d48'},{n:'갈비',c:'한식',col:'#e11d48'},{n:'불고기',c:'한식',col:'#e11d48'},
-  {n:'제육볶음',c:'한식',col:'#e11d48'},{n:'비빔밥',c:'한식',col:'#e11d48'},{n:'돌솥비빔밥',c:'한식',col:'#e11d48'},
-  {n:'물냉면',c:'한식',col:'#e11d48'},{n:'비빔냉면',c:'한식',col:'#e11d48'},{n:'삼계탕',c:'한식',col:'#e11d48'},
-  {n:'설렁탕',c:'한식',col:'#e11d48'},{n:'갈비탕',c:'한식',col:'#e11d48'},{n:'해장국',c:'한식',col:'#e11d48'},
-  {n:'순대국밥',c:'한식',col:'#e11d48'},{n:'곱창',c:'한식',col:'#e11d48'},{n:'보쌈',c:'한식',col:'#e11d48'},
-  {n:'족발',c:'한식',col:'#e11d48'},{n:'쌈밥',c:'한식',col:'#e11d48'},{n:'닭갈비',c:'한식',col:'#e11d48'},
-  {n:'오리구이',c:'한식',col:'#e11d48'},{n:'감자탕',c:'한식',col:'#e11d48'},{n:'추어탕',c:'한식',col:'#e11d48'},
-  {n:'닭볶음탕',c:'한식',col:'#e11d48'},{n:'낙지볶음',c:'한식',col:'#e11d48'},{n:'꽃게찜',c:'한식',col:'#e11d48'},
+  {n:'김치찌개',en:'Kimchi Stew',ja:'キムチチゲ',zh:'泡菜汤',c:'한식',col:'#e11d48'},
+  {n:'된장찌개',en:'Doenjang Stew',ja:'テンジャンチゲ',zh:'大酱汤',c:'한식',col:'#e11d48'},
+  {n:'부대찌개',en:'Army Stew',ja:'プデチゲ',zh:'部队锅',c:'한식',col:'#e11d48'},
+  {n:'순두부찌개',en:'Soft Tofu Stew',ja:'スンドゥブチゲ',zh:'嫩豆腐锅',c:'한식',col:'#e11d48'},
+  {n:'청국장',en:'Cheonggukjang',ja:'チョングッチャン',zh:'清麴酱汤',c:'한식',col:'#e11d48'},
+  {n:'삼겹살',en:'Grilled Pork Belly',ja:'サムギョプサル',zh:'五花肉烤肉',c:'한식',col:'#e11d48'},
+  {n:'목살구이',en:'Grilled Pork Neck',ja:'豚首肉焼き',zh:'烤猪颈肉',c:'한식',col:'#e11d48'},
+  {n:'갈비',en:'Galbi',ja:'カルビ',zh:'烤排骨',c:'한식',col:'#e11d48'},
+  {n:'불고기',en:'Bulgogi',ja:'プルコギ',zh:'韩式烤肉',c:'한식',col:'#e11d48'},
+  {n:'제육볶음',en:'Spicy Pork',ja:'チェユクポックム',zh:'辣炒猪肉',c:'한식',col:'#e11d48'},
+  {n:'비빔밥',en:'Bibimbap',ja:'ビビンバ',zh:'拌饭',c:'한식',col:'#e11d48'},
+  {n:'돌솥비빔밥',en:'Stone Pot Bibimbap',ja:'石焼ビビンバ',zh:'石锅拌饭',c:'한식',col:'#e11d48'},
+  {n:'물냉면',en:'Cold Noodles',ja:'水冷麺',zh:'冷面',c:'한식',col:'#e11d48'},
+  {n:'비빔냉면',en:'Spicy Cold Noodles',ja:'ビビム冷麺',zh:'辣拌冷面',c:'한식',col:'#e11d48'},
+  {n:'삼계탕',en:'Ginseng Chicken Soup',ja:'サムゲタン',zh:'参鸡汤',c:'한식',col:'#e11d48'},
+  {n:'설렁탕',en:'Seolleongtang',ja:'ソルロンタン',zh:'雪浓汤',c:'한식',col:'#e11d48'},
+  {n:'갈비탕',en:'Galbi Soup',ja:'カルビタン',zh:'排骨汤',c:'한식',col:'#e11d48'},
+  {n:'해장국',en:'Hangover Soup',ja:'ヘジャングク',zh:'解酒汤',c:'한식',col:'#e11d48'},
+  {n:'순대국밥',en:'Sundae Soup',ja:'スンデクッパ',zh:'血肠汤饭',c:'한식',col:'#e11d48'},
+  {n:'곱창',en:'Grilled Intestines',ja:'ホルモン焼き',zh:'烤肠',c:'한식',col:'#e11d48'},
+  {n:'보쌈',en:'Bossam',ja:'ポッサム',zh:'包肉',c:'한식',col:'#e11d48'},
+  {n:'족발',en:'Braised Pork Feet',ja:'チョッパル',zh:'猪蹄',c:'한식',col:'#e11d48'},
+  {n:'쌈밥',en:'Ssambap',ja:'サムパプ',zh:'包饭',c:'한식',col:'#e11d48'},
+  {n:'닭갈비',en:'Dak Galbi',ja:'タッカルビ',zh:'铁板鸡',c:'한식',col:'#e11d48'},
+  {n:'오리구이',en:'Grilled Duck',ja:'鴨の焼肉',zh:'烤鸭',c:'한식',col:'#e11d48'},
+  {n:'감자탕',en:'Pork Bone Soup',ja:'カムジャタン',zh:'土豆脊骨汤',c:'한식',col:'#e11d48'},
+  {n:'추어탕',en:'Loach Soup',ja:'チュオタン',zh:'泥鳅汤',c:'한식',col:'#e11d48'},
+  {n:'닭볶음탕',en:'Braised Spicy Chicken',ja:'タッポックムタン',zh:'辣炖鸡',c:'한식',col:'#e11d48'},
+  {n:'낙지볶음',en:'Spicy Octopus',ja:'ナクチポックム',zh:'辣炒章鱼',c:'한식',col:'#e11d48'},
+  {n:'꽃게찜',en:'Steamed Blue Crab',ja:'ワタリガニ蒸し',zh:'清蒸梭子蟹',c:'한식',col:'#e11d48'},
   // 분식
-  {n:'떡볶이',c:'분식',col:'#f97316'},{n:'순대',c:'분식',col:'#f97316'},{n:'튀김',c:'분식',col:'#f97316'},
-  {n:'김밥',c:'분식',col:'#f97316'},{n:'라면',c:'분식',col:'#f97316'},{n:'핫도그',c:'분식',col:'#f97316'},
-  {n:'어묵',c:'분식',col:'#f97316'},{n:'만두',c:'분식',col:'#f97316'},{n:'치즈김밥',c:'분식',col:'#f97316'},
-  {n:'참치김밥',c:'분식',col:'#f97316'},{n:'부침개',c:'분식',col:'#f97316'},{n:'잡채',c:'분식',col:'#f97316'},
+  {n:'떡볶이',en:'Tteokbokki',ja:'トッポッキ',zh:'辣炒年糕',c:'분식',col:'#f97316'},
+  {n:'순대',en:'Sundae',ja:'スンデ',zh:'血肠',c:'분식',col:'#f97316'},
+  {n:'튀김',en:'Fried Snacks',ja:'揚げ物',zh:'油炸小吃',c:'분식',col:'#f97316'},
+  {n:'김밥',en:'Kimbap',ja:'キンパ',zh:'紫菜包饭',c:'분식',col:'#f97316'},
+  {n:'라면',en:'Ramyeon',ja:'インスタントラーメン',zh:'方便面',c:'분식',col:'#f97316'},
+  {n:'핫도그',en:'Hotdog',ja:'ホットドッグ',zh:'热狗',c:'분식',col:'#f97316'},
+  {n:'어묵',en:'Fish Cake',ja:'おでん',zh:'鱼饼',c:'분식',col:'#f97316'},
+  {n:'만두',en:'Dumplings',ja:'餃子',zh:'饺子',c:'분식',col:'#f97316'},
+  {n:'치즈김밥',en:'Cheese Kimbap',ja:'チーズキンパ',zh:'芝士紫菜包饭',c:'분식',col:'#f97316'},
+  {n:'참치김밥',en:'Tuna Kimbap',ja:'ツナキンパ',zh:'金枪鱼紫菜包饭',c:'분식',col:'#f97316'},
+  {n:'부침개',en:'Korean Pancake',ja:'チヂミ',zh:'韩式煎饼',c:'분식',col:'#f97316'},
+  {n:'잡채',en:'Japchae',ja:'チャプチェ',zh:'杂菜',c:'분식',col:'#f97316'},
   // 일식
-  {n:'초밥',c:'일식',col:'#0891b2'},{n:'사시미',c:'일식',col:'#0891b2'},{n:'라멘',c:'일식',col:'#0891b2'},
-  {n:'돈가스',c:'일식',col:'#0891b2'},{n:'규동',c:'일식',col:'#0891b2'},{n:'텐동',c:'일식',col:'#0891b2'},
-  {n:'오야코동',c:'일식',col:'#0891b2'},{n:'샤부샤부',c:'일식',col:'#0891b2'},{n:'스키야키',c:'일식',col:'#0891b2'},
-  {n:'타코야키',c:'일식',col:'#0891b2'},{n:'오코노미야키',c:'일식',col:'#0891b2'},
+  {n:'초밥',en:'Sushi',ja:'寿司',zh:'寿司',c:'일식',col:'#0891b2'},
+  {n:'사시미',en:'Sashimi',ja:'刺身',zh:'刺身',c:'일식',col:'#0891b2'},
+  {n:'라멘',en:'Ramen',ja:'ラーメン',zh:'拉面',c:'일식',col:'#0891b2'},
+  {n:'돈가스',en:'Tonkatsu',ja:'とんかつ',zh:'炸猪排',c:'일식',col:'#0891b2'},
+  {n:'규동',en:'Gyudon',ja:'牛丼',zh:'牛丼',c:'일식',col:'#0891b2'},
+  {n:'텐동',en:'Tendon',ja:'天丼',zh:'天妇罗盖饭',c:'일식',col:'#0891b2'},
+  {n:'오야코동',en:'Oyakodon',ja:'親子丼',zh:'亲子丼',c:'일식',col:'#0891b2'},
+  {n:'샤부샤부',en:'Shabu-shabu',ja:'しゃぶしゃぶ',zh:'涮涮锅',c:'일식',col:'#0891b2'},
+  {n:'스키야키',en:'Sukiyaki',ja:'すき焼き',zh:'寿喜烧',c:'일식',col:'#0891b2'},
+  {n:'타코야키',en:'Takoyaki',ja:'たこ焼き',zh:'章鱼烧',c:'일식',col:'#0891b2'},
+  {n:'오코노미야키',en:'Okonomiyaki',ja:'お好み焼き',zh:'大阪烧',c:'일식',col:'#0891b2'},
   // 중식
-  {n:'짜장면',c:'중식',col:'#4f46e5'},{n:'짬뽕',c:'중식',col:'#4f46e5'},{n:'볶음밥',c:'중식',col:'#4f46e5'},
-  {n:'탕수육',c:'중식',col:'#4f46e5'},{n:'마라탕',c:'중식',col:'#4f46e5'},{n:'마라샹궈',c:'중식',col:'#4f46e5'},
-  {n:'딤섬',c:'중식',col:'#4f46e5'},{n:'훠궈',c:'중식',col:'#4f46e5'},{n:'깐풍기',c:'중식',col:'#4f46e5'},
-  {n:'양꼬치',c:'중식',col:'#4f46e5'},
+  {n:'짜장면',en:'Jajangmyeon',ja:'ジャジャン麺',zh:'炸酱面',c:'중식',col:'#4f46e5'},
+  {n:'짬뽕',en:'Jjamppong',ja:'チャンポン',zh:'海鲜汤面',c:'중식',col:'#4f46e5'},
+  {n:'볶음밥',en:'Fried Rice',ja:'チャーハン',zh:'炒饭',c:'중식',col:'#4f46e5'},
+  {n:'탕수육',en:'Sweet & Sour Pork',ja:'酢豚',zh:'糖醋肉',c:'중식',col:'#4f46e5'},
+  {n:'마라탕',en:'Mala Tang',ja:'麻辣湯',zh:'麻辣烫',c:'중식',col:'#4f46e5'},
+  {n:'마라샹궈',en:'Mala Xiangguo',ja:'麻辣香鍋',zh:'麻辣香锅',c:'중식',col:'#4f46e5'},
+  {n:'딤섬',en:'Dim Sum',ja:'点心',zh:'点心',c:'중식',col:'#4f46e5'},
+  {n:'훠궈',en:'Hot Pot',ja:'火鍋',zh:'火锅',c:'중식',col:'#4f46e5'},
+  {n:'깐풍기',en:'Crispy Chicken',ja:'カンプンギ',zh:'干烹鸡',c:'중식',col:'#4f46e5'},
+  {n:'양꼬치',en:'Lamb Skewers',ja:'羊肉串',zh:'羊肉串',c:'중식',col:'#4f46e5'},
   // 양식
-  {n:'피자',c:'양식',col:'#16a34a'},{n:'파스타',c:'양식',col:'#16a34a'},{n:'스파게티',c:'양식',col:'#16a34a'},
-  {n:'리조또',c:'양식',col:'#16a34a'},{n:'햄버거',c:'양식',col:'#16a34a'},{n:'샌드위치',c:'양식',col:'#16a34a'},
-  {n:'스테이크',c:'양식',col:'#16a34a'},{n:'샐러드',c:'양식',col:'#16a34a'},{n:'그라탱',c:'양식',col:'#16a34a'},
-  {n:'크림스프',c:'양식',col:'#16a34a'},{n:'브런치',c:'양식',col:'#16a34a'},
+  {n:'피자',en:'Pizza',ja:'ピザ',zh:'披萨',c:'양식',col:'#16a34a'},
+  {n:'파스타',en:'Pasta',ja:'パスタ',zh:'意大利面',c:'양식',col:'#16a34a'},
+  {n:'스파게티',en:'Spaghetti',ja:'スパゲッティ',zh:'意大利细面',c:'양식',col:'#16a34a'},
+  {n:'리조또',en:'Risotto',ja:'リゾット',zh:'意式烩饭',c:'양식',col:'#16a34a'},
+  {n:'햄버거',en:'Burger',ja:'ハンバーガー',zh:'汉堡',c:'양식',col:'#16a34a'},
+  {n:'샌드위치',en:'Sandwich',ja:'サンドイッチ',zh:'三明治',c:'양식',col:'#16a34a'},
+  {n:'스테이크',en:'Steak',ja:'ステーキ',zh:'牛排',c:'양식',col:'#16a34a'},
+  {n:'샐러드',en:'Salad',ja:'サラダ',zh:'沙拉',c:'양식',col:'#16a34a'},
+  {n:'그라탱',en:'Gratin',ja:'グラタン',zh:'焗烤',c:'양식',col:'#16a34a'},
+  {n:'크림스프',en:'Cream Soup',ja:'クリームスープ',zh:'奶油汤',c:'양식',col:'#16a34a'},
+  {n:'브런치',en:'Brunch',ja:'ブランチ',zh:'早午餐',c:'양식',col:'#16a34a'},
   // 기타
-  {n:'쌀국수',c:'기타',col:'#7c3aed'},{n:'팟타이',c:'기타',col:'#7c3aed'},{n:'분짜',c:'기타',col:'#7c3aed'},
-  {n:'케밥',c:'기타',col:'#7c3aed'},{n:'타코',c:'기타',col:'#7c3aed'},{n:'인도카레',c:'기타',col:'#7c3aed'},
-  {n:'나시고렝',c:'기타',col:'#7c3aed'},{n:'쌀쌀국수',c:'기타',col:'#7c3aed'},{n:'그릭요거트볼',c:'기타',col:'#7c3aed'},
-  {n:'포케',c:'기타',col:'#7c3aed'}
+  {n:'쌀국수',en:'Pho',ja:'フォー',zh:'越南米粉',c:'기타',col:'#7c3aed'},
+  {n:'팟타이',en:'Pad Thai',ja:'パッタイ',zh:'泰式炒河粉',c:'기타',col:'#7c3aed'},
+  {n:'분짜',en:'Bun Cha',ja:'ブンチャー',zh:'越式烤肉米粉',c:'기타',col:'#7c3aed'},
+  {n:'케밥',en:'Kebab',ja:'ケバブ',zh:'烤肉串',c:'기타',col:'#7c3aed'},
+  {n:'타코',en:'Taco',ja:'タコス',zh:'墨西哥卷',c:'기타',col:'#7c3aed'},
+  {n:'인도카레',en:'Indian Curry',ja:'インドカレー',zh:'印度咖喱',c:'기타',col:'#7c3aed'},
+  {n:'나시고렝',en:'Nasi Goreng',ja:'ナシゴレン',zh:'印尼炒饭',c:'기타',col:'#7c3aed'},
+  {n:'쌀쌀국수',en:'Rice Noodles',ja:'ライスヌードル',zh:'米线',c:'기타',col:'#7c3aed'},
+  {n:'그릭요거트볼',en:'Greek Yogurt Bowl',ja:'ギリシャヨーグルトボウル',zh:'希腊酸奶碗',c:'기타',col:'#7c3aed'},
+  {n:'포케',en:'Poke Bowl',ja:'ポキボウル',zh:'夏威夷拌饭',c:'기타',col:'#7c3aed'}
 ];
+function _menuName(m){
+  var lang=S&&S.lang||'ko';
+  if(lang==='en')return m.en||m.n;
+  if(lang==='ja')return m.ja||m.n;
+  if(lang==='zh')return m.zh||m.n;
+  return m.n;
+}
 var _rouletteSpinning=false;
 var _rouletteCat='전체'; // 선택된 카테고리
 
@@ -15742,7 +15803,7 @@ function _buildReel(pickedMenu){
   items.push(pickedMenu);
   reel.innerHTML=items.map(function(m){
     return'<div class="slot-item">'
-      +'<div class="slot-name">'+m.n+'</div>'
+      +'<div class="slot-name">'+_menuName(m)+'</div>'
       +'<div class="slot-cat" style="background:'+m.col+'22;color:'+m.col+'">'+_rcatLabel(m.c)+'</div>'
       +'</div>';
   }).join('');
@@ -15780,7 +15841,7 @@ function spinRoulette(){
     btn.textContent=t('roulette_respin');
     resultEl.innerHTML=
       '<div style="font-size:13px;font-weight:900;color:'+pickedMenu.col+';animation:slotResult .5s ease">'
-      +t('roulette_result').replace('{0}','<span style="font-size:16px">'+pickedMenu.n+'</span>')
+      +t('roulette_result').replace('{0}','<span style="font-size:16px">'+_menuName(pickedMenu)+'</span>')
       +'</div>';
   },3300);
 }
