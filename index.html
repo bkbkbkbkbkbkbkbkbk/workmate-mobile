@@ -662,7 +662,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
     <div class="set-row"><span data-i18n="set_accent">강조 색상</span><input type="color" id="accent-picker" value="#6c63ff" style="width:34px;height:22px;border-radius:6px;border:none;cursor:pointer;padding:0"></div>
     <div class="set-row"><span data-i18n="set_bg">배경 색상</span><input type="color" id="bg-picker" value="#f5f0ff" style="width:34px;height:22px;border-radius:6px;border:none;cursor:pointer;padding:0"></div>
     <div class="set-row"><span data-i18n="set_speech">캐릭터 대화</span><button class="toggle on" id="toggle-speech"></button></div>
-    <div class="set-row"><span data-i18n="set_ontop">항상 위</span><button class="toggle on" id="toggle-ontop"></button></div>
+    <!-- [모바일 제거] 항상 위: 모바일 시스템 구조상 미지원 -->
     <div class="set-row"><span data-i18n="set_autofeed">음식 자동 먹기</span><button class="toggle" id="toggle-autofeed"></button></div>
     <div class="set-row" id="auto-launch-row" style="display:none"><span data-i18n="set_autolaunch">컴퓨터 켤 때 자동 시작</span><button class="toggle" id="toggle-autolaunch"></button></div>
     <div class="set-row" id="workwork-row" style="display:none">
@@ -683,10 +683,10 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
       </div>
       <button class="btn btn-ghost btn-sm" style="width:100%;font-size:10px" onclick="workworkPickFromList()" data-i18n="set_ww_list">실행 중인 프로그램 목록에서 선택</button>
     </div>
-    <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:6px">
-      <div style="display:flex;justify-content:space-between;width:100%"><span data-i18n="opacity_label">창 투명도</span><span id="opacity-val" style="font-size:11px;font-weight:800;color:var(--accent)">100%</span></div>
-      <input type="range" id="opacity-slider" min="20" max="100" value="100" step="5" style="width:100%;accent-color:var(--accent);cursor:pointer">
-    </div>
+    <!-- [모바일 제거] 창 투명도 슬라이더: 모바일 시스템 구조상 미지원 -->
+    <!-- opacity-slider는 JS 참조용 hidden 요소로 유지 -->
+    <input type="range" id="opacity-slider" min="20" max="100" value="100" step="5" style="display:none">
+    <span id="opacity-val" style="display:none"></span>
     <div class="set-row" style="margin-top:4px"><span style="font-size:11px;color:var(--text3)" data-i18n="set_autosave">자동 저장 (30초마다)</span><span style="font-size:10px;color:var(--green);font-weight:800">ON</span></div>
     <!-- 문의 / 업데이트 섹션 -->
     <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px">
@@ -1704,7 +1704,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   // 설정 UI 반영
   if(S.isDark){document.documentElement.setAttribute('data-theme','dark');document.getElementById('toggle-dark').classList.add('on');}
   document.getElementById('toggle-speech').classList.toggle('on',S.speechOn);
-  document.getElementById('toggle-ontop').classList.toggle('on',S.alwaysOnTop);
+  // [모바일] toggle-ontop 제거됨 — 스킵
   document.getElementById('toggle-autofeed').classList.toggle('on',S.autoEat);
   document.getElementById('toggle-autofeed').addEventListener('click',function(){
     S.autoEat=!S.autoEat;this.classList.toggle('on',S.autoEat);
@@ -1900,8 +1900,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
     });
   }
-  document.getElementById('opacity-slider').value=S.opacity;
-  document.getElementById('opacity-val').textContent=S.opacity+'%';
+  // [모바일] opacity-slider hidden — 값만 유지, UI 업데이트 스킵
 
   function afterBoot(){
     updateGoldDisplay();
@@ -4675,18 +4674,9 @@ function bindTopbar(){
   document.getElementById('settings-modal').onclick=e=>{if(e.target.id==='settings-modal')document.getElementById('settings-modal').classList.remove('open')};
   document.getElementById('toggle-dark').onclick=toggleDark;
   document.getElementById('toggle-speech').onclick=()=>{S.speechOn=!S.speechOn;document.getElementById('toggle-speech').classList.toggle('on',S.speechOn);saveGame();};
-  document.getElementById('toggle-ontop').onclick=()=>{
-    S.alwaysOnTop=!S.alwaysOnTop;
-    document.getElementById('toggle-ontop').classList.toggle('on',S.alwaysOnTop);
-    if(window.electronAPI)window.electronAPI.setAlwaysOnTop(S.alwaysOnTop);
-    saveGame();
-  };
-  document.getElementById('opacity-slider').oninput=e=>{
-    S.opacity=parseInt(e.target.value);
-    document.getElementById('opacity-val').textContent=S.opacity+'%';
-    if(window.electronAPI)window.electronAPI.setOpacity(S.opacity/100);
-    scheduleSave();
-  };
+  // [모바일] toggle-ontop 제거됨 — 이벤트 등록 스킵
+  // document.getElementById('toggle-ontop').onclick = ...
+  // [모바일] opacity-slider hidden — oninput 스킵 (값은 저장/불러오기만 유지)
   document.getElementById('accent-picker').oninput=e=>{
     document.documentElement.style.setProperty('--accent',e.target.value);
     if(window.electronAPI)Object.keys(_nativePopups).forEach(pid=>window.electronAPI.sendPopupUpdate(parseInt(pid),{accentColor:e.target.value}));
