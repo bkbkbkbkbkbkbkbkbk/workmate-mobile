@@ -802,6 +802,18 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
         </button>
       </div>
     </div>
+    <!-- PC→모바일 동기화 섹션 -->
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:10px;font-weight:800;color:var(--text2);margin-bottom:2px" data-i18n="sync_section_title">PC → 모바일 동기화</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileImportFromQR()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8.5" y="8.5" width="2" height="2" fill="currentColor"/><path d="M7 9.5h1M10 7v1M10 10v1M7 11h1M11 9.5h1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span data-i18n="sync_import_qr">QR 코드 스캔</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px" onclick="mobileImportFromJSON()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2.5A1.5 1.5 0 013.5 1H8l3 3v7a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 012 10.5V2.5z" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 7.5L6.5 9.5L8.5 7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="sync_import_json">JSON 파일 가져오기</span>
+      </button>
+    </div>
     <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
       <button class="btn btn-ghost btn-sm" style="width:100%" onclick="replayTutorial()" data-i18n="btn_tutorial">튜토리얼 다시보기</button>
       <button class="btn btn-danger btn-sm" style="width:100%" onclick="resetAllData()" data-i18n="btn_reset">모든 데이터 초기화</button>
@@ -2711,6 +2723,25 @@ const LANG_DATA={
     set_opacity:'창 투명도', set_autosave:'자동 저장 (30초마다)',
     btn_tutorial:'튜토리얼 다시보기',
     btn_reset:'모든 데이터 초기화', btn_quit:'게임 종료',
+    reset_popup_title:'데이터 초기화', reset_popup_irrev:'되돌릴 수 없어요!',
+    reset_popup_item1:'캐릭터 &amp; 커스텀 정보', reset_popup_item2:'골드 &amp; 보유 아이템',
+    reset_popup_item3:'할일 · 메모 · 날짜', reset_popup_item4:'펫 · 배경 · 모든 설정',
+    reset_popup_confirm:'초기화', reset_popup_cancel:'취소',
+    // ── PC→모바일 동기화
+    sync_section_title:'PC → 모바일 동기화',
+    sync_import_qr:'QR 코드 스캔',
+    sync_import_json:'JSON 파일 가져오기',
+    sync_warn_title:'데이터 가져오기 주의',
+    sync_warn_body:'현재 데이터가 <b>완전히 덮어씌워집니다</b>.<br>되돌릴 수 없어요!',
+    sync_warn_qr_note:'* QR: 핵심 게임 데이터만 포함 (할일·메모·가계부 제외)',
+    sync_warn_json_note:'* JSON: 할일·메모·가계부 포함 전체 데이터',
+    sync_confirm:'가져오기 실행',
+    sync_success:'데이터를 성공적으로 가져왔어요!',
+    sync_fail:'데이터 가져오기 실패',
+    sync_qr_scan_title:'QR 코드 스캔',
+    sync_qr_hint:'PC에서 생성한 QR 코드를 카메라에 맞춰주세요',
+    sync_qr_nosupport:'QR 스캔이 지원되지 않아요. JSON 파일을 사용해주세요.',
+    sync_qr_error:'WorkMate QR 코드가 아닙니다',
     // ── 문의 / 업데이트
     set_support_title:'문의 · 업데이트',
     set_support_contact:'문의하기',
@@ -2961,6 +2992,7 @@ const LANG_DATA={
     // ── 메뉴 룰렛
     roulette_title:'오늘 뭐 먹지?', roulette_spin:'돌리기!', roulette_respin:'다시 돌리기!',
     roulette_result:'{0} 어때요?', roulette_menus:'{0}가지 메뉴',
+    rcat_all:'전체', rcat_korean:'한식', rcat_snack:'분식', rcat_japanese:'일식', rcat_chinese:'중식', rcat_western:'양식', rcat_other:'기타',
     // ── 모바일 포커스 복귀
     focus_return:'◀ 전체 화면으로 돌아가기',
     // ── 음식 버프 레이블
@@ -3261,12 +3293,30 @@ const LANG_DATA={
     set_opacity:'Window Opacity', set_autosave:'Auto Save (every 30s)',
     btn_tutorial:'Replay Tutorial',
     btn_reset:'Reset All Data', btn_quit:'Quit Game',
+    reset_popup_title:'Reset Data', reset_popup_irrev:'This cannot be undone!',
+    reset_popup_item1:'Character &amp; customization', reset_popup_item2:'Gold &amp; owned items',
+    reset_popup_item3:'Tasks · Memos · Dates', reset_popup_item4:'Pets · Backgrounds · All settings',
+    reset_popup_confirm:'Reset', reset_popup_cancel:'Cancel',
+    sync_section_title:'PC → Mobile Sync',
+    sync_import_qr:'Scan QR Code',
+    sync_import_json:'Import JSON File',
+    sync_warn_title:'Import Data Warning',
+    sync_warn_body:'Your current data will be <b>completely overwritten</b>.<br>This cannot be undone!',
+    sync_warn_qr_note:'* QR: Core game data only (tasks·memos·ledger excluded)',
+    sync_warn_json_note:'* JSON: Full data including tasks·memos·ledger',
+    sync_confirm:'Import',
+    sync_success:'Data imported successfully!',
+    sync_fail:'Import failed',
+    sync_qr_scan_title:'Scan QR Code',
+    sync_qr_hint:'Point your camera at the QR code generated on PC',
+    sync_qr_nosupport:'QR scan not supported. Please use JSON file.',
+    sync_qr_error:'Not a WorkMate QR code',
     set_support_title:'Contact · Updates',
     set_support_contact:'Contact Us',
     set_support_contact_sub:'qlzpdl00@gmail.com',
     set_support_update:'Check for Updates',
     set_support_update_sub:'Official Postype Page',
-    set_support_copy:'Copy',
+    set_support_copy:'Copy', set_support_copied:'✓',
     confirm_quit:'Are you sure you want to quit?',
     custom_unlock_title:'Custom Items Unlocked!',
     custom_unlock_desc:'Reached room level <b>Lv.17</b>!<br><b>Custom backgrounds</b> and <b>stickers</b><br>are now available in the shop!',
@@ -3493,6 +3543,7 @@ const LANG_DATA={
     // ── Menu Roulette
     roulette_title:'What to eat today?', roulette_spin:'Spin!', roulette_respin:'Spin again!',
     roulette_result:'How about {0}?', roulette_menus:'{0} menus',
+    rcat_all:'All', rcat_korean:'Korean', rcat_snack:'Snack', rcat_japanese:'Japanese', rcat_chinese:'Chinese', rcat_western:'Western', rcat_other:'Other',
     // ── Mobile focus return
     focus_return:'◀ Back to full view',
     // ── Food buff labels
@@ -3767,12 +3818,30 @@ const LANG_DATA={
     set_opacity:'ウィンドウ透明度', set_autosave:'自動保存（30秒ごと）',
     btn_tutorial:'チュートリアルをもう一度',
     btn_reset:'全データ初期化', btn_quit:'ゲーム終了',
+    reset_popup_title:'データ初期化', reset_popup_irrev:'元に戻せません！',
+    reset_popup_item1:'キャラクター &amp; カスタム情報', reset_popup_item2:'ゴールド &amp; 所持アイテム',
+    reset_popup_item3:'やること · メモ · 日付', reset_popup_item4:'ペット · 背景 · すべての設定',
+    reset_popup_confirm:'初期化', reset_popup_cancel:'キャンセル',
+    sync_section_title:'PC → モバイル同期',
+    sync_import_qr:'QRコードをスキャン',
+    sync_import_json:'JSONファイルを読み込む',
+    sync_warn_title:'データ読み込み注意',
+    sync_warn_body:'現在のデータが<b>完全に上書きされます</b>。<br>元に戻せません！',
+    sync_warn_qr_note:'* QR: 主要ゲームデータのみ (タスク・メモ・家計簿除く)',
+    sync_warn_json_note:'* JSON: タスク・メモ・家計簿含む全データ',
+    sync_confirm:'読み込み実行',
+    sync_success:'データを正常に読み込みました！',
+    sync_fail:'読み込み失敗',
+    sync_qr_scan_title:'QRコードスキャン',
+    sync_qr_hint:'PCで生成したQRコードにカメラを向けてください',
+    sync_qr_nosupport:'QRスキャン非対応です。JSONファイルを使用してください。',
+    sync_qr_error:'WorkMate QRコードではありません',
     set_support_title:'お問い合わせ · アップデート',
     set_support_contact:'お問い合わせ',
     set_support_contact_sub:'qlzpdl00@gmail.com',
     set_support_update:'アップデートを確認',
     set_support_update_sub:'公式Postypeページ',
-    set_support_copy:'コピー',
+    set_support_copy:'コピー', set_support_copied:'✓',
     confirm_quit:'ゲームを終了しますか？',
     custom_unlock_title:'カスタムアイテム解放！',
     custom_unlock_desc:'ルームレベル <b>Lv.17</b> 達成！<br>ショップの<b>カスタム背景</b>と<b>スタンプ</b>が<br>解放されました！',
@@ -3999,6 +4068,7 @@ const LANG_DATA={
     // ── メニュールーレット
     roulette_title:'今日何食べる？', roulette_spin:'回す！', roulette_respin:'もう一回！',
     roulette_result:'{0}はいかが？', roulette_menus:'{0}種類のメニュー',
+    rcat_all:'全て', rcat_korean:'韓食', rcat_snack:'軽食', rcat_japanese:'和食', rcat_chinese:'中華', rcat_western:'洋食', rcat_other:'その他',
     // ── モバイルフォーカス復帰
     focus_return:'◀ 全画面に戻る',
     // ── 食べ物バフラベル
@@ -4273,12 +4343,30 @@ const LANG_DATA={
     set_opacity:'窗口透明度', set_autosave:'自动保存（每30秒）',
     btn_tutorial:'重看新手教程',
     btn_reset:'重置所有数据', btn_quit:'退出游戏',
+    reset_popup_title:'重置数据', reset_popup_irrev:'无法撤销！',
+    reset_popup_item1:'角色 &amp; 自定义信息', reset_popup_item2:'金币 &amp; 持有物品',
+    reset_popup_item3:'待办 · 备忘 · 日期', reset_popup_item4:'宠物 · 背景 · 所有设置',
+    reset_popup_confirm:'重置', reset_popup_cancel:'取消',
+    sync_section_title:'PC → 手机同步',
+    sync_import_qr:'扫描QR码',
+    sync_import_json:'导入JSON文件',
+    sync_warn_title:'导入数据注意',
+    sync_warn_body:'当前数据将被<b>完全覆盖</b>。<br>无法撤销！',
+    sync_warn_qr_note:'* QR码：仅含核心游戏数据（不含待办·备忘·家计簿）',
+    sync_warn_json_note:'* JSON：含待办·备忘·家计簿的完整数据',
+    sync_confirm:'开始导入',
+    sync_success:'数据导入成功！',
+    sync_fail:'导入失败',
+    sync_qr_scan_title:'扫描QR码',
+    sync_qr_hint:'请将摄像头对准PC生成的QR码',
+    sync_qr_nosupport:'不支持QR扫描，请使用JSON文件。',
+    sync_qr_error:'不是WorkMate的QR码',
     set_support_title:'联系 · 更新',
     set_support_contact:'联系我们',
     set_support_contact_sub:'qlzpdl00@gmail.com',
     set_support_update:'检查更新',
     set_support_update_sub:'官方Postype页面',
-    set_support_copy:'复制',
+    set_support_copy:'复制', set_support_copied:'✓',
     confirm_quit:'确定要退出游戏吗？',
     custom_unlock_title:'自定义道具解锁！',
     custom_unlock_desc:'达成房间等级 <b>Lv.17</b>！<br>商店中的<b>自定义背景</b>和<b>贴纸</b><br>已解锁！',
@@ -4505,6 +4593,7 @@ const LANG_DATA={
     // ── 菜单转盘
     roulette_title:'今天吃什么？', roulette_spin:'转！', roulette_respin:'再转一次！',
     roulette_result:'{0}怎么样？', roulette_menus:'{0}种菜单',
+    rcat_all:'全部', rcat_korean:'韩餐', rcat_snack:'小吃', rcat_japanese:'日料', rcat_chinese:'中餐', rcat_western:'西餐', rcat_other:'其他',
     // ── 移动端专注模式返回
     focus_return:'◀ 返回全屏',
     // ── 食物增益标签
@@ -12097,25 +12186,213 @@ function _doResetData(){
   localStorage.removeItem(SAVE_MEDIA_KEY);
   location.reload();
 }
+// ── LZString (lz-string 1.5.0 minified)
+var LZString=function(){function o(r,n){if(!t[r]){t[r]={};for(var e=0;e<r.length;e++)t[r][r.charAt(e)]=e}return t[r][n]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToEncodedURIComponent:function(r){return r==null?"":i._compress(r,6,function(r){return"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$".charAt(r)})},decompressFromEncodedURIComponent:function(r){return r==null?"":r==""?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(e){return o("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",r.charAt(e))}))},compress:function(r){return i._compress(r,16,function(r){return String.fromCharCode(r)})},_compress:function(r,n,e){if(r==null)return"";var t,o,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1){u=r.charAt(i);Object.prototype.hasOwnProperty.call(s,u)||(s[u]={},l++,p[u]=!0);c=a+u;if(Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(t=0;t<h;t++)m<<=1,v==n-1?(v=0,d.push(e(m)),m=0):v++;for(t=0,o=a.charCodeAt(0);t<8;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}else{for(t=0,o=1;t<h;t++)m=m<<1|o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o=0;for(t=0,o=a.charCodeAt(0);t<16;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=0,o=s[a];t<h;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}}if(a!==""){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(t=0;t<h;t++)m<<=1,v==n-1?(v=0,d.push(e(m)),m=0):v++;for(t=0,o=a.charCodeAt(0);t<8;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}else{for(t=0,o=1;t<h;t++)m=m<<1|o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o=0;for(t=0,o=a.charCodeAt(0);t<16;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=0,o=s[a];t<h;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(t=0,o=2;t<h;t++)m=m<<1|1&o,v==n-1?(v=0,d.push(e(m)),m=0):v++,o>>=1;for(;;){if(m<<=1,v==n-1){d.push(e(m));break}v++}return d.join("")},decompress:function(r){return r==null?"":r==""?null:i._decompress(r.length,32768,function(e){return r.charCodeAt(e)})},_decompress:function(n,e,t){var o,i,s,p,u,c,a,l=[],f=4,h=4,d=3,m="",v=[],g={val:t(0),position:e,index:1};for(o=0;o<3;o+=1)l[o]=o;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;switch(s=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;i=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;i=r(p);break;case 2:return""}for(v.push(i),l[3]=i,m=i;;){if(g.index>n)return"";for(p=0,c=Math.pow(2,d),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;switch(i=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;l[f++]=r(p),i=f-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=e,g.val=t(g.index++)),p|=(u>0?1:0)*a,a<<=1;l[f++]=r(p),i=f-1,h--;break;case 2:return v.join("")}if(0==h&&(h=Math.pow(2,d),d++),l[i])s=l[i];else{if(i!==f)return null;s=m+m.charAt(0)}v.push(s),l[f++]=m+s.charAt(0),h--,m=s,0==h&&(h=Math.pow(2,d),d++)}}};return i}();
+
+// ── 모바일 가져오기 함수
+var _mobilePendingSyncData=null;
+var _mobileQRStream=null,_mobileQRAnimId=null;
+
+function mobileImportFromQR(){
+  _mobileShowQRScanModal();
+}
+function _mobileShowQRScanModal(){
+  var old=document.getElementById('mobile-qr-scan-modal');if(old)old.remove();
+  var pop=document.createElement('div');
+  pop.className='modal-bg open';pop.id='mobile-qr-scan-modal';
+  pop.innerHTML='<div class="modal-box" style="max-width:320px;padding:20px;text-align:center;border-radius:18px">'+
+    '<div style="font-size:13px;font-weight:900;margin-bottom:4px">'+t('sync_qr_scan_title')+'</div>'+
+    '<div style="font-size:9px;color:var(--text3);margin-bottom:10px">'+t('sync_qr_hint')+'</div>'+
+    '<div style="position:relative;width:100%;border-radius:10px;overflow:hidden;background:#000">'+
+      '<video id="mobile-qr-video" style="width:100%;display:block;max-height:260px" autoplay playsinline muted></video>'+
+      '<canvas id="mobile-qr-canvas" style="display:none"></canvas>'+
+    '</div>'+
+    '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px" onclick="_mobileStopQRScan()">'+t('btn_close')+'</button>'+
+  '</div>';
+  pop.onclick=function(e){if(e.target===pop)_mobileStopQRScan();};
+  document.body.appendChild(pop);
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
+    .then(function(stream){
+      _mobileQRStream=stream;
+      var video=document.getElementById('mobile-qr-video');
+      if(!video){_mobileStopQRScan();return;}
+      video.muted=true;
+      video.setAttribute('playsinline','');
+      video.srcObject=stream;
+      function startScan(){
+        if('BarcodeDetector' in window){
+          _mobileQRScanWithDetector(video);
+        } else {
+          _mobileLoadJsQR(function(){_mobileQRScanWithJsQR(video);});
+        }
+      }
+      video.addEventListener('canplay',function(){
+        video.play().then(startScan).catch(startScan);
+      },{once:true});
+      video.play().catch(function(){});
+      // 3초 내 canplay 미발생 시 강제 시작
+      setTimeout(function(){
+        if(document.getElementById('mobile-qr-scan-modal')&&!_mobileQRAnimId)startScan();
+      },3000);
+    })
+    .catch(function(err){
+      // 후면 카메라 실패 시 기본 카메라로 재시도
+      navigator.mediaDevices.getUserMedia({video:true})
+        .then(function(stream){
+          _mobileQRStream=stream;
+          var video=document.getElementById('mobile-qr-video');
+          if(!video){_mobileStopQRScan();return;}
+          video.muted=true;video.setAttribute('playsinline','');
+          video.srcObject=stream;
+          video.play().catch(function(){});
+          setTimeout(function(){
+            if('BarcodeDetector' in window)_mobileQRScanWithDetector(video);
+            else _mobileLoadJsQR(function(){_mobileQRScanWithJsQR(video);});
+          },800);
+        })
+        .catch(function(){toast(t('sync_qr_nosupport'));var m=document.getElementById('mobile-qr-scan-modal');if(m)m.remove();});
+    });
+}
+function _mobileQRScanWithDetector(video){
+  var detector=new BarcodeDetector({formats:['qr_code']});
+  function scan(){
+    if(!document.getElementById('mobile-qr-scan-modal'))return;
+    detector.detect(video).then(function(barcodes){
+      if(barcodes.length>0){_mobileHandleQRResult(barcodes[0].rawValue);}
+      else{_mobileQRAnimId=requestAnimationFrame(scan);}
+    }).catch(function(){_mobileQRAnimId=requestAnimationFrame(scan);});
+  }
+  scan();
+}
+function _mobileQRScanWithJsQR(video){
+  var canvas=document.getElementById('mobile-qr-canvas');
+  var ctx=canvas.getContext('2d');
+  function scan(){
+    if(!document.getElementById('mobile-qr-scan-modal'))return;
+    if(video.readyState===video.HAVE_ENOUGH_DATA){
+      canvas.width=video.videoWidth;
+      canvas.height=video.videoHeight;
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      var code=window.jsQR&&jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});
+      if(code){_mobileHandleQRResult(code.data);return;}
+    }
+    _mobileQRAnimId=requestAnimationFrame(scan);
+  }
+  scan();
+}
+function _mobileLoadJsQR(cb){
+  if(window.jsQR){cb();return;}
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+  s.onload=cb;
+  s.onerror=function(){toast(t('sync_qr_nosupport'));_mobileStopQRScan();};
+  document.head.appendChild(s);
+}
+function _mobileHandleQRResult(raw){
+  _mobileStopQRScan();
+  if(raw.startsWith('WM:')){
+    try{
+      var json=LZString.decompressFromEncodedURIComponent(raw.slice(3));
+      var data=JSON.parse(json);
+      _mobileShowSyncWarn(data,'qr');
+    }catch(e){toast(t('sync_fail'));}
+  }else{toast(t('sync_qr_error'));}
+}
+function _mobileStopQRScan(){
+  if(_mobileQRAnimId){cancelAnimationFrame(_mobileQRAnimId);_mobileQRAnimId=null;}
+  if(_mobileQRStream){_mobileQRStream.getTracks().forEach(function(tr){tr.stop();});_mobileQRStream=null;}
+  var modal=document.getElementById('mobile-qr-scan-modal');if(modal)modal.remove();
+}
+function mobileImportFromJSON(){
+  var input=document.createElement('input');
+  input.type='file';input.accept='.json,application/json';
+  input.onchange=function(e){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{var data=JSON.parse(ev.target.result);_mobileShowSyncWarn(data,'json');}
+      catch(err){toast(t('sync_fail'));}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function _mobileShowSyncWarn(data,type){
+  _mobilePendingSyncData=data;
+  var old=document.getElementById('mobile-sync-warn-modal');if(old)old.remove();
+  var note=type==='qr'?t('sync_warn_qr_note'):t('sync_warn_json_note');
+  var pop=document.createElement('div');
+  pop.className='modal-bg open';pop.id='mobile-sync-warn-modal';
+  pop.innerHTML='<div class="modal-box" style="max-width:280px;padding:20px 18px 16px;text-align:center;border-radius:18px">'+
+    '<div style="font-size:14px;font-weight:900;margin-bottom:8px">'+t('sync_warn_title')+'</div>'+
+    '<div style="background:rgba(239,68,68,.10);border:1.5px solid rgba(239,68,68,.28);border-radius:10px;padding:8px 10px;margin-bottom:8px">'+
+      '<div style="font-size:10px;font-weight:800;color:var(--red,#ef4444);margin-bottom:4px">⚠ '+t('reset_popup_irrev')+'</div>'+
+      '<div style="font-size:9px;color:var(--text2);line-height:1.7">'+t('sync_warn_body')+'</div>'+
+    '</div>'+
+    '<div style="font-size:9px;color:var(--text3);margin-bottom:12px;text-align:left">'+note+'</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn btn-accent" style="flex:1" onclick="_mobileApplySyncData()">'+t('sync_confirm')+'</button>'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'mobile-sync-warn-modal\').remove();_mobilePendingSyncData=null;">'+t('btn_close')+'</button>'+
+    '</div></div>';
+  pop.onclick=function(e){if(e.target===pop){pop.remove();_mobilePendingSyncData=null;}};
+  document.body.appendChild(pop);
+}
+function _mobileApplySyncData(){
+  if(!_mobilePendingSyncData){return;}
+  var data=_mobilePendingSyncData;
+  _mobilePendingSyncData=null;
+  try{
+    if(data._t==='qr'){
+      var raw=localStorage.getItem(SAVE_KEY);
+      var existing=raw?JSON.parse(raw):{};
+      var fields=['gold','characters','npcs','pet','pet2','pet2Unlocked','inventory','ownedBgs',
+        'ownedHairVariants','unlockedFloors','currentFloor','floorBgs','inflationLevel','roomBg',
+        'isDark','lang','accentColor','bgColor','autoEat','speechOn',
+        'bulkFoodUnlocked','bgPresetUnlocked','outfitPresetUnlocked','tutorialDone',
+        'customBgConfigs','customBgFilters'];
+      fields.forEach(function(k){if(data[k]!==undefined)existing[k]=data[k];});
+      localStorage.setItem(SAVE_KEY,JSON.stringify(existing));
+    }else{
+      var saveKeys=['gold','isDark','speechOn','lang','characters','npcs','pet','pet2','pet2Unlocked',
+        'ddays','todos','doneTodos','inventory','ledger','roomBg','ownedBgs','ownedHairVariants',
+        'alwaysOnTop','opacity','ytUrl','ytRepeat','ytVol','ytFavorites','bgmTab','bgmIdx','bgmVol',
+        'bgmShuffle','bgmLoop','autoEat','bgPresetUnlocked','outfitPresetUnlocked',
+        'pomWorkMin','pomBreakMin','pomWorkSec','pomWorkDate','timerChimeIdx',
+        'todoRewardDate','todoRewardCount','roomGifts','holidayClaimedDates','tutorialDone',
+        'inflationLevel','customBgConfigs','customBgFilters','bulkFoodUnlocked',
+        'unlockedFloors','currentFloor','floorBgs','accentColor','bgColor',
+        'darkAccent','darkBg','lightAccent','lightBg','memos','workworkMode','workworkPrograms'];
+      var out={};
+      saveKeys.forEach(function(k){if(data[k]!==undefined)out[k]=data[k];});
+      out.gameSavedAt=Date.now();
+      localStorage.setItem(SAVE_KEY,JSON.stringify(out));
+    }
+    var modal=document.getElementById('mobile-sync-warn-modal');if(modal)modal.remove();
+    toast(t('sync_success'));
+    setTimeout(function(){location.reload();},1200);
+  }catch(e){toast(t('sync_fail'));}
+}
+
 function resetAllData(){
   var old=document.getElementById('reset-confirm-popup');if(old)old.remove();
   var pop=document.createElement('div');
   pop.className='modal-bg open';pop.id='reset-confirm-popup';
   pop.innerHTML=
     '<div class="modal-box" style="max-width:260px;padding:20px 18px 16px;text-align:center;border-radius:18px">'+
-      '<div style="font-size:14px;font-weight:900;margin-bottom:8px">데이터 초기화</div>'+
+      '<div style="font-size:14px;font-weight:900;margin-bottom:8px">'+t('reset_popup_title')+'</div>'+
       '<div style="background:rgba(239,68,68,.10);border:1.5px solid rgba(239,68,68,.28);border-radius:10px;padding:7px 10px;margin-bottom:12px">'+
-        '<div style="font-size:10px;font-weight:800;color:var(--red,#ef4444);margin-bottom:5px">되돌릴 수 없어요!</div>'+
+        '<div style="font-size:10px;font-weight:800;color:var(--red,#ef4444);margin-bottom:5px">'+t('reset_popup_irrev')+'</div>'+
         '<div style="font-size:9px;color:var(--text2);line-height:1.8;text-align:left">'+
-          '• 캐릭터 &amp; 커스텀 정보<br>'+
-          '• 골드 &amp; 보유 아이템<br>'+
-          '• 할일 · 메모 · 날짜<br>'+
-          '• 펫 · 배경 · 모든 설정'+
+          '• '+t('reset_popup_item1')+'<br>'+
+          '• '+t('reset_popup_item2')+'<br>'+
+          '• '+t('reset_popup_item3')+'<br>'+
+          '• '+t('reset_popup_item4')+
         '</div>'+
       '</div>'+
       '<div style="display:flex;gap:8px">'+
-        '<button class="btn btn-danger" style="flex:1" onclick="_doResetData()">초기화</button>'+
-        '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'reset-confirm-popup\').remove()">취소</button>'+
+        '<button class="btn btn-danger" style="flex:1" onclick="_doResetData()">'+t('reset_popup_confirm')+'</button>'+
+        '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'reset-confirm-popup\').remove()">'+t('reset_popup_cancel')+'</button>'+
       '</div>'+
     '</div>';
   pop.onclick=e=>{if(e.target===pop)pop.remove();};
