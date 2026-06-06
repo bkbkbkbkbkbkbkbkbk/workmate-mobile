@@ -14002,13 +14002,11 @@ function renderMusic(){
 const _memos=[''];
 function renderTodo(cid){
   // ── 입력 행
-  let html='<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px">'+
-    '<div style="display:flex;gap:5px">'+
-    '<input type="text" id="ti-'+cid+'" placeholder="'+t('todo_ph')+'" style="flex:1;font-size:11px;padding:5px 8px">'+
+  let html='<div style="display:flex;gap:5px;margin-bottom:6px">'+
+    '<input type="text" id="ti-'+cid+'" placeholder="'+t('todo_ph')+'" style="flex:1;min-width:0;font-size:11px;padding:5px 8px">'+
+    '<input type="date" id="td-'+cid+'" style="flex:0 0 auto;width:120px;font-size:10px;padding:5px 4px" title="'+t('todo_due_ph')+'">'+
     '<button class="btn btn-accent btn-sm" onclick="addTodo(\''+cid+'\')">+</button>'+
-    '<button class="btn btn-ghost btn-sm" onclick="oFT()">↗</button></div>'+
-    '<input type="date" id="td-'+cid+'" style="width:100%;font-size:11px;padding:5px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text)" title="'+t('todo_due_ph')+'">'+
-    '</div>';
+    '<button class="btn btn-ghost btn-sm" onclick="oFT()">↗</button></div>';
   // ── 미완료 목록
   const _todosOnly=S.todos.filter(t=>t.type!=='outing');
   if(_todosOnly.length===0){
