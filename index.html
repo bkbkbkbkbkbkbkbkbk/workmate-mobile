@@ -2024,6 +2024,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.addEventListener('touchstart',function(){var tip=document.getElementById('food-tip');if(tip)tip.style.display='none';},{passive:true});
     if(S.musicPlaying){setTimeout(()=>bgmLoad(S.bgmIdx||0,true),500);}
     // ── 모바일 BGM 자동 재생: 첫 터치/클릭 시 시작 (브라우저 autoplay 정책 우회) ──
+    // 처음 실행(!hasSave)이면 자동재생, 세이브 있으면 유저 설정(S.musicPlaying) 그대로
     (function(){
       var _bgmAutoTriggered=false;
       function _tryBgmAutoStart(){
@@ -2033,6 +2034,8 @@ window.addEventListener('DOMContentLoaded',()=>{
         document.removeEventListener('click',_tryBgmAutoStart,true);
         // 이미 재생 중이면 스킵, 유튜브 재생 중이면 스킵
         if(_bgmPlaying||S.ytPlaying)return;
+        // 세이브 있으면 유저가 켜뒀을 때만 재생, 첫 실행이면 자동재생
+        if(hasSave&&!S.musicPlaying)return;
         bgmLoad(S.bgmIdx||0,true);
       }
       document.addEventListener('touchstart',_tryBgmAutoStart,{once:true,capture:true});
