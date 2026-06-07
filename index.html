@@ -173,7 +173,7 @@ body.focus-mode.focus-locked #room-eye-btn::after{content:'🔒';position:absolu
 @keyframes charDropIn{0%{transform:translateY(-160px);opacity:0}65%{opacity:1}82%{transform:translateY(8px)}100%{transform:translateY(0)}}
 /* Room Gift */
 .room-gift{position:absolute;z-index:12;cursor:pointer;text-align:center;transform-origin:center bottom;user-select:none}
-.room-gift .gift-img{width:48px;height:48px;object-fit:contain;display:block;margin:0 auto;animation:giftFloat 1.4s ease-in-out infinite;filter:drop-shadow(0 3px 10px rgba(0,0,0,.45));transition:filter .15s,transform .15s}
+.room-gift .gift-img{width:48px;height:48px;object-fit:contain;display:block;margin:0 auto;animation:giftFloat 1.4s ease-in-out infinite;filter:drop-shadow(0 3px 10px rgba(0,0,0,.45));transition:filter .15s,transform .15s;will-change:transform;contain:layout style}
 .room-gift:hover .gift-img{filter:drop-shadow(0 4px 14px rgba(255,200,50,.8));transform:scale(1.12)}
 @keyframes giftFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @keyframes giftClaim{0%{transform:scale(1);opacity:1}55%{transform:scale(1.55);opacity:.85}100%{transform:scale(0);opacity:0}}
@@ -1726,7 +1726,7 @@ function loadGame(){
     if(d.unlockedFloors&&d.unlockedFloors>1)S.unlockedFloors=d.unlockedFloors;
     if(d.currentFloor&&d.currentFloor>0)S.currentFloor=Math.min(d.currentFloor,d.unlockedFloors||1);
     if(d.floorBgs&&typeof d.floorBgs==='object')S.floorBgs=d.floorBgs;
-    if(Array.isArray(d.roomGifts))S.roomGifts=d.roomGifts;
+    if(Array.isArray(d.roomGifts)){S.roomGifts=d.roomGifts;if(S.roomGifts.length>25)S.roomGifts=S.roomGifts.slice(-25);}
     if(d.petGiftLastTime)S.petGiftLastTime=d.petGiftLastTime;
     // 구버전 pendingGift 마이그레이션
     if(d.pendingGift&&d.pendingGift.item)S.roomGifts.push({id:Date.now(),charId:d.pendingGift.charId,item:d.pendingGift.item,x:35+Math.random()*30});
@@ -5518,9 +5518,16 @@ function pickGiftX(){
   }
   return 12+Math.random()*68;
 }
+var _MAX_ROOM_GIFTS=25;
 function maybeGiveGift(charId){
   if(Math.random()>.4)return;
   const c=S.characters.find(x=>x.id===charId);if(!c)return;
+  // 선물 최대 개수 초과 시 가장 오래된 것부터 제거
+  while(S.roomGifts.length>=_MAX_ROOM_GIFTS){
+    const old=S.roomGifts.shift();
+    const oldEl=document.getElementById('gift-el-'+old.id);
+    if(oldEl)oldEl.remove();
+  }
   const item=FOOD_ITEMS[Math.floor(Math.random()*FOOD_ITEMS.length)];
   setAnim(charId,'eat');setTimeout(()=>setAnim(charId,'idle'),2000);
   const gift={id:Date.now()+Math.floor(Math.random()*999),charId,item,x:pickGiftX()};
@@ -7206,13 +7213,21 @@ function _charPetDragMove(cx,cy){
     }
   }
 }
-document.addEventListener('mousemove',function(e){_charPetDragMove(e.clientX,e.clientY);});
+var _dragRafPending=false;
+var _dragLastCx=0,_dragLastCy=0;
+function _dragRafFlush(){_dragRafPending=false;_charPetDragMove(_dragLastCx,_dragLastCy);}
+document.addEventListener('mousemove',function(e){
+  if(!_charDrag&&!_petDrag)return;
+  _dragLastCx=e.clientX;_dragLastCy=e.clientY;
+  if(!_dragRafPending){_dragRafPending=true;requestAnimationFrame(_dragRafFlush);}
+});
 // 터치 이동 (passive:false → preventDefault 가능)
 document.addEventListener('touchmove',function(e){
   if(!_charDrag&&!_petDrag)return;
   e.preventDefault();
   var t=e.touches[0];
-  _charPetDragMove(t.clientX,t.clientY);
+  _dragLastCx=t.clientX;_dragLastCy=t.clientY;
+  if(!_dragRafPending){_dragRafPending=true;requestAnimationFrame(_dragRafFlush);}
 },{passive:false});
 // ── 공통 드래그 종료 함수 (mouse / touch 공유) ──
 function _charPetDragEnd(cx,cy){
