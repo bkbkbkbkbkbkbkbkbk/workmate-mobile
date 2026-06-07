@@ -32,14 +32,14 @@
   --wall:#243355;--floor:#2a3f6f;--shadow:rgba(0,0,0,0.5);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--bg);width:100%;height:100%;height:100dvh}
-body{background:var(--bg);color:var(--text);width:100%;height:100%;height:100dvh;min-height:100dvh;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;padding:0;transition:background .3s;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+html{background:var(--bg);width:100%;height:100%}
+body{background:var(--bg);color:var(--text);width:100%;height:100dvh;min-height:100dvh;box-sizing:border-box;display:flex;align-items:stretch;justify-content:center;padding:0;transition:background .3s;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 #app::-webkit-scrollbar{width:4px}
 #app::-webkit-scrollbar-track{background:transparent}
 #app::-webkit-scrollbar-thumb{background:rgba(128,128,128,.25);border-radius:3px}
 #app::-webkit-scrollbar-thumb:hover{background:rgba(128,128,128,.45)}
-#app{width:100%;min-width:0;max-width:480px;margin:0 auto;background:var(--bg2);border-radius:0;border:none;overflow:hidden;box-shadow:none;resize:none;height:var(--app-h,100dvh);min-height:var(--app-h,100dvh);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;position:relative}
-@media(min-width:500px){#app{border-radius:24px;border:1px solid var(--border2);box-shadow:0 24px 60px var(--shadow);height:calc(var(--app-h,100dvh) - 32px);min-height:min(calc(var(--app-h,100dvh) - 32px),720px);margin:16px auto}}
+#app{width:100%;min-width:0;max-width:480px;margin:0 auto;background:var(--bg2);border-radius:0;border:none;overflow:hidden;box-shadow:none;resize:none;height:100dvh;min-height:100dvh;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;position:relative}
+@media(min-width:500px){#app{border-radius:24px;border:1px solid var(--border2);box-shadow:0 24px 60px var(--shadow);height:calc(100dvh - 32px);min-height:720px;margin:16px auto}}
 /* Frameless window drag — desktop only, no-op on mobile */
 #topbar{cursor:default}
 #btn-settings{cursor:pointer}
@@ -317,17 +317,19 @@ body.focus-mode #focus-music-btn{display:flex!important}
 
 /* ── 모바일 포커스 모드 (홈 버튼 → 자동 진입) ── */
 
-/* ── 태블릿 / 아이패드 Split View 최적화 ── */
+/* ── 태블릿 / 아이패드 Stage Manager·Split View 최적화 ── */
 @media(min-width:481px) and (max-width:900px){
-  /* Split View 시 앱 너비를 꽉 채움 */
-  #app{max-width:100%!important;border-radius:0!important;border-left:none!important;border-right:none!important;margin:0!important}
+  /* 앱 너비·높이를 뷰포트 꽉 채움 (500px 규칙의 height calc 덮어쓰기) */
+  #app{max-width:100%!important;height:100dvh!important;min-height:100dvh!important;border-radius:0!important;border-left:none!important;border-right:none!important;border-top:none!important;border-bottom:none!important;box-shadow:none!important;margin:0!important}
   /* 방 + 툴패널 가로 2단 레이아웃 */
-  #main-content{display:flex!important;flex-direction:row!important;flex:1;min-height:0;overflow:hidden}
-  #room-wrap{width:45%!important;flex-shrink:0;padding:8px!important}
-  #room{aspect-ratio:1!important}
-  #tool-area{flex:1;display:flex;flex-direction:column;overflow:hidden;border-left:1px solid var(--border)}
-  #tool-tabs{flex-shrink:0}
-  #tool-panel{flex:1;overflow-y:auto;min-height:0}
+  #main-content{display:flex!important;flex-direction:row!important;flex:1!important;min-height:0!important;overflow:hidden!important}
+  /* char-drawer-btn은 2단 row 레이아웃에서 숨김 (tool-area 밀림 방지) */
+  #char-drawer-btn{display:none!important}
+  #room-wrap{width:45%!important;flex-shrink:0!important;padding:8px!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important}
+  #room{aspect-ratio:1!important;width:100%!important}
+  #tool-area{flex:1!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;border-left:1px solid var(--border)!important;min-width:0!important}
+  #tool-tabs-wrap{flex-shrink:0!important}
+  #tool-panel{flex:1!important;overflow-y:auto!important;min-height:0!important}
   /* 모달 너비 */
   .modal-box{width:360px!important;max-width:calc(100vw - 32px)!important}
   #char-modal,#shop-modal,#couple-modal{width:360px!important}
@@ -751,26 +753,13 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
     <div class="set-row" style="margin-top:4px"><span style="font-size:11px;color:var(--text3)" data-i18n="set_autosave">자동 저장 (30초마다)</span><span style="font-size:10px;color:var(--green);font-weight:800">ON</span></div>
     <!-- 문의 / 업데이트 섹션 -->
     <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px">
-      <!-- 이메일 -->
+      <!-- 공식 홈페이지 -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0">
-        <span style="font-size:10px;color:var(--text3)" data-i18n="set_support_contact">문의하기</span>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:10px;color:var(--text2);font-weight:700">qlzpdl00@gmail.com</span>
-          <button id="copy-email-btn" onclick="navigator.clipboard.writeText('qlzpdl00@gmail.com').then(()=>{var b=document.getElementById('copy-email-btn');var prev=b.textContent;b.textContent='✓';b.style.color='var(--green)';setTimeout(()=>{b.textContent=prev;b.style.color='';},1500);})"
-            style="padding:2px 7px;font-size:9px;font-weight:800;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:.15s"
-            onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'"
-            onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border2)'"
-            data-i18n="set_support_copy">복사</button>
-        </div>
-      </div>
-      <!-- 업데이트 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0">
-        <span style="font-size:10px;color:var(--text3)" data-i18n="set_support_update">업데이트 확인</span>
-        <button onclick="if(window.electronAPI&&window.electronAPI.openExternalUrl)window.electronAPI.openExternalUrl('https://www.postype.com/@qlzpdl00/post/22333760');else window.open('https://www.postype.com/@qlzpdl00/post/22333760')"
+        <span style="font-size:10px;color:var(--text3)">공식 홈페이지</span>
+        <button onclick="window.open('https://workmate-game.netlify.app')"
           style="display:flex;align-items:center;gap:4px;padding:2px 7px;font-size:9px;font-weight:800;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:.15s"
           onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'"
-          onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border2)'"
-          data-i18n="set_support_update_sub">포스타입 공식 페이지
+          onmouseout="this.style.color='var(--text3)';this.style.borderColor='var(--border2)'">workmate-game.netlify.app
           <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 8.5L8.5 1.5M8.5 1.5H4M8.5 1.5V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -16209,16 +16198,14 @@ document.addEventListener('visibilitychange', function(){
   if(!document.hidden){saveGame();_checkAndNotify();_fixAppHeight();}
 });
 
-// ── 뷰포트 높이 CSS 변수 동기화 (iPad Split View 대응) ──
+// ── 뷰포트 변화 시 강제 리플로우 (iPad Stage Manager 대응) ──
 function _fixAppHeight(){
-  var h=(window.visualViewport?window.visualViewport.height:window.innerHeight)||window.innerHeight;
-  document.documentElement.style.setProperty('--app-h', h+'px');
+  // dvh 단위가 즉시 갱신되도록 강제 리플로우 트리거
+  var app=document.getElementById('app');
+  if(app){app.style.display='none';app.offsetHeight;app.style.display='';}
 }
-_fixAppHeight();
-window.addEventListener('resize', _fixAppHeight);
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize', _fixAppHeight);
-}
+window.addEventListener('resize',_fixAppHeight);
+if(window.visualViewport){window.visualViewport.addEventListener('resize',_fixAppHeight);}
 </script>
 </body>
 </html>
