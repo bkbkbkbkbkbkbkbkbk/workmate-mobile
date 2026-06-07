@@ -14567,14 +14567,8 @@ function renderMemo(idx){
   }
   tabHTML+='<button onclick="addMemoTab()" style="padding:3px 8px;border-radius:8px;border:1.5px dashed var(--border2);background:transparent;color:var(--text3);font-size:11px;cursor:pointer">+</button></div>';
   tabHTML+='<input type="text" id="memo-title-inp" placeholder="메모 제목..." style="font-size:11px;font-weight:800;margin-bottom:5px;border-radius:8px;padding:3px 8px;width:100%;background:var(--surface);border:1.5px solid var(--border2);color:var(--text);font-family:Nunito,sans-serif;outline:none">';
-  tabHTML+='<div style="display:flex;gap:3px;margin-bottom:4px;padding:3px 5px;background:var(--surface);border:1.5px solid var(--border2);border-radius:8px;align-items:center">'+
-  '<button onmousedown="event.preventDefault()" onclick="document.execCommand(\'bold\')" title="굵게" style="width:24px;height:24px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-weight:900;font-size:13px;color:var(--text);line-height:1;padding:0">B</button>'+
-  '<button onmousedown="event.preventDefault()" onclick="document.execCommand(\'strikeThrough\')" title="취소선" style="width:24px;height:24px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-size:13px;text-decoration:line-through;color:var(--text);line-height:1;padding:0">S</button>'+
-  '<input type="color" onmousedown="event.stopPropagation()" onchange="document.execCommand(\'foreColor\',false,this.value)" title="글자 색상" style="width:24px;height:24px;padding:2px;border-radius:5px;border:1px solid var(--border2);cursor:pointer;background:var(--bg)">'+
-  '<button onmousedown="event.preventDefault()" onclick="document.execCommand(\'removeFormat\')" title="서식 지우기" style="width:24px;height:24px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-size:10px;color:var(--text3);line-height:1;padding:0">✕</button>'+
-  '</div>'+
-  '<div style="border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface)">'+
-  '<div id="ma-'+idx+'" contenteditable="true" spellcheck="false" style="height:110px;font-size:12px;overflow-y:auto;padding:6px 12px;color:var(--text);font-family:Nunito,sans-serif;outline:none;line-height:1.5;word-break:break-word"></div>'+
+  tabHTML+='<div style="border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface)">'+
+  '<div id="ma-'+idx+'" contenteditable="true" spellcheck="false" style="height:130px;font-size:12px;overflow-y:auto;padding:6px 12px;color:var(--text);font-family:Nunito,sans-serif;outline:none;line-height:1.5;word-break:break-word"></div>'+
   '</div>';
   // [모바일] 메모 새 창 버튼 제거
   return tabHTML;
@@ -15516,20 +15510,7 @@ function _oFMLegacy(memoIdx){
   titleInp.type='text'; titleInp.value=m.title;
   titleInp.style='font-size:11px;font-weight:800;margin-bottom:5px;width:100%;border-radius:8px;padding:3px 8px;background:var(--surface);border:1.5px solid var(--border2);color:var(--text);font-family:Nunito,sans-serif;outline:none';
   titleInp.oninput=function(){_memos[memoIdx].title=this.value;};
-  var toolbar2=document.createElement('div');
-  toolbar2.style='display:flex;gap:3px;margin-bottom:4px;padding:3px 5px;background:var(--surface);border:1.5px solid var(--border2);border-radius:8px;align-items:center';
-  [['B','bold','font-weight:900;font-size:13px'],['S','strikeThrough','font-size:13px;text-decoration:line-through']].forEach(function(spec){
-    var btn=document.createElement('button'); btn.textContent=spec[0]; var cmd=spec[1];
-    btn.style='width:24px;height:24px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;'+spec[2]+';color:var(--text);line-height:1;padding:0';
-    btn.onmousedown=function(e){e.preventDefault();}; btn.onclick=function(){document.execCommand(cmd);};
-    toolbar2.appendChild(btn);
-  });
-  var ci2=document.createElement('input'); ci2.type='color'; ci2.title='글자 색상';
-  ci2.style='width:24px;height:24px;padding:2px;border-radius:5px;border:1px solid var(--border2);cursor:pointer;background:var(--bg)';
-  ci2.onchange=function(){document.execCommand('foreColor',false,this.value);}; toolbar2.appendChild(ci2);
-  var clr2=document.createElement('button'); clr2.textContent='✕'; clr2.title='서식 지우기';
-  clr2.style='width:24px;height:24px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-size:10px;color:var(--text3);line-height:1;padding:0';
-  clr2.onmousedown=function(e){e.preventDefault();}; clr2.onclick=function(){document.execCommand('removeFormat');}; toolbar2.appendChild(clr2);
+  // [모바일] 메모 서식 툴바 제거
   var ta=document.createElement('div'); ta.contentEditable='true'; ta.spellcheck=false;
   var taWrap=document.createElement('div');
   taWrap.style='border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface)';
@@ -15542,7 +15523,7 @@ function _oFMLegacy(memoIdx){
   var winId2='fw-'+id; var midx=memoIdx;
   dockBtn2.onclick=function(){_dockMemoLegacy(winId2,midx);};
   taWrap.appendChild(ta);
-  fbody.appendChild(titleInp); fbody.appendChild(toolbar2); fbody.appendChild(taWrap); fbody.appendChild(dockBtn2);
+  fbody.appendChild(titleInp); fbody.appendChild(taWrap); fbody.appendChild(dockBtn2);
   document.getElementById('floats').appendChild(win);
   mFD(win);
 }
