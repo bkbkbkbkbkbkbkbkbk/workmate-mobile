@@ -1,6 +1,6 @@
 ﻿// ── Work Mate Service Worker ──────────────────────────
 // 버전을 바꾸면 캐시가 갱신됩니다
-const CACHE_VERSION = 'workmate-v24';
+const CACHE_VERSION = 'workmate-v25';
 const ASSET_CACHE   = CACHE_VERSION + '-assets';
 const PAGE_CACHE    = CACHE_VERSION + '-pages';
 
@@ -306,6 +306,19 @@ const GAME_ASSETS = [
 // ── 메시지 수신 (업데이트 즉시 적용) ─────────────────
 self.addEventListener('message', e => {
   if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+// ── 알림 클릭 → 앱 포커스/열기 ──────────────────────
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({type:'window', includeUncontrolled:true}).then(clients => {
+      for(const c of clients){
+        if(c.url && c.focus) return c.focus();
+      }
+      if(self.clients.openWindow) return self.clients.openWindow('./');
+    })
+  );
 });
 
 // ── Install: 모든 에셋 사전 캐싱 ─────────────────────

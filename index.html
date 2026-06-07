@@ -716,6 +716,13 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
     <div class="set-row"><span data-i18n="set_accent">강조 색상</span><input type="color" id="accent-picker" value="#6c63ff" style="width:34px;height:22px;border-radius:6px;border:none;cursor:pointer;padding:0"></div>
     <div class="set-row"><span data-i18n="set_bg">배경 색상</span><input type="color" id="bg-picker" value="#f5f0ff" style="width:34px;height:22px;border-radius:6px;border:none;cursor:pointer;padding:0"></div>
     <div class="set-row"><span data-i18n="set_speech">캐릭터 대화</span><button class="toggle on" id="toggle-speech"></button></div>
+    <div class="set-row" id="notif-row">
+      <div>
+        <div data-i18n="set_notif">앱 알림</div>
+        <div style="font-size:9px;color:var(--text3);font-weight:400" data-i18n="set_notif_sub">D-Day·생일·할일 마감 알림</div>
+      </div>
+      <button class="toggle" id="toggle-notif"></button>
+    </div>
     <!-- [모바일 제거] 항상 위: 모바일 시스템 구조상 미지원 -->
     <div class="set-row"><span data-i18n="set_autofeed">음식 자동 먹기</span><button class="toggle" id="toggle-autofeed"></button></div>
     <div class="set-row" id="auto-launch-row" style="display:none"><span data-i18n="set_autolaunch">컴퓨터 켤 때 자동 시작</span><button class="toggle" id="toggle-autolaunch"></button></div>
@@ -1565,6 +1572,7 @@ const S={
   roomBg:'room0', roomBgLayer:'a', ownedBgs:['room0'], ownedHairVariants:{}, customBgDataUrls:{}, roomCustomImages:[], floorCustomImages:{},
   alwaysOnTop:true, opacity:100,
   todoRewardDate:'', todoRewardCount:0, holidayClaimedDates:{},
+  notifEnabled:false, notifLastCheck:'',
   bulkFoodUnlocked:false, foodBuyQty:1,
   unlockedFloors:1, currentFloor:1, floorBgs:{},
 };
@@ -1632,6 +1640,7 @@ function saveGame(){
       roomBg:S.roomBg, ownedBgs:S.ownedBgs, ownedHairVariants:S.ownedHairVariants, memos:_memos, alwaysOnTop:S.alwaysOnTop, opacity:S.opacity, ytUrl:S.ytUrl, ytRepeat:S.ytRepeat, ytVol:S.ytVol, ytFavorites:S.ytFavorites, ytTutorialShown:S.ytTutorialShown, calTutorialShown:S.calTutorialShown, ddayTutorialShown:S.ddayTutorialShown, timerTutorialShown:S.timerTutorialShown, floorTutorialShown:S.floorTutorialShown, bgPresetTutorialShown:S.bgPresetTutorialShown, accTutDone:S.accTutDone,
       bgmTab:S.bgmTab, bgmIdx:S.bgmIdx, bgmVol:S.bgmVol, bgmShuffle:S.bgmShuffle, bgmLoop:S.bgmLoop, bgmPlaying:_bgmPlaying, autoEat:S.autoEat, bgPresetUnlocked:S.bgPresetUnlocked, outfitPresetUnlocked:S.outfitPresetUnlocked, pomWorkMin:S.pomWorkMin, pomBreakMin:S.pomBreakMin, pomWorkSec:S.pomWorkSec, pomWorkDate:S.pomWorkDate, timerChimeIdx:S.timerChimeIdx, workworkMode:S.workworkMode, workworkPrograms:S.workworkPrograms, gameSavedAt:Date.now(),
       todoRewardDate:S.todoRewardDate, todoRewardCount:S.todoRewardCount, roomGifts:S.roomGifts, petGiftLastTime:S.petGiftLastTime, holidayClaimedDates:S.holidayClaimedDates, tutorialDone:S.tutorialDone, inflationLevel:S.inflationLevel, customBgConfigs:S.customBgConfigs, customBgFilters:S.customBgFilters, bulkFoodUnlocked:S.bulkFoodUnlocked, unlockedFloors:S.unlockedFloors, currentFloor:S.currentFloor, floorBgs:S.floorBgs,
+      notifEnabled:S.notifEnabled, notifLastCheck:S.notifLastCheck,
       accentColor:curAccent, bgColor:curBg,
       darkAccent:_savedDarkAccent, darkBg:_savedDarkBg,
       lightAccent:_savedLightAccent, lightBg:_savedLightBg,
@@ -1723,6 +1732,8 @@ function loadGame(){
     if(Array.isArray(d.ledger))S.ledger=d.ledger;
     if(d.tutorialDone)S.tutorialDone=true;
     if(d.bulkFoodUnlocked)S.bulkFoodUnlocked=true;
+    if(d.notifEnabled!=null)S.notifEnabled=!!d.notifEnabled;
+    if(d.notifLastCheck)S.notifLastCheck=d.notifLastCheck;
     if(d.unlockedFloors&&d.unlockedFloors>1)S.unlockedFloors=d.unlockedFloors;
     if(d.currentFloor&&d.currentFloor>0)S.currentFloor=Math.min(d.currentFloor,d.unlockedFloors||1);
     if(d.floorBgs&&typeof d.floorBgs==='object')S.floorBgs=d.floorBgs;
@@ -1789,6 +1800,8 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   const hasSave=loadGame();
   applyLang(S.lang);
+  // 알림 체크 (로드 완료 후 500ms 딜레이)
+  setTimeout(function(){_checkAndNotify();},500);
   _syncBgPresetBtn();
   _syncOutfitPresetBtn();
   // 설정 UI 반영
@@ -1796,6 +1809,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('toggle-speech').classList.toggle('on',S.speechOn);
   // [모바일] toggle-ontop 제거됨 — 스킵
   document.getElementById('toggle-autofeed').classList.toggle('on',S.autoEat);
+  var _tn=document.getElementById('toggle-notif');if(_tn)_tn.classList.toggle('on',S.notifEnabled);
   document.getElementById('toggle-autofeed').addEventListener('click',function(){
     S.autoEat=!S.autoEat;this.classList.toggle('on',S.autoEat);
     const _it=document.getElementById('inv-autofeed-toggle');if(_it)_it.classList.toggle('on',S.autoEat);
@@ -2681,6 +2695,17 @@ const LANG_DATA={
     set_title:'설정', btn_close:'닫기',
     set_lang:'언어 / Language',
     set_dark:'다크 모드', set_speech:'캐릭터 대화',
+    set_notif:'앱 알림', set_notif_sub:'D-Day·생일·할일 마감 알림',
+    notif_permission_title:'알림 권한 필요',
+    notif_permission_body:'알림을 받으려면 브라우저 알림 권한이 필요해요.\n허용하시겠어요?',
+    notif_permission_allow:'허용', notif_permission_deny:'취소',
+    notif_blocked:'브라우저 설정에서 알림 권한을 허용해주세요',
+    notif_todo_title:'할일 마감 임박! 📋',
+    notif_birthday_title:'생일이 다가와요! 🎂',
+    notif_dday_title:'D-Day 알림 📅',
+    notif_today:'오늘이에요!',
+    notif_dday_left:'D-{0}',
+    notif_todo_overdue:'기한이 지났어요',
     set_ontop:'항상 위', set_autofeed:'음식 자동 먹기',
     set_autolaunch:'컴퓨터 켤 때 자동 시작',
     set_promode:'프로 모드',
@@ -3274,6 +3299,17 @@ const LANG_DATA={
     set_title:'Settings', btn_close:'Close',
     set_lang:'Language',
     set_dark:'Dark Mode', set_speech:'Character Chat',
+    set_notif:'App Notifications', set_notif_sub:'D-Day · Birthday · Todo deadline alerts',
+    notif_permission_title:'Notification Permission',
+    notif_permission_body:'Allow notifications to receive reminders.\nWould you like to enable it?',
+    notif_permission_allow:'Allow', notif_permission_deny:'Cancel',
+    notif_blocked:'Please allow notification permission in browser settings',
+    notif_todo_title:'Todo Deadline Near! 📋',
+    notif_birthday_title:'Birthday Coming! 🎂',
+    notif_dday_title:'D-Day Alert 📅',
+    notif_today:'Today!',
+    notif_dday_left:'D-{0}',
+    notif_todo_overdue:'Overdue',
     set_ontop:'Always on Top', set_autofeed:'Auto Feed',
     set_autolaunch:'Launch on Startup',
     set_promode:'Pro Mode',
@@ -3822,6 +3858,17 @@ const LANG_DATA={
     set_title:'設定', btn_close:'閉じる',
     set_lang:'言語 / Language',
     set_dark:'ダークモード', set_speech:'キャラクター会話',
+    set_notif:'アプリ通知', set_notif_sub:'D-Day・誕生日・タスク期限のお知らせ',
+    notif_permission_title:'通知の許可が必要です',
+    notif_permission_body:'リマインダーを受け取るには通知を許可してください。\n許可しますか？',
+    notif_permission_allow:'許可', notif_permission_deny:'キャンセル',
+    notif_blocked:'ブラウザ設定で通知を許可してください',
+    notif_todo_title:'タスク期限が近いです！ 📋',
+    notif_birthday_title:'誕生日が近いです！ 🎂',
+    notif_dday_title:'D-Dayのお知らせ 📅',
+    notif_today:'今日です！',
+    notif_dday_left:'D-{0}',
+    notif_todo_overdue:'期限超過',
     set_ontop:'常に最前面', set_autofeed:'自動食事',
     set_autolaunch:'起動時に自動起動',
     set_promode:'プロモード',
@@ -4370,6 +4417,17 @@ const LANG_DATA={
     set_title:'设置', btn_close:'关闭',
     set_lang:'语言 / Language',
     set_dark:'深色模式', set_speech:'角色对话',
+    set_notif:'应用通知', set_notif_sub:'D-Day·生日·待办截止提醒',
+    notif_permission_title:'需要通知权限',
+    notif_permission_body:'请允许通知以接收提醒。\n是否允许？',
+    notif_permission_allow:'允许', notif_permission_deny:'取消',
+    notif_blocked:'请在浏览器设置中允许通知权限',
+    notif_todo_title:'待办截止临近！ 📋',
+    notif_birthday_title:'生日快到了！ 🎂',
+    notif_dday_title:'D-Day提醒 📅',
+    notif_today:'就是今天！',
+    notif_dday_left:'D-{0}',
+    notif_todo_overdue:'已超期',
     set_ontop:'始终置顶', set_autofeed:'自动喂食',
     set_autolaunch:'开机自动启动',
     set_promode:'专业模式',
@@ -5028,6 +5086,31 @@ function bindTopbar(){
   document.getElementById('settings-modal').onclick=e=>{if(e.target.id==='settings-modal')document.getElementById('settings-modal').classList.remove('open')};
   document.getElementById('toggle-dark').onclick=toggleDark;
   document.getElementById('toggle-speech').onclick=()=>{S.speechOn=!S.speechOn;document.getElementById('toggle-speech').classList.toggle('on',S.speechOn);saveGame();};
+  // 알림 토글
+  (function(){
+    var btn=document.getElementById('toggle-notif');
+    if(!btn)return;
+    // 알림 API 미지원 기기에서는 행 숨김
+    if(!('Notification' in window)){document.getElementById('notif-row').style.display='none';return;}
+    btn.classList.toggle('on',S.notifEnabled);
+    btn.onclick=function(){
+      if(!S.notifEnabled){
+        // 켜기 → 권한 요청
+        _requestNotifPermission(function(granted){
+          S.notifEnabled=granted;
+          btn.classList.toggle('on',granted);
+          saveGame();
+          if(granted)_checkAndNotify(true);
+        });
+      } else {
+        // 끄기
+        S.notifEnabled=false;
+        btn.classList.remove('on');
+        saveGame();
+        toast(t('set_notif')+' OFF');
+      }
+    };
+  })();
   // [모바일] toggle-ontop 제거됨 — 이벤트 등록 스킵
   // document.getElementById('toggle-ontop').onclick = ...
   // [모바일] opacity-slider hidden — oninput 스킵 (값은 저장/불러오기만 유지)
@@ -15963,6 +16046,124 @@ function spinRoulette(){
   },3300);
 }
 
+// ─────────────────────────────────────
+// 앱 알림 시스템
+// ─────────────────────────────────────
+
+// 권한 요청 (팝업으로 먼저 안내 → 브라우저 권한 요청)
+function _requestNotifPermission(cb){
+  if(!('Notification' in window)){cb(false);return;}
+  if(Notification.permission==='granted'){cb(true);return;}
+  if(Notification.permission==='denied'){
+    toast(t('notif_blocked'));cb(false);return;
+  }
+  // 안내 팝업 먼저
+  openConfirm(t('notif_permission_title')+'\n'+t('notif_permission_body'),function(){
+    Notification.requestPermission().then(function(perm){
+      cb(perm==='granted');
+      if(perm!=='granted')toast(t('notif_blocked'));
+    });
+  });
+  // 취소 버튼 텍스트 덮어쓰기
+  var cancelBtn=document.getElementById('confirm-cancel-btn');
+  if(cancelBtn){cancelBtn.setAttribute('data-i18n','notif_permission_deny');cancelBtn.textContent=t('notif_permission_deny');}
+  var okBtn=document.getElementById('confirm-ok-btn');
+  if(okBtn){okBtn.setAttribute('data-i18n','notif_permission_allow');okBtn.textContent=t('notif_permission_allow');}
+}
+
+// D-Day next yearly diff (생일용) — 이미 정의된 nextYearlyDiff 재사용
+// 알림을 실제로 보내는 함수
+function _sendNotif(title, body, tag){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.showNotification(title,{
+      body:body,
+      icon:'./assets/game_icon_256.png',
+      badge:'./assets/game_icon.png',
+      tag:tag||'workmate',
+      renotify:false,
+      requireInteraction:false,
+    });
+  }).catch(function(){});
+}
+
+// 오늘 알림을 이미 보냈는지 확인하는 키 저장소 (localStorage)
+var _NOTIF_SENT_KEY='workmate_notif_sent';
+function _getNotifSent(){
+  try{return JSON.parse(localStorage.getItem(_NOTIF_SENT_KEY)||'{}')}catch(e){return{}}
+}
+function _markNotifSent(tag){
+  var today=new Date().toISOString().slice(0,10);
+  var obj=_getNotifSent();
+  obj[tag]=today;
+  // 오래된 태그 정리 (30일 이상 된 것)
+  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
+  var cutStr=cutoff.toISOString().slice(0,10);
+  Object.keys(obj).forEach(function(k){if(obj[k]<cutStr)delete obj[k];});
+  try{localStorage.setItem(_NOTIF_SENT_KEY,JSON.stringify(obj));}catch(e){}
+}
+function _notifSentToday(tag){
+  var today=new Date().toISOString().slice(0,10);
+  return _getNotifSent()[tag]===today;
+}
+
+// 메인 체크 함수 — 앱 열 때마다 호출
+function _checkAndNotify(force){
+  if(!S.notifEnabled)return;
+  if(!('Notification' in window))return;
+  if(Notification.permission!=='granted')return;
+  var today=new Date().toISOString().slice(0,10);
+  // 오늘 이미 전체 체크했으면 스킵 (force=true이면 강제 실행)
+  if(!force && S.notifLastCheck===today)return;
+  S.notifLastCheck=today;
+  scheduleSave();
+
+  var now=new Date();now.setHours(0,0,0,0);
+
+  // ── 1. 생일 알림 (D-7 이내) ──
+  (S.ddays||[]).filter(function(d){return d.type==='birthday';}).forEach(function(d){
+    var tag='birthday_'+d.id;
+    if(_notifSentToday(tag))return;
+    var diff=nextYearlyDiff(d.date); // 다음 생일까지 남은 날
+    if(diff<=7){
+      var body=d.name+(diff===0?' — '+t('notif_today')
+        :' — '+t('notif_dday_left').replace('{0}',diff));
+      _sendNotif(t('notif_birthday_title'),body,tag);
+      _markNotifSent(tag);
+    }
+  });
+
+  // ── 2. D-Day 알림 (기념일 포함, D-7 이내 또는 D-Day 당일) ──
+  (S.ddays||[]).filter(function(d){return d.type!=='birthday';}).forEach(function(d){
+    var tag='dday_'+d.id;
+    if(_notifSentToday(tag))return;
+    var dt=new Date(d.date);dt.setHours(0,0,0,0);
+    var diff=Math.floor((dt-now)/86400000);
+    if(diff>=0&&diff<=7){
+      var body=d.name+(diff===0?' — '+t('notif_today')
+        :' — '+t('notif_dday_left').replace('{0}',diff));
+      _sendNotif(t('notif_dday_title'),body,tag);
+      _markNotifSent(tag);
+    }
+  });
+
+  // ── 3. 할일 마감 알림 (D-3 이내 또는 기한 초과) ──
+  (S.todos||[]).filter(function(t2){return !t2.done&&t2.date;}).forEach(function(t2){
+    var tag='todo_'+t2.id;
+    if(_notifSentToday(tag))return;
+    var dt=new Date(t2.date);dt.setHours(0,0,0,0);
+    var diff=Math.floor((dt-now)/86400000);
+    if(diff<=-1||diff<=3){
+      var statusStr=diff<0?t('notif_todo_overdue')
+        :diff===0?t('notif_today')
+        :t('notif_dday_left').replace('{0}',diff);
+      var body=t2.text+' — '+statusStr;
+      _sendNotif(t('notif_todo_title'),body,tag);
+      _markNotifSent(tag);
+    }
+  });
+}
+
 // ── 서비스워커 등록 + 업데이트 감지 ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').then(function(reg){
@@ -16000,9 +16201,9 @@ function _showUpdatePopup(newWorker){
 }
 
 
-// Page Visibility API: 백그라운드 복귀 시 저장만
+// Page Visibility API: 백그라운드 복귀 시 저장 + 알림 체크
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden) saveGame();
+  if(!document.hidden){saveGame();_checkAndNotify();}
 });
 </script>
 </body>
