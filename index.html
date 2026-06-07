@@ -9811,11 +9811,10 @@ function renderShopStat(c,d){
         '<div style="font-size:9px;color:var(--accent2);font-weight:700;margin-bottom:1px">'+effectStr+'</div>'+
         '<div style="font-size:9px;color:var(--text3)">'+t(_statDescKey[st.id]||st.id)+'</div>'+
         (maxed?'<div class="sbar" style="margin-top:3px"><div class="sbar-fill" style="width:100%;background:var(--green)"></div></div>':'')+'</div>'+
-      '<button class="btn btn-gold btn-sm" '+(maxed?'disabled':'onclick="upgradeStat(\''+st.id+'\')"')+'>'+
-        (maxed?'MAX':cost+'G')+'</button></div>';
+      '<button class="btn btn-gold btn-sm" '+(maxed?'disabled':(S.gold<cost?'style="opacity:.5" ':'')+'onclick="upgradeStat(\''+st.id+'\')"')+'>'+
+        (maxed?'MAX':cost.toLocaleString()+'G')+'</button></div>';
   }).join('');
-  const goldRow='<div style="text-align:right;font-size:10px;font-weight:800;color:var(--accent);margin-bottom:8px;padding:4px 6px;background:var(--surface);border-radius:8px;border:1px solid var(--border2)">💰 '+S.gold.toLocaleString()+'G</div>';
-  return charSel+goldRow+bars;
+  return charSel+bars;
 }
 
 function renderShopJob(c,d){
