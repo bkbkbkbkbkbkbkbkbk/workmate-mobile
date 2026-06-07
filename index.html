@@ -13555,10 +13555,20 @@ function showTimerTutorial(){
   renderToolPanel();
   S.timerTutorialShown=true;
   scheduleSave();
+  if(!window.electronAPI){
+    // 모바일: 팝업 버튼이 없으므로 간단 모달만 표시
+    var m=document.getElementById('timer-tutorial-modal');
+    if(m)m.classList.add('open');
+    return;
+  }
   _tutEnqueue(function(){
     _tutImmediateBlock();
     setTimeout(showPomPopupSpotlight,400);
   });
+}
+function closeTimerTutorial(){
+  var m=document.getElementById('timer-tutorial-modal');
+  if(m)m.classList.remove('open');
 }
 function showClockSpotlight(){
   _spotLockScroll();
