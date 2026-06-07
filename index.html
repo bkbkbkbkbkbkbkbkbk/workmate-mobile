@@ -32,14 +32,14 @@
   --wall:#243355;--floor:#2a3f6f;--shadow:rgba(0,0,0,0.5);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--bg);height:100%}
-body{background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;box-sizing:border-box;display:flex;align-items:stretch;justify-content:center;padding:0;transition:background .3s;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+html{background:var(--bg);width:100%;height:100%;height:100dvh}
+body{background:var(--bg);color:var(--text);width:100%;height:100%;height:100dvh;min-height:100dvh;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;padding:0;transition:background .3s;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 #app::-webkit-scrollbar{width:4px}
 #app::-webkit-scrollbar-track{background:transparent}
 #app::-webkit-scrollbar-thumb{background:rgba(128,128,128,.25);border-radius:3px}
 #app::-webkit-scrollbar-thumb:hover{background:rgba(128,128,128,.45)}
-#app{width:100%;min-width:0;max-width:480px;margin:0 auto;background:var(--bg2);border-radius:0;border:none;overflow:hidden;box-shadow:none;resize:none;min-height:100vh;min-height:100dvh;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;position:relative}
-@media(min-width:500px){#app{border-radius:24px;border:1px solid var(--border2);box-shadow:0 24px 60px var(--shadow);min-height:720px;margin:16px auto}}
+#app{width:100%;min-width:0;max-width:480px;margin:0 auto;background:var(--bg2);border-radius:0;border:none;overflow:hidden;box-shadow:none;resize:none;height:var(--app-h,100dvh);min-height:var(--app-h,100dvh);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;position:relative}
+@media(min-width:500px){#app{border-radius:24px;border:1px solid var(--border2);box-shadow:0 24px 60px var(--shadow);height:calc(var(--app-h,100dvh) - 32px);min-height:min(calc(var(--app-h,100dvh) - 32px),720px);margin:16px auto}}
 /* Frameless window drag — desktop only, no-op on mobile */
 #topbar{cursor:default}
 #btn-settings{cursor:pointer}
@@ -16206,8 +16206,19 @@ function _showUpdatePopup(newWorker){
 
 // Page Visibility API: 백그라운드 복귀 시 저장 + 알림 체크
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden){saveGame();_checkAndNotify();}
+  if(!document.hidden){saveGame();_checkAndNotify();_fixAppHeight();}
 });
+
+// ── 뷰포트 높이 CSS 변수 동기화 (iPad Split View 대응) ──
+function _fixAppHeight(){
+  var h=(window.visualViewport?window.visualViewport.height:window.innerHeight)||window.innerHeight;
+  document.documentElement.style.setProperty('--app-h', h+'px');
+}
+_fixAppHeight();
+window.addEventListener('resize', _fixAppHeight);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', _fixAppHeight);
+}
 </script>
 </body>
 </html>
