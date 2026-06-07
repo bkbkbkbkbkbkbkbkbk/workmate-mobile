@@ -107,12 +107,12 @@ body.focus-mode #room-eye-btn:hover{opacity:1}
 /* 위치 잠금 상태 - 눈 버튼에 잠금 배지 표시 */
 body.focus-mode.focus-locked #room-eye-btn{opacity:.7;background:rgba(108,99,255,.55);border-color:var(--accent)}
 body.focus-mode.focus-locked #room-eye-btn::after{content:'🔒';position:absolute;top:-7px;right:-7px;font-size:9px;line-height:1;pointer-events:none}
-#room-preset-btn{position:absolute;bottom:42px;right:8px;z-index:15;width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.22);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.2s}
+#room-preset-btn{position:absolute;bottom:8px;right:8px;z-index:15;width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.22);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.2s}
 #room-preset-btn.visible{display:flex}
 #room-preset-btn:hover{background:rgba(108,99,255,.55);border-color:var(--accent)}
 @keyframes tutBtnPulse{0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,.8),0 0 0 0 rgba(108,99,255,.4)}60%{box-shadow:0 0 0 7px rgba(108,99,255,0),0 0 0 12px rgba(108,99,255,0)}}
 .tut-pulse{animation:tutBtnPulse 1.3s ease-out infinite!important;border-color:var(--accent)!important}
-#room-bg-preset-btn{position:absolute;bottom:76px;right:8px;z-index:15;width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.22);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.2s}
+#room-bg-preset-btn{position:absolute;bottom:42px;right:8px;z-index:15;width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.22);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.2s}
 #room-bg-preset-btn.visible{display:flex}
 #room-bg-preset-btn:hover{background:rgba(108,99,255,.55);border-color:var(--accent)}
 #bg-preset-slots{max-height:300px;overflow-y:auto;cursor:grab;user-select:none}
