@@ -876,6 +876,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
 <!-- Timer Tutorial -->
 <div class="modal-bg" id="timer-tutorial-modal">
   <div class="modal-box" style="width:280px">
+    <div style="font-size:10px;color:var(--accent);font-weight:800;margin-bottom:6px;text-align:center">1 / 2</div>
     <div style="font-size:15px;font-weight:900;margin-bottom:12px" data-i18n="timer_tut_title">타이머 가이드</div>
     <div style="display:flex;flex-direction:column;gap:9px;font-size:12px;color:var(--text);line-height:1.55">
       <div style="display:flex;gap:9px;align-items:center">
@@ -891,7 +892,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
         <span><b data-i18n="pom_tut_sw">스탑워치</b> — <span data-i18n="pom_tut_desc3">경과 시간 측정</span></span>
       </div>
     </div>
-    <button class="btn btn-accent" style="width:100%;margin-top:14px" onclick="closeTimerTutorial()" data-i18n="timer_tut_next">다음</button>
+    <button class="btn btn-accent" style="width:100%;margin-top:14px" onclick="closeTimerTutorial()" data-i18n="tut_next">다음 →</button>
   </div>
 </div>
 
@@ -13574,6 +13575,52 @@ function showTimerTutorial(){
 function closeTimerTutorial(){
   var m=document.getElementById('timer-tutorial-modal');
   if(m)m.classList.remove('open');
+  // 모바일: 시계 스포트라이트로 이어서 진행
+  if(!window.electronAPI){
+    _spotLockScroll();
+    _tutImmediateBlock();
+    setTimeout(showClockSpotlightMobile,350);
+  }
+}
+function showClockSpotlightMobile(){
+  var clk=document.getElementById('room-clock');
+  if(!clk){_spotUnlockScroll();_tutImmediateUnblock();return;}
+  var r=clk.getBoundingClientRect();
+  var pad=10;
+  var bg=document.createElement('div');
+  bg.id='clock-spot-bg';
+  bg.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:9989;';
+  var spot=document.createElement('div');
+  spot.id='clock-spot-hole';
+  spot.style.cssText='position:fixed;top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.72);z-index:9990;pointer-events:none;';
+  var tip=document.createElement('div');
+  tip.id='clock-spot-tip';
+  var _cTH=165,_cGAP=14;
+  var _cTipTop=r.bottom+_cGAP;
+  if(_cTipTop+_cTH>window.innerHeight)_cTipTop=r.top-_cTH-_cGAP;
+  if(_cTipTop<0)_cTipTop=_cGAP;
+  tip.style.cssText='position:fixed;top:'+_cTipTop+'px;left:50%;transform:translateX(-50%);width:220px;background:var(--bg2);border-radius:12px;padding:14px 16px;z-index:9991;box-shadow:0 6px 24px rgba(0,0,0,.35);text-align:center;font-size:12px;line-height:1.6;font-family:inherit;';
+  tip.innerHTML=
+    '<div style="font-size:10px;color:var(--accent);font-weight:800;margin-bottom:4px">2 / 2</div>'+
+    '<div style="font-size:13px;font-weight:900;margin-bottom:6px">'+t('timer_spot2_title')+'</div>'+
+    '<div style="color:var(--text2);font-size:11px">'+t('timer_spot2_desc')+'</div>'+
+    '<div style="margin-top:12px">'+
+    '<button onclick="closeClockSpotlightMobile()" style="width:100%;padding:8px 0;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;">'+t('tut_done')+'</button>'+
+    '</div>';
+  document.body.appendChild(bg);
+  document.body.appendChild(spot);
+  document.body.appendChild(tip);
+  clk.classList.add('tutorial-focus');
+  clk.style.zIndex='9991';
+}
+function closeClockSpotlightMobile(){
+  _playTutorialClickSound();
+  ['clock-spot-bg','clock-spot-hole','clock-spot-tip'].forEach(function(id){var e=document.getElementById(id);if(e)e.remove();});
+  var clk=document.getElementById('room-clock');
+  if(clk){clk.classList.remove('tutorial-focus');clk.style.zIndex='';}
+  _spotUnlockScroll();
+  _tutImmediateUnblock();
+  _tutFinish();
 }
 function showClockSpotlight(){
   _spotLockScroll();
