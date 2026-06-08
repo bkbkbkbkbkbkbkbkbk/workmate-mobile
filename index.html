@@ -16324,13 +16324,13 @@ function _checkAndNotify(force){
     return t2.date===todayStr;
   });
   if(todayTodos.length>0){
-    var names=todayTodos.slice(0,5).map(function(t2){return '• '+t2.text;});
-    if(todayTodos.length>5)names.push('... 외 '+(todayTodos.length-5)+'개');
-    _sendNotif(
-      '📋 오늘 할일 '+todayTodos.length+'개',
-      names.join('\n'),
-      'today_todo_summary'
-    );
+    todayTodos.slice(0,7).forEach(function(t2,i){
+      _sendNotif(
+        '📋 ' + t2.text,
+        t2.date ? (t2.date===todayStr ? '오늘 마감' : t2.date) : '할일',
+        'todo_item_'+t2.id
+      );
+    });
   }
 }
 
