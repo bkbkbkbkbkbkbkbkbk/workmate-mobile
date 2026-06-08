@@ -11873,7 +11873,15 @@ function upgradeStat(statId){
   S.gold-=cost;c[statId]=lv+1;
   if(!c.statXp)c.statXp={};c.statXp[statId]=0;
   if(statId==='workSpeed'){if(S.npcs.indexOf(c)>=0)scheduleNpcEarn(c);else scheduleEarn(c);}
-  updateGoldDisplay();toast(st.icon+' '+t(_statNameKey[statId]||statId)+' Lv'+c[statId]+'!');addXP(30);_reRenderShopBody();updateGoldDisplay();renderToolPanel();saveGame();
+  updateGoldDisplay();
+  toast(st.icon+' '+t(_statNameKey[statId]||statId)+' Lv'+c[statId]+'!');
+  addXP(30);
+  // 상점 body 즉시 갱신 (스크롤 위치 보존)
+  var _sb=document.getElementById('shop-modal-body');
+  if(_sb){var _sy=_sb.scrollTop;_sb.innerHTML=renderShop();_sb.scrollTop=_sy;}
+  updateGoldDisplay();
+  renderToolPanel();
+  saveGame();
 }
 function buyJob(jobId){
   const job=JOBS.find(j=>j.id===jobId);
