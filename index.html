@@ -180,7 +180,7 @@ body.focus-mode.focus-locked #room-eye-btn::after{content:'🔒';position:absolu
 
 /* Drop highlight */
 .char-in-room .char-sprite-wrap{filter:drop-shadow(0 2px 5px rgba(0,0,0,.4)) drop-shadow(0 0 2px rgba(0,0,0,.25))}
-.char-in-room.drop-target .char-sprite-wrap{filter:drop-shadow(0 0 8px var(--accent))}
+.char-in-room.drop-target .char-sprite-wrap,.char-in-room.char-drop-highlight .char-sprite-wrap{filter:drop-shadow(0 0 8px var(--accent))}
 
 /* Char button */
 #char-drawer-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:5px 0;background:var(--bg);border:none;border-top:1px solid var(--border);cursor:pointer;font-size:10px;font-weight:800;color:var(--text2);transition:.2s;flex-shrink:0}
@@ -5496,6 +5496,97 @@ function renderRoomInv(){
 
 // Room bg drag removed - bg only changes via inventory drag
 function bindRoomBgDrag(){}
+
+// ── 인벤토리 터치 드래그 (즉시 드래그, 꾹 누르기 불필요) ──
+(function(){
+  var _td=null; // {id,cat,startX,startY,moved,ghost}
+  var _THRESHOLD=6; // 드래그 시작 인식 거리 (px)
+
+  function _createGhost(slot,cx,cy){
+    var g=document.createElement('div');
+    g.id='inv-touch-ghost';
+    g.style.cssText='position:fixed;z-index:9999;pointer-events:none;border-radius:10px;'
+      +'background:var(--bg2);border:2px solid var(--accent);padding:3px;width:46px;height:46px;'
+      +'display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.5);'
+      +'transform:translate(-50%,-60%) scale(1.15);opacity:.92;transition:none;';
+    g.innerHTML=slot.innerHTML;
+    g.style.left=cx+'px';g.style.top=cy+'px';
+    document.body.appendChild(g);
+    return g;
+  }
+
+  function _cleanup(){
+    if(_td&&_td.ghost){_td.ghost.remove();}
+    // 하이라이트 제거
+    document.querySelectorAll('.char-drop-highlight').forEach(function(el){el.classList.remove('char-drop-highlight');});
+    _td=null;
+  }
+
+  function _getCharAtPoint(cx,cy){
+    // 잠깐 ghost 숨기고 elementFromPoint
+    var g=document.getElementById('inv-touch-ghost');
+    if(g)g.style.display='none';
+    var el=document.elementFromPoint(cx,cy);
+    if(g)g.style.display='';
+    if(!el)return null;
+    var charEl=el.closest('[id^="char-el-"]');
+    if(!charEl)return null;
+    var cid=parseInt(charEl.id.replace('char-el-',''));
+    return S.characters.find(function(x){return x.id===cid;})
+      ||S.npcs.find(function(x){return x.id===cid;});
+  }
+
+  document.addEventListener('touchstart',function(e){
+    var slot=e.target.closest('.r-inv-slot');
+    if(!slot)return;
+    var id=slot.dataset.id,cat=slot.dataset.cat;
+    if(!id||!cat)return;
+    var touch=e.touches[0];
+    _td={id:id,cat:cat,startX:touch.clientX,startY:touch.clientY,moved:false,ghost:null,slot:slot};
+  },{passive:true});
+
+  document.addEventListener('touchmove',function(e){
+    if(!_td)return;
+    var touch=e.touches[0];
+    var dx=touch.clientX-_td.startX,dy=touch.clientY-_td.startY;
+    if(!_td.moved){
+      if(Math.sqrt(dx*dx+dy*dy)<_THRESHOLD)return;
+      // 임계값 초과 → 드래그 시작
+      _td.moved=true;
+      _td.ghost=_createGhost(_td.slot,touch.clientX,touch.clientY);
+    }
+    // ghost 이동
+    _td.ghost.style.left=touch.clientX+'px';
+    _td.ghost.style.top=touch.clientY+'px';
+    // 캐릭터 위 하이라이트
+    document.querySelectorAll('.char-drop-highlight').forEach(function(el){el.classList.remove('char-drop-highlight');});
+    var c=_getCharAtPoint(touch.clientX,touch.clientY);
+    if(c){
+      var charEl=document.getElementById('char-el-'+c.id);
+      if(charEl)charEl.classList.add('char-drop-highlight');
+    }
+    e.preventDefault();
+  },{passive:false});
+
+  document.addEventListener('touchend',function(e){
+    if(!_td||!_td.moved){_td=null;return;}
+    var touch=e.changedTouches[0];
+    var c=_getCharAtPoint(touch.clientX,touch.clientY);
+    if(c){
+      applyItemToChar(_td.id,_td.cat,c);
+    } else if(_td.cat==='bg'){
+      var g2=document.getElementById('inv-touch-ghost');if(g2)g2.style.display='none';
+      var el2=document.elementFromPoint(touch.clientX,touch.clientY);
+      if(g2)g2.style.display='';
+      if(el2&&el2.closest('#room')){
+        _guardedApplyRoomBg(_td.id,null,function(){toast(t('bg_changed_toast'));});
+      }
+    }
+    _cleanup();
+  });
+
+  document.addEventListener('touchcancel',function(){_cleanup();});
+})();
 
 // ─────────────────────────────────
 // GIFT
