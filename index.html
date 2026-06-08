@@ -16268,11 +16268,17 @@ function _markNotifSent(tag){
   var today=new Date().toISOString().slice(0,10);
   var obj=_getNotifSent();
   obj[tag]=today;
-  // 오래된 태그 정리 (30일 이상 된 것)
+  // 오래된 태그 정리 (30일 이상 된 것, 영구 태그 제외)
+  var _PERMANENT_TAGS=['summary_todo_overdue'];
   var cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
   var cutStr=cutoff.toISOString().slice(0,10);
-  Object.keys(obj).forEach(function(k){if(obj[k]<cutStr)delete obj[k];});
+  Object.keys(obj).forEach(function(k){
+    if(_PERMANENT_TAGS.indexOf(k)===-1&&obj[k]<cutStr)delete obj[k];
+  });
   try{localStorage.setItem(_NOTIF_SENT_KEY,JSON.stringify(obj));}catch(e){}
+}
+function _notifSentEver(tag){
+  return !!_getNotifSent()[tag]; // 날짜 무관, 한 번이라도 보냈으면 true
 }
 function _notifSentToday(tag){
   var today=new Date().toISOString().slice(0,10);
@@ -16349,10 +16355,10 @@ function _checkAndNotify(force){
     return Math.floor((dt-todoNow)/86400000)<0;
   });
 
-  // 기한 초과 (가장 긴급)
+  // 기한 초과 (가장 긴급) — 딱 한 번만
   if(overdueTodos.length>0){
-    var oTag='summary_todo_overdue_'+today;
-    if(!_notifSentToday(oTag)){
+    var oTag='summary_todo_overdue'; // 날짜 없음 = 영구 1회
+    if(!_notifSentEver(oTag)){
       _sendNotif(
         '🚨 기한이 지난 할 일이 있어요!',
         overdueTodos.length+'개의 할 일 마감일이 지났어요',
