@@ -1649,7 +1649,8 @@ function loadGame(){
     if(d.isDark!=null)S.isDark=d.isDark;
     if(d.speechOn!=null)S.speechOn=d.speechOn;
     if(d.lang)S.lang=d.lang;
-    if(Array.isArray(d.characters)&&d.characters.length){S.characters=d.characters;S.characters.forEach(c=>{if(!c.ownedVariants)c.ownedVariants={};if(!c.ownedItems)c.ownedItems=[];if(!c.presetUnlocked)c.presetUnlocked=[true,false,false,false,false];else if(c.presetUnlocked.length<5){while(c.presetUnlocked.length<5)c.presetUnlocked.push(false);}['outfit','hair','eye','acc'].forEach(cat=>{if(c[cat]&&c[cat]!=='default'&&!c.ownedItems.includes(c[cat]))c.ownedItems.push(c[cat]);});c.activeBuff=_fixBuffTime(c.activeBuff);c.potion=_fixBuffTime(c.potion);});}
+    if(Array.isArray(d.characters)&&d.characters.length){S.characters=d.characters;S.characters.forEach(c=>{if(!c.ownedVariants)c.ownedVariants={};if(!c.ownedItems)c.ownedItems=[];if(!c.presetUnlocked)c.presetUnlocked=[true,false,false,false,false];else if(c.presetUnlocked.length<5){while(c.presetUnlocked.length<5)c.presetUnlocked.push(false);}['outfit','hair','eye','acc'].forEach(cat=>{if(c[cat]&&c[cat]!=='default'&&!c.ownedItems.includes(c[cat]))c.ownedItems.push(c[cat]);});c.activeBuff=_fixBuffTime(c.activeBuff);c.potion=_fixBuffTime(c.potion);c.hidden=false;// 실수로 숨김 처리된 캐릭터 자동 복구
+});}
     if(Array.isArray(d.npcs)){S.npcs=d.npcs;S.npcs.forEach(c=>{if(!c.ownedVariants)c.ownedVariants={};if(!c.ownedItems)c.ownedItems=[];if(!c.presetUnlocked)c.presetUnlocked=[true,false,false,false,false];else if(c.presetUnlocked.length<5){while(c.presetUnlocked.length<5)c.presetUnlocked.push(false);}['outfit','hair','eye','acc'].forEach(cat=>{if(c[cat]&&c[cat]!=='default'&&!c.ownedItems.includes(c[cat]))c.ownedItems.push(c[cat]);});c.activeBuff=_fixBuffTime(c.activeBuff);c.potion=_fixBuffTime(c.potion);});}
     if(d.pet)S.pet=d.pet;
     if(d.pet2)S.pet2=d.pet2;
@@ -16376,6 +16377,7 @@ function _showUpdatePopup(newWorker){
     '</div>';
   document.body.appendChild(pop);
   document.getElementById('sw-update-ok').onclick=function(){
+    saveGame(); // 업데이트 전 반드시 저장
     if(newWorker)newWorker.postMessage({type:'SKIP_WAITING'});
     navigator.serviceWorker.addEventListener('controllerchange',function(){
       location.reload();
