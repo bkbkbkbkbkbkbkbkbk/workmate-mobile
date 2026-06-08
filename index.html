@@ -5203,24 +5203,12 @@ function _pushBackState(){
   history.pushState({wmBack:true},'','');
 }
 window.addEventListener('popstate',function(e){
-  // 설정/모달 등 열려있으면 닫기 (confirm-modal 자신은 제외)
-  var openModal=document.querySelector('.modal-bg.open:not(#confirm-modal)');
+  // 설정/모달 등 열려있으면 닫기
+  var openModal=document.querySelector('.modal-bg.open');
   if(openModal){openModal.remove();_pushBackState();return;}
-  // 이미 종료 확인창 열려있으면 무시
-  var cm=document.getElementById('confirm-modal');
-  if(cm&&cm.classList.contains('open')){_pushBackState();return;}
-  // 종료 확인
-  openConfirm(t('confirm_quit'),function(){
-    if(window.electronAPI){window.electronAPI.confirmQuit();return;}
-    saveGame();
-    history.back(); // 히스토리 끝이면 PWA가 닫힘
-  });
-  // 취소/배경클릭 시 state 복원
-  var cancelBtn=document.getElementById('confirm-cancel-btn');
-  cancelBtn.onclick=function(){closeConfirm();_pushBackState();};
-  document.getElementById('confirm-modal').onclick=function(ev){
-    if(ev.target.id==='confirm-modal'){closeConfirm();_pushBackState();}
-  };
+  // 바로 저장 후 종료
+  saveGame();
+  // history 끝이면 PWA가 닫힘 (추가 back 불필요)
 });
 // 앱 시작 시 history state 추가
 _pushBackState();
