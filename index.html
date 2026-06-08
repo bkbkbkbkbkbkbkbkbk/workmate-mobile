@@ -16100,55 +16100,74 @@ function _checkAndNotify(force){
   if(!('Notification' in window))return;
   if(Notification.permission!=='granted')return;
   var today=new Date().toISOString().slice(0,10);
-  // 오늘 이미 전체 체크했으면 스킵 (force=true이면 강제 실행)
-  if(!force && S.notifLastCheck===today)return;
-  S.notifLastCheck=today;
-  scheduleSave();
+
+  // ── 생일/D-Day/마감 알림은 하루 1회만 ──
+  var doPeriodicCheck=force||S.notifLastCheck!==today;
+  if(doPeriodicCheck){S.notifLastCheck=today;scheduleSave();}
 
   var now=new Date();now.setHours(0,0,0,0);
 
-  // ── 1. 생일 알림 (D-7 이내) ──
-  (S.ddays||[]).filter(function(d){return d.type==='birthday';}).forEach(function(d){
-    var tag='birthday_'+d.id;
-    if(_notifSentToday(tag))return;
-    var diff=nextYearlyDiff(d.date); // 다음 생일까지 남은 날
-    if(diff<=7){
-      var body=d.name+(diff===0?' — '+t('notif_today')
-        :' — '+t('notif_dday_left').replace('{0}',diff));
-      _sendNotif(t('notif_birthday_title'),body,tag);
-      _markNotifSent(tag);
-    }
-  });
+  if(doPeriodicCheck){
+    // ── 1. 생일 알림 (D-7 이내) ──
+    (S.ddays||[]).filter(function(d){return d.type==='birthday';}).forEach(function(d){
+      var tag='birthday_'+d.id;
+      if(_notifSentToday(tag))return;
+      var diff=nextYearlyDiff(d.date);
+      if(diff<=7){
+        var body=d.name+(diff===0?' — '+t('notif_today')
+          :' — '+t('notif_dday_left').replace('{0}',diff));
+        _sendNotif(t('notif_birthday_title'),body,tag);
+        _markNotifSent(tag);
+      }
+    });
 
-  // ── 2. D-Day 알림 (기념일 포함, D-7 이내 또는 D-Day 당일) ──
-  (S.ddays||[]).filter(function(d){return d.type!=='birthday';}).forEach(function(d){
-    var tag='dday_'+d.id;
-    if(_notifSentToday(tag))return;
-    var dt=new Date(d.date);dt.setHours(0,0,0,0);
-    var diff=Math.floor((dt-now)/86400000);
-    if(diff>=0&&diff<=7){
-      var body=d.name+(diff===0?' — '+t('notif_today')
-        :' — '+t('notif_dday_left').replace('{0}',diff));
-      _sendNotif(t('notif_dday_title'),body,tag);
-      _markNotifSent(tag);
-    }
-  });
+    // ── 2. D-Day 알림 (D-7 이내 또는 당일) ──
+    (S.ddays||[]).filter(function(d){return d.type!=='birthday';}).forEach(function(d){
+      var tag='dday_'+d.id;
+      if(_notifSentToday(tag))return;
+      var dt=new Date(d.date);dt.setHours(0,0,0,0);
+      var diff=Math.floor((dt-now)/86400000);
+      if(diff>=0&&diff<=7){
+        var body=d.name+(diff===0?' — '+t('notif_today')
+          :' — '+t('notif_dday_left').replace('{0}',diff));
+        _sendNotif(t('notif_dday_title'),body,tag);
+        _markNotifSent(tag);
+      }
+    });
 
-  // ── 3. 할일 마감 알림 (D-3 이내 또는 기한 초과) ──
-  (S.todos||[]).filter(function(t2){return !t2.done&&t2.date;}).forEach(function(t2){
-    var tag='todo_'+t2.id;
-    if(_notifSentToday(tag))return;
-    var dt=new Date(t2.date);dt.setHours(0,0,0,0);
-    var diff=Math.floor((dt-now)/86400000);
-    if(diff<=-1||diff<=3){
-      var statusStr=diff<0?t('notif_todo_overdue')
-        :diff===0?t('notif_today')
-        :t('notif_dday_left').replace('{0}',diff);
-      var body=t2.text+' — '+statusStr;
-      _sendNotif(t('notif_todo_title'),body,tag);
-      _markNotifSent(tag);
-    }
+    // ── 3. 할일 마감 알림 (D-3 이내 또는 기한 초과) ──
+    (S.todos||[]).filter(function(t2){return !t2.done&&t2.date;}).forEach(function(t2){
+      var tag='todo_'+t2.id;
+      if(_notifSentToday(tag))return;
+      var dt=new Date(t2.date);dt.setHours(0,0,0,0);
+      var diff=Math.floor((dt-now)/86400000);
+      if(diff<=-1||diff<=3){
+        var statusStr=diff<0?t('notif_todo_overdue')
+          :diff===0?t('notif_today')
+          :t('notif_dday_left').replace('{0}',diff);
+        var body=t2.text+' — '+statusStr;
+        _sendNotif(t('notif_todo_title'),body,tag);
+        _markNotifSent(tag);
+      }
+    });
+  }
+
+  // ── 4. 오늘 할일 요약 알림 (앱 열 때마다, 항상 실행) ──
+  var todayStr=today;
+  var todayTodos=(S.todos||[]).filter(function(t2){
+    if(t2.done)return false;
+    if(!t2.date)return true; // 날짜 없는 미완료 할일도 포함
+    return t2.date===todayStr;
   });
+  if(todayTodos.length>0){
+    var names=todayTodos.slice(0,5).map(function(t2){return '• '+t2.text;});
+    if(todayTodos.length>5)names.push('... 외 '+(todayTodos.length-5)+'개');
+    _sendNotif(
+      '📋 오늘 할일 '+todayTodos.length+'개',
+      names.join('\n'),
+      'today_todo_summary'
+    );
+  }
 }
 
 // ── 서비스워커 등록 + 업데이트 감지 ──
