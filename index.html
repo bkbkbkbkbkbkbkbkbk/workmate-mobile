@@ -14741,11 +14741,11 @@ function renderMemo(idx){
   }
   tabHTML+='<button onclick="addMemoTab()" style="padding:3px 8px;border-radius:8px;border:1.5px dashed var(--border2);background:transparent;color:var(--text3);font-size:11px;cursor:pointer">+</button></div>';
   tabHTML+='<input type="text" id="memo-title-inp" placeholder="메모 제목..." style="font-size:11px;font-weight:800;margin-bottom:5px;border-radius:8px;padding:3px 8px;width:100%;background:var(--surface);border:1.5px solid var(--border2);color:var(--text);font-family:Nunito,sans-serif;outline:none">';
-  tabHTML+='<div style="border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface)">'+
-  '<div id="ma-'+idx+'" contenteditable="true" spellcheck="false" style="height:130px;font-size:12px;overflow-y:auto;padding:6px 12px;color:var(--text);font-family:Nunito,sans-serif;outline:none;line-height:1.5;word-break:break-word"></div>'+
+  tabHTML+='<div style="border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--surface);flex:1;display:flex;flex-direction:column;min-height:130px">'+
+  '<div id="ma-'+idx+'" contenteditable="true" spellcheck="false" style="flex:1;font-size:12px;overflow-y:auto;padding:6px 12px;color:var(--text);font-family:Nunito,sans-serif;outline:none;line-height:1.5;word-break:break-word;min-height:130px"></div>'+
   '</div>';
   // [모바일] 메모 새 창 버튼 제거
-  return tabHTML;
+  return '<div style="display:flex;flex-direction:column;height:100%">'+tabHTML+'</div>';
 }
 function switchMemo(i){_saveMemoDOM();S.activeMemoIdx=i;if(S.toolTab==='memo')renderToolPanel();}
 function addMemoTab(){_saveMemoDOM();_memos.push({title:'메모 '+(_memos.length+1),content:''});S.activeMemoIdx=_memos.length-1;if(S.toolTab==='memo')renderToolPanel();scheduleSave();}
