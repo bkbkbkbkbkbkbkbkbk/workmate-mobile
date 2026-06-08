@@ -14415,9 +14415,13 @@ function renderTodo(cid){
       const overdue=t.date&&new Date(t.date)<new Date()?'color:var(--red)':'';
       const due=t.date?Math.floor((new Date(t.date)-new Date())/86400000):'';
       const dueStr=t.date?(' <span style="font-size:9px;'+overdue+'">'+t.date+(typeof due==='number'?'(D'+due+')':'')+'</span>'):'';
+      const bellIcon=t.notifOff
+        ?(S.notifEnabled?'<span style="font-size:11px;opacity:.35" title="알림 꺼짐">🔕</span>':'')
+        :(S.notifEnabled?'<span style="font-size:11px;opacity:.6" title="알림 켜짐">🔔</span>':'');
       return '<div class="todo-item">'+
         '<div class="todo-check" onclick="toggleTodo('+t.id+')"></div>'+
         '<div class="todo-text">'+t.text+dueStr+'</div>'+
+        (S.notifEnabled?'<button onclick="toggleTodoNotif('+t.id+')" style="background:none;border:none;cursor:pointer;padding:0 2px;font-size:11px;line-height:1" title="'+(t.notifOff?'알림 켜기':'알림 끄기')+'">'+(t.notifOff?'🔕':'🔔')+'</button>':'')+
         '<button onclick="editTodo('+t.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 2px" title="편집">✏</button>'+
         '<button onclick="removeTodo('+t.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px">×</button></div>';
     }).join('');
@@ -14501,6 +14505,13 @@ function todoMonthNav(dir){
   const next=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
   if(next>new Date().toISOString().slice(0,7))return;
   S.todoHistoryMonth=next;renderDoneTodosBody();
+}
+function toggleTodoNotif(id){
+  var todo=S.todos.find(function(t){return t.id===id;});
+  if(!todo)return;
+  todo.notifOff=!todo.notifOff;
+  scheduleSave();
+  if(S.toolTab==='todo')renderToolPanel();
 }
 function addTodo(cid){
   const i=document.getElementById('ti-'+cid);
@@ -16136,7 +16147,7 @@ function _checkAndNotify(force){
     });
 
     // ── 3. 할일 마감 알림 (D-3 이내 또는 기한 초과) ──
-    (S.todos||[]).filter(function(t2){return !t2.done&&t2.date;}).forEach(function(t2){
+    (S.todos||[]).filter(function(t2){return !t2.done&&t2.date&&!t2.notifOff;}).forEach(function(t2){
       var tag='todo_'+t2.id;
       if(_notifSentToday(tag))return;
       var dt=new Date(t2.date);dt.setHours(0,0,0,0);
@@ -16155,7 +16166,7 @@ function _checkAndNotify(force){
   // ── 4. 오늘 할일 요약 알림 (앱 열 때마다, 항상 실행) ──
   var todayStr=today;
   var todayTodos=(S.todos||[]).filter(function(t2){
-    if(t2.done)return false;
+    if(t2.done||t2.notifOff)return false;
     if(!t2.date)return true; // 날짜 없는 미완료 할일도 포함
     return t2.date===todayStr;
   });
