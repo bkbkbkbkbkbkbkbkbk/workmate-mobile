@@ -16388,7 +16388,8 @@ function _showUpdatePopup(newWorker){
 
 // Page Visibility API: 백그라운드 복귀 시 저장 + 알림 체크
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden){saveGame();_checkAndNotify();_fixAppHeight();}
+  if(document.hidden){saveGame();} // 백그라운드 전환 시 즉시 저장 (강종 대비)
+  else{saveGame();_checkAndNotify();_fixAppHeight();}
 });
 
 // ── iOS Safari 풀-투-리프레시 완전 차단 ──
@@ -16408,9 +16409,9 @@ document.addEventListener('visibilitychange', function(){
 
 // ── 뷰포트 변화 시 강제 리플로우 (iPad Stage Manager 대응) ──
 function _fixAppHeight(){
-  // dvh 단위가 즉시 갱신되도록 강제 리플로우 트리거
+  // dvh 단위가 즉시 갱신되도록 강제 리플로우 트리거 (display:none 대신 안전한 방식 사용)
   var app=document.getElementById('app');
-  if(app){app.style.display='none';app.offsetHeight;app.style.display='';}
+  if(app){void app.getBoundingClientRect();}
 }
 window.addEventListener('resize',_fixAppHeight);
 if(window.visualViewport){window.visualViewport.addEventListener('resize',_fixAppHeight);}
