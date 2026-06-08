@@ -15051,7 +15051,12 @@ function renderCal(){
     const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const isT=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;
     const _allTodos=[...S.todos,...(S.doneTodos||[])];
-    const dayTodos=_allTodos.filter(t=>t.date&&(t.dateEnd?ds>=t.date&&ds<=t.dateEnd:t.date===ds));
+    const dayTodos=_allTodos.filter(t=>{
+      const _d=t.date||(t.done?t.doneDate:null);
+      if(!_d)return false;
+      if(t.dateEnd)return ds>=_d&&ds<=t.dateEnd;
+      return _d===ds;
+    });
     const dayOutings=dayTodos.filter(t=>t.type==='outing');
     const dayRegTodos=dayTodos.filter(t=>t.type!=='outing');
     const dayDdays=_allDdays.filter(dd=>{const dt=new Date(dd.date);return dt.getDate()===d&&dt.getMonth()===m;});
