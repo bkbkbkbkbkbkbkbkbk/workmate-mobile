@@ -12998,6 +12998,14 @@ function addCharBtn(){S.shopSubtab='other';openShopModal();toast(t('char_shop_hi
 function toggleCharHidden(id){
   const c=[...S.characters,...S.npcs].find(x=>String(x.id)===String(id));
   if(!c)return;
+  // 숨기는 경우만 확인 팝업 (보이기는 바로 실행)
+  if(!c.hidden){
+    openConfirm(c.name+' 캐릭터를 방에서 숨길까요?',function(){_doToggleCharHidden(c);});
+    return;
+  }
+  _doToggleCharHidden(c);
+}
+function _doToggleCharHidden(c){
   c.hidden=!c.hidden;
   const room=document.getElementById('room');
   const isNpc=S.npcs.includes(c);
@@ -13014,6 +13022,13 @@ function toggleCharHidden(id){
 }
 function togglePetHidden(petKey){
   if(!S[petKey])return;
+  if(!S[petKey].hidden){
+    openConfirm(S[petKey].name+' 펫을 방에서 숨길까요?',function(){_doTogglePetHidden(petKey);});
+    return;
+  }
+  _doTogglePetHidden(petKey);
+}
+function _doTogglePetHidden(petKey){
   S[petKey].hidden=!S[petKey].hidden;
   const room=document.getElementById('room');
   const elId=petKey==='pet2'?'pet-el-2':'pet-el';
