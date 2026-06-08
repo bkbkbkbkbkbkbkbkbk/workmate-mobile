@@ -202,7 +202,7 @@ body.focus-mode.focus-locked #room-eye-btn::after{content:'🔒';position:absolu
 .ttab.active{background:rgba(108,99,255,.1);border-color:rgba(108,99,255,.5);color:var(--accent)}
 #main-content{display:flex;flex-direction:column;flex:1;min-height:0}
 #tool-area{display:flex;flex-direction:column;flex:1;min-height:0}
-#tool-panel{padding:10px;background:var(--bg2);flex:1;overflow-y:auto;min-height:0}
+#tool-panel{padding:10px;background:var(--bg2);flex:1;overflow-y:scroll;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
 .sub-tabs{display:flex;justify-content:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .stab{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
 .stab:hover{border-color:var(--accent)}
