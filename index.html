@@ -16279,79 +16279,118 @@ function _notifSentToday(tag){
   return _getNotifSent()[tag]===today;
 }
 
-// 메인 체크 함수 — 앱 열 때마다 호출
+// 메인 체크 함수 — 앱 열 때마다 호출 (하루 1회 요약 알림)
 function _checkAndNotify(force){
   if(!S.notifEnabled)return;
   if(!('Notification' in window))return;
   if(Notification.permission!=='granted')return;
   var today=new Date().toISOString().slice(0,10);
 
-  // ── 생일/D-Day/마감 알림은 하루 1회만 ──
-  var doPeriodicCheck=force||S.notifLastCheck!==today;
-  if(doPeriodicCheck){S.notifLastCheck=today;scheduleSave();}
+  // 하루 1회만 실행
+  var doCheck=force||S.notifLastCheck!==today;
+  if(!doCheck)return;
+  S.notifLastCheck=today;scheduleSave();
 
   var now=new Date();now.setHours(0,0,0,0);
 
-  if(doPeriodicCheck){
-    // ── 1. 생일 알림 (D-7 이내) ──
-    (S.ddays||[]).filter(function(d){return d.type==='birthday';}).forEach(function(d){
-      var tag='birthday_'+d.id;
-      if(_notifSentToday(tag))return;
-      var diff=nextYearlyDiff(d.date);
-      if(diff<=7){
-        var body=d.name+(diff===0?' — '+t('notif_today')
-          :' — '+t('notif_dday_left').replace('{0}',diff));
-        _sendNotif(t('notif_birthday_title'),body,tag);
-        _markNotifSent(tag);
-      }
-    });
-
-    // ── 2. D-Day 알림 (D-7 이내 또는 당일) ──
-    (S.ddays||[]).filter(function(d){return d.type!=='birthday';}).forEach(function(d){
-      var tag='dday_'+d.id;
-      if(_notifSentToday(tag))return;
-      var dt=new Date(d.date);dt.setHours(0,0,0,0);
-      var diff=Math.floor((dt-now)/86400000);
-      if(diff>=0&&diff<=7){
-        var body=d.name+(diff===0?' — '+t('notif_today')
-          :' — '+t('notif_dday_left').replace('{0}',diff));
-        _sendNotif(t('notif_dday_title'),body,tag);
-        _markNotifSent(tag);
-      }
-    });
-
-    // ── 3. 할일 마감 알림 (D-3 이내 또는 기한 초과) ──
-    (S.todos||[]).filter(function(t2){return !t2.done&&t2.date&&!t2.notifOff;}).forEach(function(t2){
-      var tag='todo_'+t2.id;
-      if(_notifSentToday(tag))return;
-      var dt=new Date(t2.date);dt.setHours(0,0,0,0);
-      var diff=Math.floor((dt-now)/86400000);
-      if(diff<=-1||diff<=3){
-        var statusStr=diff<0?t('notif_todo_overdue')
-          :diff===0?t('notif_today')
-          :t('notif_dday_left').replace('{0}',diff);
-        var body=t2.text+' — '+statusStr;
-        _sendNotif(t('notif_todo_title'),body,tag);
-        _markNotifSent(tag);
-      }
-    });
+  // ── 1. 생일 요약 알림 (D-7 이내) ──
+  var upcomingBirthdays=(S.ddays||[]).filter(function(d){
+    return d.type==='birthday'&&nextYearlyDiff(d.date)<=7;
+  });
+  if(upcomingBirthdays.length>0){
+    var bTag='summary_birthday_'+today;
+    if(!_notifSentToday(bTag)){
+      var bFirst=upcomingBirthdays[0];
+      var bDiff=nextYearlyDiff(bFirst.date);
+      var bBody=upcomingBirthdays.length===1
+        ?(bFirst.name+(bDiff===0?' — 오늘이에요! 🎉':' — '+bDiff+'일 후예요'))
+        :(bFirst.name+' 외 '+(upcomingBirthdays.length-1)+'명의 생일이 다가와요');
+      _sendNotif('🎂 곧 누군가의 생일이에요!',bBody,bTag);
+      _markNotifSent(bTag);
+    }
   }
 
-  // ── 4. 오늘 할일 요약 알림 (앱 열 때마다, 항상 실행) ──
-  var todayStr=today;
+  // ── 2. D-Day 요약 알림 (D-7 이내) ──
+  var upcomingDdays=(S.ddays||[]).filter(function(d){
+    if(d.type==='birthday')return false;
+    var dt=new Date(d.date);dt.setHours(0,0,0,0);
+    var diff=Math.floor((dt-now)/86400000);
+    return diff>=0&&diff<=7;
+  });
+  if(upcomingDdays.length>0){
+    var dTag='summary_dday_'+today;
+    if(!_notifSentToday(dTag)){
+      var dFirst=upcomingDdays[0];
+      var dDt=new Date(dFirst.date);dDt.setHours(0,0,0,0);
+      var dDiff=Math.floor((dDt-now)/86400000);
+      var dBody=upcomingDdays.length===1
+        ?(dFirst.name+(dDiff===0?' — 오늘이에요!':' — '+dDiff+'일 후예요'))
+        :(dFirst.name+' 외 '+(upcomingDdays.length-1)+'개 일정이 다가와요');
+      _sendNotif('📅 곧 다가오는 일정이 있어요!',dBody,dTag);
+      _markNotifSent(dTag);
+    }
+  }
+
+  // ── 3. 할일 요약 알림 ──
+  var todoNow=new Date();todoNow.setHours(0,0,0,0);
   var todayTodos=(S.todos||[]).filter(function(t2){
     if(t2.done||t2.notifOff)return false;
-    if(!t2.date)return true; // 날짜 없는 미완료 할일도 포함
-    return t2.date===todayStr;
+    return !t2.date||t2.date===today;
   });
-  if(todayTodos.length>0){
-    todayTodos.slice(0,7).forEach(function(t2,i){
+  var urgentTodos=(S.todos||[]).filter(function(t2){
+    if(t2.done||t2.notifOff||!t2.date)return false;
+    var dt=new Date(t2.date);dt.setHours(0,0,0,0);
+    var diff=Math.floor((dt-todoNow)/86400000);
+    return diff>0&&diff<=3;
+  });
+  var overdueTodos=(S.todos||[]).filter(function(t2){
+    if(t2.done||t2.notifOff||!t2.date)return false;
+    var dt=new Date(t2.date);dt.setHours(0,0,0,0);
+    return Math.floor((dt-todoNow)/86400000)<0;
+  });
+
+  // 기한 초과 (가장 긴급)
+  if(overdueTodos.length>0){
+    var oTag='summary_todo_overdue_'+today;
+    if(!_notifSentToday(oTag)){
       _sendNotif(
-        '📋 ' + t2.text,
-        t2.date ? (t2.date===todayStr ? '오늘 마감' : t2.date) : '할일',
-        'todo_item_'+t2.id
+        '🚨 기한이 지난 할 일이 있어요!',
+        overdueTodos.length+'개의 할 일 마감일이 지났어요',
+        oTag
       );
-    });
+      _markNotifSent(oTag);
+    }
+  }
+  // 오늘 마감
+  if(todayTodos.length>0){
+    var tTag='summary_todo_today_'+today;
+    if(!_notifSentToday(tTag)){
+      _sendNotif(
+        '📋 오늘 해야 할 일이 있어요!',
+        todayTodos.length===1
+          ?todayTodos[0].text+' — 오늘 마감이에요'
+          :todayTodos.length+'개의 할 일이 기다리고 있어요',
+        tTag
+      );
+      _markNotifSent(tTag);
+    }
+  }
+  // D-3 이내 마감 임박
+  if(urgentTodos.length>0){
+    var uTag='summary_todo_urgent_'+today;
+    if(!_notifSentToday(uTag)){
+      var uFirst=urgentTodos[0];
+      var uDt=new Date(uFirst.date);uDt.setHours(0,0,0,0);
+      var uDiff=Math.floor((uDt-todoNow)/86400000);
+      _sendNotif(
+        '⏰ 마감이 다가오는 할 일이 있어요!',
+        urgentTodos.length===1
+          ?(uFirst.text+' — '+uDiff+'일 후 마감이에요')
+          :(urgentTodos.length+'개의 할 일 마감이 다가오고 있어요'),
+        uTag
+      );
+      _markNotifSent(uTag);
+    }
   }
 }
 
