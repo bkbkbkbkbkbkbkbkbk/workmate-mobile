@@ -5203,10 +5203,13 @@ function _pushBackState(){
   history.pushState({wmBack:true},'','');
 }
 window.addEventListener('popstate',function(e){
-  // 설정/모달 등 열려있으면 닫기
-  var openModal=document.querySelector('.modal-bg.open');
+  // 설정/모달 등 열려있으면 닫기 (confirm-modal 자신은 제외)
+  var openModal=document.querySelector('.modal-bg.open:not(#confirm-modal)');
   if(openModal){openModal.remove();_pushBackState();return;}
-  // 종료 확인 — state를 먼저 push하지 않음
+  // 이미 종료 확인창 열려있으면 무시
+  var cm=document.getElementById('confirm-modal');
+  if(cm&&cm.classList.contains('open')){_pushBackState();return;}
+  // 종료 확인
   openConfirm(t('confirm_quit'),function(){
     if(window.electronAPI){window.electronAPI.confirmQuit();return;}
     saveGame();
