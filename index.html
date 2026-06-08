@@ -202,7 +202,8 @@ body.focus-mode.focus-locked #room-eye-btn::after{content:'🔒';position:absolu
 .ttab.active{background:rgba(108,99,255,.1);border-color:rgba(108,99,255,.5);color:var(--accent)}
 #main-content{display:flex;flex-direction:column;flex:1;min-height:0}
 #tool-area{display:flex;flex-direction:column;flex:1;min-height:0}
-#tool-panel{padding:10px;background:var(--bg2);flex:1;overflow-y:scroll;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+#tool-panel-wrap{flex:1;min-height:0;position:relative;overflow:hidden}
+#tool-panel{position:absolute;inset:0;padding:10px;background:var(--bg2);overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .sub-tabs{display:flex;justify-content:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .stab{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
 .stab:hover{border-color:var(--accent)}
@@ -331,7 +332,8 @@ body.focus-mode #focus-music-btn{display:flex!important}
   #room{aspect-ratio:1!important;width:100%!important}
   #tool-area{flex:1!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;border-left:1px solid var(--border)!important;min-width:0!important}
   #tool-tabs-wrap{flex-shrink:0!important}
-  #tool-panel{flex:1!important;overflow-y:auto!important;min-height:0!important}
+  #tool-panel-wrap{flex:1!important;min-height:0!important}
+  #tool-panel{overflow-y:auto!important}
   /* 모달 너비 */
   .modal-box{width:360px!important;max-width:calc(100vw - 32px)!important}
   #char-modal,#shop-modal,#couple-modal{width:360px!important}
@@ -664,7 +666,7 @@ input[type=color]::-webkit-color-swatch{border:2.5px solid rgba(255,255,255,.85)
 </div><!-- /tool-tabs-scroll -->
 <button class="ttab-arrow" id="ttab-right" onclick="document.getElementById('tool-tabs-scroll').scrollBy({left:80,behavior:'smooth'})">›</button>
 </div><!-- /tool-tabs-wrap -->
-<div id="tool-panel"></div>
+<div id="tool-panel-wrap"><div id="tool-panel"></div></div>
 </div><!-- /#tool-area -->
 </div><!-- /#main-content -->
 
