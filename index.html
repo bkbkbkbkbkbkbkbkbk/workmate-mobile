@@ -1790,7 +1790,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   bindRoomBgDrag(); _initShopModalDrag(); _initCoupleModalDrag(); _initCharModalDrag();
   startClock(); setInterval(checkBirthdays,60000); setTimeout(checkHolidayReward,1500);
 
-  const hasSave=loadGame();
+  // 리셋 직후 재로드 감지 → 저장 방지 플래그 제거 후 무조건 신규 시작
+  var _justReset=false;
+  try{_justReset=sessionStorage.getItem('wm_just_reset')==='1';sessionStorage.removeItem('wm_just_reset');}catch(e){}
+  const hasSave=_justReset?false:loadGame();
   applyLang(S.lang);
   // 알림 체크 (로드 완료 후 500ms 딜레이)
   setTimeout(function(){_checkAndNotify();},500);
@@ -12450,6 +12453,7 @@ function _doResetData(){
   window.removeEventListener('beforeunload',_beforeUnloadHandler);
   localStorage.removeItem(SAVE_KEY);
   localStorage.removeItem(SAVE_MEDIA_KEY);
+  try{sessionStorage.setItem('wm_just_reset','1');}catch(e){}
   location.reload();
 }
 // ── LZString (lz-string 1.5.0 minified)
