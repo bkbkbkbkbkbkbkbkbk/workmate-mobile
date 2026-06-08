@@ -1589,6 +1589,7 @@ const SAVE_KEY='myroom_v1';
 const SAVE_MEDIA_KEY='myroom_media_v1';
 let _saveTimer=null;
 let _mediaDirty=false;
+let _gameReady=false; // loadGame+afterBoot 완료 전 saveGame 방지용
 // 다크/라이트 모드 색상 기억용 (prev localStorage 읽기 제거)
 var _savedDarkAccent='#7c83fd',_savedDarkBg='#1a1a2e';
 var _savedLightAccent='#6c63ff',_savedLightBg='#f5f0ff';
@@ -1613,6 +1614,7 @@ function scheduleSave(){
 var _beforeUnloadHandler=function(){saveGame();if(_mediaDirty)_saveMediaData();};
 window.addEventListener('beforeunload',_beforeUnloadHandler);
 function saveGame(){
+  if(!_gameReady)return; // 게임 초기화 전 저장 방지 (데이터 덮어쓰기 버그 방지)
   try{
     const accentEl=document.getElementById('accent-picker');
     const bgEl=document.getElementById('bg-picker');
@@ -1997,6 +1999,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   // [모바일] opacity-slider hidden — 값만 유지, UI 업데이트 스킵
 
   function afterBoot(){
+    _gameReady=true; // 이 시점부터 saveGame 허용
     updateGoldDisplay();
     renderRoom(); renderToolPanel(); startLoops(); checkBirthdays(); updateRoomCounter(); setupRoomBgDropZone(); _initFloorAlerts();
     setTimeout(updateXPBar,100);
