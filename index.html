@@ -1555,7 +1555,7 @@ const S={
   timerSec:0, timerTotal:25*60, timerRunning:false,
   swSec:0, swRunning:false, timerChimeVol:0.35, timerChimeIdx:10, timerChimeOpen:false,
   pomSec:25*60, pomRunning:false, pomMode:'work', pomWorkMin:25, pomBreakMin:5,
-  pomWorkSec:0, pomWorkDate:'', workworkMode:false, workworkPrograms:[],
+  pomWorkSec:0, pomWorkDate:'', workworkMode:false, workworkPrograms:[], customMenus:[],
   nextFloatId:1, roomGifts:[], activeMemoIdx:0,
   roomBg:'room0', roomBgLayer:'a', ownedBgs:['room0'], ownedHairVariants:{}, customBgDataUrls:{}, roomCustomImages:[], floorCustomImages:{},
   alwaysOnTop:true, opacity:100,
@@ -1628,7 +1628,7 @@ function saveGame(){
       characters:S.characters, npcs:S.npcs, pet:S.pet, pet2:S.pet2, pet2Unlocked:S.pet2Unlocked,
       ddays:S.ddays, todos:S.todos, doneTodos:S.doneTodos, inventory:S.inventory, ledger:S.ledger,
       roomBg:S.roomBg, ownedBgs:S.ownedBgs, ownedHairVariants:S.ownedHairVariants, memos:_memos, alwaysOnTop:S.alwaysOnTop, opacity:S.opacity, ytUrl:S.ytUrl, ytRepeat:S.ytRepeat, ytVol:S.ytVol, ytFavorites:S.ytFavorites, ytTutorialShown:S.ytTutorialShown, calTutorialShown:S.calTutorialShown, ddayTutorialShown:S.ddayTutorialShown, timerTutorialShown:S.timerTutorialShown, floorTutorialShown:S.floorTutorialShown, bgPresetTutorialShown:S.bgPresetTutorialShown, accTutDone:S.accTutDone,
-      bgmTab:S.bgmTab, bgmIdx:S.bgmIdx, bgmVol:S.bgmVol, bgmShuffle:S.bgmShuffle, bgmLoop:S.bgmLoop, bgmPlaying:_bgmPlaying, autoEat:S.autoEat, bgPresetUnlocked:S.bgPresetUnlocked, outfitPresetUnlocked:S.outfitPresetUnlocked, pomWorkMin:S.pomWorkMin, pomBreakMin:S.pomBreakMin, pomWorkSec:S.pomWorkSec, pomWorkDate:S.pomWorkDate, timerChimeIdx:S.timerChimeIdx, workworkMode:S.workworkMode, workworkPrograms:S.workworkPrograms, gameSavedAt:Date.now(),
+      bgmTab:S.bgmTab, bgmIdx:S.bgmIdx, bgmVol:S.bgmVol, bgmShuffle:S.bgmShuffle, bgmLoop:S.bgmLoop, bgmPlaying:_bgmPlaying, autoEat:S.autoEat, bgPresetUnlocked:S.bgPresetUnlocked, outfitPresetUnlocked:S.outfitPresetUnlocked, pomWorkMin:S.pomWorkMin, pomBreakMin:S.pomBreakMin, pomWorkSec:S.pomWorkSec, pomWorkDate:S.pomWorkDate, timerChimeIdx:S.timerChimeIdx, workworkMode:S.workworkMode, workworkPrograms:S.workworkPrograms, customMenus:S.customMenus, gameSavedAt:Date.now(),
       todoRewardDate:S.todoRewardDate, todoRewardCount:S.todoRewardCount, roomGifts:S.roomGifts, petGiftLastTime:S.petGiftLastTime, holidayClaimedDates:S.holidayClaimedDates, tutorialDone:S.tutorialDone, inflationLevel:S.inflationLevel, customBgConfigs:S.customBgConfigs, customBgFilters:S.customBgFilters, bulkFoodUnlocked:S.bulkFoodUnlocked, unlockedFloors:S.unlockedFloors, currentFloor:S.currentFloor, floorBgs:S.floorBgs,
       notifEnabled:S.notifEnabled, notifLastCheck:S.notifLastCheck,
       accentColor:curAccent, bgColor:curBg,
@@ -1704,6 +1704,7 @@ function loadGame(){
     if(d.workworkMode!=null)S.workworkMode=!!d.workworkMode;
     if(Array.isArray(d.workworkPrograms))S.workworkPrograms=d.workworkPrograms;
     else if(d.workworkProgram)S.workworkPrograms=[d.workworkProgram]; // 레거시 단일 문자열 마이그레이션
+    if(Array.isArray(d.customMenus))S.customMenus=d.customMenus;
     if(Array.isArray(d.bgPresets))S.bgPresets=d.bgPresets; // 구버전 호환 (myroom_media_v1 로 덮어씀)
     if(d.bgPresetUnlocked)S.bgPresetUnlocked=true;
     if(d.outfitPresetUnlocked)S.outfitPresetUnlocked=true;
@@ -12857,7 +12858,7 @@ function _mobileApplySyncData(){
         'todoRewardDate','todoRewardCount','roomGifts','holidayClaimedDates','tutorialDone',
         'inflationLevel','customBgConfigs','customBgFilters','bulkFoodUnlocked',
         'unlockedFloors','currentFloor','floorBgs','accentColor','bgColor',
-        'darkAccent','darkBg','lightAccent','lightBg','memos','workworkMode','workworkPrograms'];
+        'darkAccent','darkBg','lightAccent','lightBg','memos','workworkMode','workworkPrograms','customMenus'];
       var out={};
       saveKeys.forEach(function(k){if(data[k]!==undefined)out[k]=data[k];});
       out.gameSavedAt=Date.now();
@@ -16100,6 +16101,12 @@ var MENU_LIST=[
   {n:'그릭요거트볼',en:'Greek Yogurt Bowl',ja:'ギリシャヨーグルトボウル',zh:'希腊酸奶碗',c:'기타',col:'#7c3aed'},
   {n:'포케',en:'Poke Bowl',ja:'ポキボウル',zh:'夏威夷拌饭',c:'기타',col:'#7c3aed'}
 ];
+function _allMenus(){
+  var customs=(S.customMenus||[]).map(function(m){
+    return {n:m.n,en:m.n,ja:m.n,zh:m.n,c:m.c,col:_CAT_COLORS[m.c]||'var(--accent)',custom:true};
+  });
+  return MENU_LIST.concat(customs);
+}
 function _menuName(m){
   var lang=S&&S.lang||'ko';
   if(lang==='en')return m.en||m.n;
@@ -16119,7 +16126,7 @@ function openMenuRoulette(){
     +'<div style="width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
     +'<div><div style="font-size:16px;font-weight:900;color:var(--text)">'+t('roulette_title')+'</div>'
-    +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">'+t('roulette_menus',MENU_LIST.length)+'</div></div>'
+    +'<div id="roulette-count" style="font-size:10px;color:var(--text3);margin-top:1px">'+t('roulette_menus',_allMenus().length)+'</div></div>'
     +'<button onclick="document.getElementById(\'menu-roulette-modal\').remove()" style="background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--text3)">×</button>'
     +'</div>'
     // 카테고리 필터 (가로 스크롤 + 화살표)
@@ -16140,6 +16147,24 @@ function openMenuRoulette(){
     +'<div class="slot-window"><div class="slot-reel" id="slot-reel"></div></div>'
     +'<div id="slot-result" style="text-align:center;min-height:28px;margin-bottom:12px"></div>'
     +'<button onclick="spinRoulette()" id="spin-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);color:#fff;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.5px">'+t('roulette_spin')+'</button>'
+    // 내 메뉴 관리 토글
+    +'<button onclick="_toggleMyMenuPanel()" id="my-menu-toggle-btn" style="width:100%;margin-top:10px;padding:9px;border:1.5px dashed var(--border2);border-radius:12px;background:transparent;color:var(--text3);font-size:12px;font-weight:700;cursor:pointer">＋ 내 메뉴 추가 / 관리</button>'
+    +'<div id="my-menu-panel" style="display:none;margin-top:8px;border:1.5px solid var(--border2);border-radius:14px;padding:12px;background:var(--surface)">'
+      // 추가 폼
+      +'<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">'
+        +'<input id="my-menu-input" type="text" maxlength="20" placeholder="메뉴 이름" style="flex:1;min-width:0;padding:7px 10px;border:1.5px solid var(--border2);border-radius:10px;background:var(--bg2);color:var(--text);font-size:13px;outline:none">'
+        +'<select id="my-menu-cat" style="padding:7px 6px;border:1.5px solid var(--border2);border-radius:10px;background:var(--bg2);color:var(--text);font-size:12px;cursor:pointer">'
+          +'<option value="한식">한식</option>'
+          +'<option value="분식">분식</option>'
+          +'<option value="일식">일식</option>'
+          +'<option value="중식">중식</option>'
+          +'<option value="양식">양식</option>'
+          +'<option value="기타">기타</option>'
+        +'</select>'
+        +'<button onclick="addCustomMenu()" style="padding:7px 12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">추가</button>'
+      +'</div>'
+      +'<div id="my-menu-list" style="max-height:160px;overflow-y:auto"></div>'
+    +'</div>'
     +'</div>'; // roulette-sheet
   pop.onclick=function(e){if(e.target===pop)pop.remove();};
   document.body.appendChild(pop);
@@ -16165,7 +16190,7 @@ function setRouletteCat(cat){
     b.style.color=active?'#fff':'var(--text3)';  // 선택 시 흰 글씨
   });
   // 메뉴 수 업데이트
-  var filtered=cat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===cat;});
+  var filtered=cat==='전체'?_allMenus():_allMenus().filter(function(m){return m.c===cat;});
   var cnt=document.getElementById('roulette-count');
   if(cnt)cnt.textContent=(cat==='전체'?'':('['+_rcatLabel(cat)+'] '))+t('roulette_menus',filtered.length);
   // 결과 초기화
@@ -16175,7 +16200,7 @@ function setRouletteCat(cat){
 
 function _buildReel(pickedMenu){
   var reel=document.getElementById('slot-reel');if(!reel)return;
-  var pool=_rouletteCat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===_rouletteCat;});
+  var pool=_rouletteCat==='전체'?_allMenus():_allMenus().filter(function(m){return m.c===_rouletteCat;});
   // 58개 랜덤 + 마지막에 결과
   var items=[];
   for(var i=0;i<58;i++)items.push(pool[Math.floor(Math.random()*pool.length)]);
@@ -16197,7 +16222,7 @@ function spinRoulette(){
   var resultEl=document.getElementById('slot-result');
   if(!reel||!btn)return;
   // 카테고리 필터 적용
-  var pool=_rouletteCat==='전체'?MENU_LIST:MENU_LIST.filter(function(m){return m.c===_rouletteCat;});
+  var pool=_rouletteCat==='전체'?_allMenus():_allMenus().filter(function(m){return m.c===_rouletteCat;});
   if(!pool.length){toast('선택한 카테고리에 메뉴가 없어요.');return;}
   _rouletteSpinning=true;
   btn.disabled=true;btn.style.opacity='.5';
@@ -16223,6 +16248,63 @@ function spinRoulette(){
       +t('roulette_result').replace('{0}','<span style="font-size:16px">'+_menuName(pickedMenu)+'</span>')
       +'</div>';
   },3300);
+}
+
+// ── 내 메뉴 관리 ──
+function _toggleMyMenuPanel(){
+  var panel=document.getElementById('my-menu-panel');
+  var btn=document.getElementById('my-menu-toggle-btn');
+  if(!panel)return;
+  var open=panel.style.display==='none';
+  panel.style.display=open?'block':'none';
+  if(btn)btn.textContent=open?'▲ 내 메뉴 관리 닫기':'＋ 내 메뉴 추가 / 관리';
+  if(open)_renderMyMenuList();
+}
+function _renderMyMenuList(){
+  var list=document.getElementById('my-menu-list');
+  if(!list)return;
+  var customs=S.customMenus||[];
+  if(!customs.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text3);font-size:11px;padding:10px 0">아직 추가한 메뉴가 없어요</div>';
+    return;
+  }
+  list.innerHTML=customs.map(function(m,i){
+    var col=_CAT_COLORS[m.c]||'var(--accent)';
+    return'<div style="display:flex;align-items:center;gap:6px;padding:5px 2px;border-bottom:1px solid var(--border)">'
+      +'<span style="flex:1;font-size:12px;color:var(--text);font-weight:700">'+m.n+'</span>'
+      +'<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+col+'22;color:'+col+';font-weight:800">'+(_rcatLabel(m.c))+'</span>'
+      +'<button onclick="deleteCustomMenu('+i+')" style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1">✕</button>'
+      +'</div>';
+  }).join('');
+}
+function addCustomMenu(){
+  var inp=document.getElementById('my-menu-input');
+  var catEl=document.getElementById('my-menu-cat');
+  if(!inp||!catEl)return;
+  var name=inp.value.trim();
+  if(!name){toast('메뉴 이름을 입력해주세요!');return;}
+  if(!S.customMenus)S.customMenus=[];
+  if(S.customMenus.length>=30){toast('커스텀 메뉴는 최대 30개까지 추가할 수 있어요.');return;}
+  S.customMenus.push({n:name,c:catEl.value});
+  inp.value='';
+  saveGame();
+  _renderMyMenuList();
+  // 메뉴 수 업데이트
+  var cnt=document.getElementById('roulette-count');
+  var all=_allMenus();
+  var filtered=_rouletteCat==='전체'?all:all.filter(function(m){return m.c===_rouletteCat;});
+  if(cnt)cnt.textContent=(_rouletteCat==='전체'?'':('['+_rcatLabel(_rouletteCat)+'] '))+t('roulette_menus',filtered.length);
+}
+function deleteCustomMenu(idx){
+  if(!S.customMenus||idx<0||idx>=S.customMenus.length)return;
+  S.customMenus.splice(idx,1);
+  saveGame();
+  _renderMyMenuList();
+  // 메뉴 수 업데이트
+  var cnt=document.getElementById('roulette-count');
+  var all=_allMenus();
+  var filtered=_rouletteCat==='전체'?all:all.filter(function(m){return m.c===_rouletteCat;});
+  if(cnt)cnt.textContent=(_rouletteCat==='전체'?'':('['+_rcatLabel(_rouletteCat)+'] '))+t('roulette_menus',filtered.length);
 }
 
 // ─────────────────────────────────────
