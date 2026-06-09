@@ -12865,6 +12865,7 @@ function _mobileApplySyncData(){
     }
     var modal=document.getElementById('mobile-sync-warn-modal');if(modal)modal.remove();
     toast(t('sync_success'));
+    _gameReady=false; // 리로드 전 saveGame 차단 (가져온 데이터 덮어쓰기 방지)
     setTimeout(function(){location.reload();},1200);
   }catch(e){toast(t('sync_fail'));}
 }
