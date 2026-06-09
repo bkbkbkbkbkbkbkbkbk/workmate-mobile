@@ -12759,8 +12759,11 @@ function _mobileHandleQRResult(raw){
 function _mobileQRFromGallery(){
   var input=document.createElement('input');
   input.type='file';input.accept='image/*';
+  input.style.cssText='position:fixed;top:-999px;left:-999px;opacity:0;pointer-events:none';
   input.onchange=function(e){
-    var file=e.target.files[0];if(!file)return;
+    var file=e.target.files[0];
+    if(input.parentNode)input.parentNode.removeChild(input);
+    if(!file)return;
     var reader=new FileReader();
     reader.onload=function(ev){
       var img=new Image();
@@ -12774,7 +12777,6 @@ function _mobileQRFromGallery(){
           var code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});
           if(code){_mobileHandleQRResult(code.data);}
           else{
-            // 반전 시도
             var code2=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'invertFirst'});
             if(code2){_mobileHandleQRResult(code2.data);}
             else{toast(t('sync_fail'));}
@@ -12785,6 +12787,7 @@ function _mobileQRFromGallery(){
     };
     reader.readAsDataURL(file);
   };
+  document.body.appendChild(input);
   input.click();
 }
 function _mobileStopQRScan(){
@@ -12795,8 +12798,11 @@ function _mobileStopQRScan(){
 function mobileImportFromJSON(){
   var input=document.createElement('input');
   input.type='file';input.accept='.json,application/json';
+  input.style.cssText='position:fixed;top:-999px;left:-999px;opacity:0;pointer-events:none';
   input.onchange=function(e){
-    var file=e.target.files[0];if(!file)return;
+    var file=e.target.files[0];
+    if(input.parentNode)input.parentNode.removeChild(input);
+    if(!file)return;
     var reader=new FileReader();
     reader.onload=function(ev){
       try{var data=JSON.parse(ev.target.result);_mobileShowSyncWarn(data,'json');}
@@ -12804,6 +12810,7 @@ function mobileImportFromJSON(){
     };
     reader.readAsText(file);
   };
+  document.body.appendChild(input);
   input.click();
 }
 function _mobileShowSyncWarn(data,type){
